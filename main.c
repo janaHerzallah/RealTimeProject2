@@ -3,9 +3,21 @@
 #include "constants.h"
 #include "functions.h"
 #include "customer_header"
+#include "semphores.h"
+
+
+void create_all_semaphores();
+void create_STM_semaphore();
+
+
+void clean_all_semaphores();
+void clean_STM_semaphore();
 
 Config c;
 int main(int argc, char** argv){
+
+
+    create_all_semaphores();
 
 
     // print items area start
@@ -37,6 +49,7 @@ int main(int argc, char** argv){
 
    /***********************************************************************************************************************************************************/
 
+
     pid_t customer_pid = fork();
 
     if(customer_pid < 0){
@@ -48,10 +61,43 @@ int main(int argc, char** argv){
     }
 
 
-//good
+    wait(NULL);
 
-
+    clean_all_semaphores();
 
 
     return 0;
+}
+
+
+void create_all_semaphores(){
+    create_STM_semaphore();
+
+}
+
+void create_STM_semaphore(){
+    sem_t *stm_sem = sem_open(Pick_key, O_CREAT, 0777, 0);
+    if(stm_sem == SEM_FAILED){
+        perror("STM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(stm_sem) < 0){
+        perror("STM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(stm_sem);
+}
+
+void clean_all_semaphores(){
+    clean_STM_semaphore();
+
+}
+
+void clean_STM_semaphore(){
+    if(sem_unlink(Pick_key) < 0){
+        perror("STM Unlink Error\n");
+        exit(-1);
+    }
 }

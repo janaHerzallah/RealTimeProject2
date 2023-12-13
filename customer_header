@@ -40,10 +40,12 @@ struct Customer {
 #include "constants.h" // Config c
 #include "header.h" // Config c
 #include "shared_memories.h"
+#include "semphores.h"
 
  Config c;
+static int totalCustomers = 0;
 
-
+/** Random number generator --------------------------------------------------------------------------------------*/
 int generate_random_number() {
     // Generate a random number between 1 and MAX_ITEMS_IN_CART
     return (rand() % MAX_ITEMS_IN_CART) + 1;
@@ -63,11 +65,16 @@ int generate_customers_per_interval() {
     return (rand() % c.customers_per_interval) + 1;
 }
 
+/** Random number generator end ----------------------------------------------------------------------------------*/
+
+
 void pick_up_items(struct Customer *customer, Item *shared_items) {
+
+
+
     srand((unsigned int)time(NULL) + customer->id);
 
-    // Wait for the mutex
-    sem_wait(mutex);
+    printf(" \n \niam in a pick_up_items()   my id is %d \n \n \n", customer->id);
 
     printf("Customer %d is picking up items:\n", customer->id);
 
@@ -87,7 +94,7 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
         if (allItemsZero) {
             // All items have quantity = 0, break the loop
-            sem_post(mutex);
+            sem_post(pick_up_items_mutex);
             printf("No more items to pick. Customer %d finished picking up items.\n", customer->id);
             return;
         }
@@ -98,7 +105,7 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
         } while (shared_items[random_index].quantity <= 0);
 
         // Print the contents of shared memory
-        printf("Contents of Shared Memory before picking:\n");
+        printf("\n Contents of Shared Memory before picking:\n");
 
         for (int i = 0; i < num_items; ++i) {
             printf( "%s , %d ,%0.2f\n", shared_items[i].name, shared_items[i].quantity, shared_items[i].price);
@@ -111,23 +118,25 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
         printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
         // Release the mutex
-        sem_post(mutex);
+
+
     }
 
     printf("Customer %d finished picking up items.\n", customer->id);
 }
 
 
-void fill_cart( struct Customer *customer) {
+void fill_cart(struct Customer *customer) {
+    printf("i am inside fill_cart() \n \n");
 
-    printf("i am inside fill_cart() \n");
-
+    // Create the shared memory segment for items
     int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
+    // Attach to the shared memory segment
     Item *shared_items = (Item *)shmat(shmid, NULL, 0);
     if (shared_items == (Item *)-1) {
         perror("shmat");
@@ -137,33 +146,26 @@ void fill_cart( struct Customer *customer) {
     // Initialize shared memory with initial data
     memcpy(shared_items, items, num_items * sizeof(Item));
 
-    // Create semaphore
-    mutex = sem_open("/mutex", O_CREAT | O_EXCL, 0666, 1);
-    if (mutex == SEM_FAILED) {
-        if (errno == EEXIST) {
-            // Handle case where semaphore already exists
-            printf("Semaphore already exists.\n");
-        } else {
-            perror("sem_open");
-            exit(EXIT_FAILURE);
-        }
-    }
+    // Acquire semaphore for picking up items
+    pick_up_items_mutex = get_semaphore(Pick_key);
+    lock_sem(pick_up_items_mutex);
 
+    // Critical section starts here
+    customer->id = ++totalCustomers; // Increment totalCustomers and assign ID
+    customer->num_items = 0;
+    printf("Customer %d is picking up items:\n", customer->id);
 
-    // critical section area -----------------------------------------------------------------------------------------
-    int totalCustomers = 0;
-
-
-
-    pick_up_items(&customer, shared_items);
+    pick_up_items(customer, shared_items);
 
     // Simulate shopping time
-    int randomshopping_time = generate_shopping_time();
+    int random_shopping_time = generate_shopping_time();
+    sleep(random_shopping_time);
 
-    sleep(randomshopping_time);
+    // Critical section ends here
 
-    totalCustomers++;
-
+    // Release semaphore
+    unlock_sem(pick_up_items_mutex);
+    sem_close(pick_up_items_mutex);
 
     // Detach from shared memory
     if (shmdt(shared_items) == -1) {
@@ -172,17 +174,11 @@ void fill_cart( struct Customer *customer) {
     }
 
     // Remove shared memory segment
+    // Note: This should be done when you are sure no other process will need it.
     if (shmctl(shmid, IPC_RMID, NULL) == -1) {
         perror("shmctl");
         exit(EXIT_FAILURE);
     }
-
-    // Close and unlink the semaphore
-    sem_close(mutex);
-    sem_unlink("/mutex");
-
-    // critical section area end -------------------------------------------------------------------------------------
-
 }
 
 
