@@ -7,6 +7,9 @@
 
 
 
+
+
+
 void create_all_shared_memories();
 void create_STM();
 void create_CNM();
@@ -19,11 +22,14 @@ void clean_CNM();
 void create_all_semaphores();
 void create_STM_semaphore();
 void create_CNM_semaphore();
+void create_cashier_semaphore();
 
 
 void clean_all_semaphores();
 void clean_STM_semaphore();
 void clean_CNM_semaphore();
+void clean_cashier_semaphore();
+
 
 Config c;
 int main(int argc, char** argv){
@@ -63,6 +69,7 @@ int main(int argc, char** argv){
     create_all_shared_memories();
 
 
+/*
 
     pid_t arr_customers_pid[5];
 
@@ -81,8 +88,27 @@ int main(int argc, char** argv){
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
+*/
 
 
+     // create cashier process
+
+        pid_t cashiers[5];
+
+        for(int i = 0; i < 5; i++){
+            cashiers[i] = fork();
+            if(cashiers[i] < 0){
+                perror("Error: Unable to fork customer process.\n");
+                exit(EXIT_FAILURE);
+            }
+            else if(cashiers[i] == 0){
+                execlp("./cashier", "./cashier", NULL);
+            }
+        }
+
+        for(int i = 0; i < 5; i++) {
+            waitpid(cashiers[i], NULL, 0);
+        }
 
     clean_all_semaphores();
     clean_all_shared_memories();
@@ -139,6 +165,7 @@ void create_CNM() {
     }
 
     shared_data->totalCustomers = 0;
+    shared_data->totalCashiers= 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -191,7 +218,24 @@ void clean_STM(){
 void create_all_semaphores(){
     create_STM_semaphore();
     create_CNM_semaphore();
+    create_cashier_semaphore();
 
+
+}
+
+void create_cashier_semaphore(){
+    sem_t *cashier_sem = sem_open(total_cashiers_key, O_CREAT, 0777, 0);
+    if(cashier_sem == SEM_FAILED){
+        perror("Cashier Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cashier_sem) < 0){
+        perror("Cashier Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cashier_sem);
 
 }
 
@@ -231,6 +275,7 @@ void create_CNM_semaphore(){
 void clean_all_semaphores(){
     clean_STM_semaphore();
     clean_CNM_semaphore();
+    clean_cashier_semaphore();
 
 }
 
@@ -244,6 +289,15 @@ void clean_STM_semaphore(){
 void clean_CNM_semaphore(){
     if(sem_unlink(total_customers_key ) < 0){
         perror("CNM Unlink Error\n");
+        exit(-1);
+    }
+
+
+}
+
+void clean_cashier_semaphore(){
+    if(sem_unlink(total_cashiers_key ) < 0){
+        perror("Cashier Unlink Error\n");
         exit(-1);
     }
 }

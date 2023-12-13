@@ -1,6 +1,6 @@
 #ifndef CUSTOMERS_HEADER
 #define CUSTOMERS_HEADER
-
+#define MAX_QUEUE_SIZE 20
 #define MAX_ITEMS_IN_CART 10
 #define MAX_SHOPPING_TIME 10
 
@@ -34,7 +34,9 @@ struct Customer {
 } ;
 
 
+
 /** functions starts ****************************************************************************************/
+
 
 #include "functions.h" // num_items of all , items array
 #include "constants.h" // Config c
@@ -42,7 +44,7 @@ struct Customer {
 #include "shared_memories.h"
 #include "semphores.h"
 
- Config c;
+Config c;
 static int totalCustomers = 0;
 void increment_total_customers();
 int get_total_customers();
@@ -243,6 +245,8 @@ void increment_total_customers() {
         exit(EXIT_FAILURE);
     }
 }
+
+
 
 
 

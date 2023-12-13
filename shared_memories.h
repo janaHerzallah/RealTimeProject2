@@ -10,6 +10,7 @@
 #define ITM_SMKEY 0x1333// for items shared memory
 #define CUS_NUM_KEY 0x1235
 
+
 #define MAX_LINE_LENGTH 100
 
 struct items_shared_memory{
@@ -22,6 +23,7 @@ struct items_shared_memory{
 
 typedef struct {
     int totalCustomers;
+    int totalCashiers;
 } SharedData;
 
 typedef struct items_shared_memory* ISM;
