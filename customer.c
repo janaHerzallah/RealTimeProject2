@@ -7,9 +7,12 @@ void print_customer_data(const struct Customer *customer);
 void fill_cart( struct Customer *customer);
 struct Customer customer_info;
 extern Config c;  // Declare or include the Config structure
+extern Item items[MAX_LINE_LENGTH];
+extern int num_items;
 
 int main(int argc, char** argv ) {
 
+    read_items("supermarket_items.txt");
     c = read_config("config.txt");
 
 
@@ -37,12 +40,8 @@ void fill_data(){
     // Put the current time as id for the new person
     customer_info.id = getpid();
     customer_info.num_items = 0;
-
-    printf("iam inside fill_data() 2 \n");
-
     customer_info.shopping_time= generate_shopping_time();
 
-    printf("iam inside fill_data() 3 \n");
 
 
     // The Patience for the person
@@ -59,10 +58,12 @@ void fill_data(){
     }
 
 
-    printf("before print_customer_data() \n");
-    print_customer_data(&customer_info);
+
+
 
     fill_cart(&customer_info);
+
+    print_customer_data(&customer_info);
 
 
 }
@@ -91,71 +92,3 @@ void print_customer_data(const struct Customer *customer) {
             printf("Unknown\n");
     }
 }
-
-void fill_cart( struct Customer *customer) {
-
-    printf("i am inside fill_cart() \n");
-
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
-    if (shared_items == (Item *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // Initialize shared memory with initial data
-    memcpy(shared_items, items, num_items * sizeof(Item));
-
-    // Create semaphore
-    mutex = sem_open("/mutex", O_CREAT | O_EXCL, 0666, 1);
-    if (mutex == SEM_FAILED) {
-        if (errno == EEXIST) {
-            // Handle case where semaphore already exists
-            printf("Semaphore already exists.\n");
-        } else {
-            perror("sem_open");
-            exit(EXIT_FAILURE);
-        }
-    }
-
-
-    // critical section area -----------------------------------------------------------------------------------------
-    int totalCustomers = 0;
-
-
-
-    pick_up_items(&customer, shared_items);
-
-    // Simulate shopping time
-    int randomshopping_time = generate_shopping_time();
-
-    sleep(randomshopping_time);
-
-    totalCustomers++;
-
-
-    // Detach from shared memory
-    if (shmdt(shared_items) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    // Remove shared memory segment
-    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
-
-    // Close and unlink the semaphore
-    sem_close(mutex);
-    sem_unlink("/mutex");
-
-    // critical section area end -------------------------------------------------------------------------------------
-
-}
-
