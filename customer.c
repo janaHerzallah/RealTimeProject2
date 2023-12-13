@@ -18,15 +18,13 @@ int main(int argc, char** argv ) {
 
 
 
-     fill_data();  // Populate customer_info with data
+    fill_data();  // Populate customer_info with data
 
     printf("\n \n");
     print_customer_data(&customer_info);
     printf("\n \n");
 
-    printf("before send_customer_message \n");
     send_customer_message(&customer_info);
-    printf("after send_customer_message \n");
 
     exit(0);
 
@@ -77,10 +75,13 @@ void fill_data(){
 
 
 void print_customer_data(const struct Customer *customer) {
+
+    printf("customer with id %d info is : \n \n",customer->id);
+
     printf("Customer ID: %d\n", customer->id);
     printf("Number of Items: %d\n", customer->num_items);
     printf("Shopping Time: %d\n", customer->shopping_time);
-    printf("Patience Degree: ");
+    printf("Patience Degree: \n ");
 
     switch (customer->patience_degree) {
         case LOW:
@@ -99,7 +100,7 @@ void print_customer_data(const struct Customer *customer) {
             printf("Unknown\n");
     }
 
-    printf("Items in Cart:\n");
+    printf("Items in Cart: ");
     for (int i = 0; i < customer->num_items; ++i) {
         printf(" %s ", items[customer->cart[i]].name);
     }

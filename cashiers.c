@@ -89,4 +89,4 @@ void receive_and_process_messages(int cashier_id) {
 
     }
 
-    }
+}

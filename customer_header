@@ -174,11 +174,9 @@ void fill_cart(struct Customer *customer) {
 
 void send_customer_message(struct Customer *customer) {
 
-    printf(" i am inside send_customer_message \n");
 
     int queue = get_queue(C_KEY);
 
-    printf(" i am inside send_customer_message after get_queue \n");
     customerQueue customer_data;
     customer_data.customer_id = customer->id;
     customer_data.item_count = customer->num_items;
@@ -186,21 +184,19 @@ void send_customer_message(struct Customer *customer) {
 
 
     // mutex code
-    printf(" before mutex code of sending  \n");
 
     customers_total_mutex = get_semaphore(total_cashiers_key);
 
     lock_sem(customers_total_mutex);
 
-   /* increase_cashier_queue_size(cashier_id);
-    int size = get_cashier_queue_size(cashier_id);
-    */
+    /* increase_cashier_queue_size(cashier_id);
+     int size = get_cashier_queue_size(cashier_id);
+     */
 
-    printf("inside the mutex code of sending  \n");
 
     sleep(4);
 
-  //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
+    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 
     //fflush(stdout); // Flush the output buffer to ensure immediate display
 
