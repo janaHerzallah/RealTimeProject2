@@ -1,0 +1,188 @@
+#ifndef CUSTOMERS_HEADER
+#define CUSTOMERS_HEADER
+
+#define MAX_ITEMS_IN_CART 10
+#define MAX_SHOPPING_TIME 10
+
+/* End Thresholds */
+#define CREATION_THRESHOLD 200 // The max number of peoples that we can generate
+#define UNSERVED_THRESHOLD 120
+#define UNHAPPY_THRESHOLD 20
+#define SATISFIED_THRESHOLD 50
+/* End Thresholds */
+
+#define SATISFIED_RATIO 85 // 85% SATISFIED AND 15% UNHAPPY IN THE END RESULT
+
+
+// Person leaving of stay depend on his patience
+enum PatienceDegree {LOW, MEDIUM, HIGH, VERY_HIGH};
+
+// The person end status
+enum END{CREATION, UNSERVED, UNHAPPY, SATISFIED};
+
+// For change the size of the queue
+enum STEP{INCREMENT, DECREMENT};
+
+
+
+struct Customer {
+    int id;
+    int num_items;
+    int shopping_time;
+    int cart[MAX_ITEMS_IN_CART];
+    enum PatienceDegree patience_degree;
+} ;
+
+
+/** functions starts ****************************************************************************************/
+
+#include "functions.h" // num_items of all , items array
+#include "constants.h" // Config c
+#include "header.h" // Config c
+#include "shared_memories.h"
+
+
+
+int generate_random_number() {
+    // Generate a random number between 1 and MAX_ITEMS_IN_CART
+    return (rand() % MAX_ITEMS_IN_CART) + 1;
+}
+
+// Function to generate a random shopping time
+int generate_shopping_time() {
+    // Generate a random shopping time between 1 and MAX_SHOPPING_TIME
+    return (rand() % c.shopping_time_max) + 1;
+}
+
+// Function to generate a random number of customers each interval
+int generate_customers_per_interval() {
+    // Generate a random number of customers between 1 and customerPerInterval
+    return (rand() % c.customers_per_interval) + 1;
+}
+
+void pick_up_items(struct Customer *customer, Item *shared_items) {
+    srand((unsigned int)time(NULL) + customer->id);
+
+    // Wait for the mutex
+    sem_wait(mutex);
+
+    printf("Customer %d is picking up items:\n", customer->id);
+
+    // Generate and print a random number between 1 and MAX_ITEMS_IN_CART
+    int random_number = generate_random_number();
+    printf("Random Number: %d ... customer %d \n", random_number, customer->id);
+
+    for (int i = 0; i < random_number; ++i) {
+        // Check if all items have quantity = 0
+        int allItemsZero = 1;
+        for (int j = 0; j < num_items; ++j) {
+            if (shared_items[j].quantity > 0) {
+                allItemsZero = 0;
+                break;
+            }
+        }
+
+        if (allItemsZero) {
+            // All items have quantity = 0, break the loop
+            sem_post(mutex);
+            printf("No more items to pick. Customer %d finished picking up items.\n", customer->id);
+            return;
+        }
+
+        int random_index;
+        do {
+            random_index = rand() % num_items;
+        } while (shared_items[random_index].quantity <= 0);
+
+        // Print the contents of shared memory
+        printf("Contents of Shared Memory before picking:\n");
+
+        for (int i = 0; i < num_items; ++i) {
+            printf( "%s , %d ,%0.2f\n", shared_items[i].name, shared_items[i].quantity, shared_items[i].price);
+        }
+
+
+        shared_items[random_index].quantity--;
+        customer->cart[i] = random_index;
+        customer->num_items++;
+
+        printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
+        // Release the mutex
+        sem_post(mutex);
+    }
+
+    printf("Customer %d finished picking up items.\n", customer->id);
+}
+
+
+void fill_cart( struct Customer *customer) {
+
+    printf("i am inside fill_cart() \n");
+
+    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
+    if (shared_items == (Item *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize shared memory with initial data
+    memcpy(shared_items, items, num_items * sizeof(Item));
+
+    // Create semaphore
+    mutex = sem_open("/mutex", O_CREAT | O_EXCL, 0666, 1);
+    if (mutex == SEM_FAILED) {
+        if (errno == EEXIST) {
+            // Handle case where semaphore already exists
+            printf("Semaphore already exists.\n");
+        } else {
+            perror("sem_open");
+            exit(EXIT_FAILURE);
+        }
+    }
+
+
+    // critical section area -----------------------------------------------------------------------------------------
+    int totalCustomers = 0;
+
+
+
+    pick_up_items(&customer, shared_items);
+
+    // Simulate shopping time
+    int randomshopping_time = generate_shopping_time();
+
+    sleep(randomshopping_time);
+
+    totalCustomers++;
+
+
+    // Detach from shared memory
+    if (shmdt(shared_items) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+    // Remove shared memory segment
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+
+    // Close and unlink the semaphore
+    sem_close(mutex);
+    sem_unlink("/mutex");
+
+    // critical section area end -------------------------------------------------------------------------------------
+
+}
+
+
+
+#endif
+

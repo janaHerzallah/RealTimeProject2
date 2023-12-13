@@ -40,5 +40,15 @@ Config read_config(const char *filename);
  Item items[MAX_LINE_LENGTH];
 
 
+ // customer area ---------------------------------------------------------------------------------------------------------
+
+int elapseTime = 0;
+
+Config c;  // Declare or include the Config structure
+sem_t *mutex;
+
+
+// customer area end -----------------------------------------------------------------------------------------------------
+
 
 #endif
