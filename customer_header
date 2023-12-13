@@ -44,6 +44,8 @@ struct Customer {
 
  Config c;
 static int totalCustomers = 0;
+void increment_total_customers();
+int get_total_customers();
 
 /** Random number generator --------------------------------------------------------------------------------------*/
 int generate_random_number() {
@@ -146,7 +148,7 @@ void fill_cart(struct Customer *customer) {
     lock_sem(pick_up_items_mutex);
 
     // Critical section starts here
-    customer->id = ++totalCustomers; // Increment totalCustomers and assign ID
+    customer->id = get_total_customers(); // Increment totalCustomers and assign ID
     customer->num_items = 0;
     printf("Customer %d is picking up items:\n", customer->id);
 
@@ -172,7 +174,74 @@ void fill_cart(struct Customer *customer) {
 
 }
 
+int get_total_customers() {
+    int shmid = shmget(CUS_NUM_KEY, sizeof(SharedData), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
 
+    SharedData *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    customers_total_mutex = get_semaphore(total_customers_key);
+
+    lock_sem(customers_total_mutex);
+
+
+    int total_cus = shared_data->totalCustomers;
+
+    unlock_sem(customers_total_mutex);
+    close_semaphore(customers_total_mutex);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+    return total_cus;
+}
+
+void increment_total_customers() {
+    // Get the shared memory ID
+    int shmid = shmget(CUS_NUM_KEY, sizeof(SharedData), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    // Attach to the shared memory
+    SharedData *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // Acquire the semaphore before modifying shared memory
+    sem_t *customers_total_mutex = get_semaphore(total_customers_key);
+
+    lock_sem(customers_total_mutex);
+
+    // Increment the totalCustomers value
+    shared_data->totalCustomers++;
+
+    // Release the semaphore
+    unlock_sem(customers_total_mutex);
+    close_semaphore(customers_total_mutex);
+
+    // Detach from shared memory
+    if (shmdt(shared_data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+}
 
 
 

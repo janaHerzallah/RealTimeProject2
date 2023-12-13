@@ -12,6 +12,7 @@ extern int num_items;
 
 int main(int argc, char** argv ) {
 
+    increment_total_customers();
     read_items("supermarket_items.txt");
     c = read_config("config.txt");
 
@@ -25,6 +26,7 @@ int main(int argc, char** argv ) {
     printf("\n \n");
 
 
+    exit(0);
 
 
 
