@@ -30,6 +30,7 @@ struct Customer {
     int num_items;
     int shopping_time;
     int cart[MAX_ITEMS_IN_CART];
+    float total_price;
     enum PatienceDegree patience_degree;
 } ;
 
@@ -180,7 +181,7 @@ void send_customer_message(struct Customer *customer) {
     customerQueue customer_data;
     customer_data.customer_id = customer->id;
     customer_data.item_count = customer->num_items;
-
+    customer_data.total_price = customer->total_price;
 
 
     // mutex code

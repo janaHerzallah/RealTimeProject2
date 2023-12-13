@@ -12,7 +12,7 @@ void fill_data();
 void print_cashier_data2( );
 void receive_and_process_messages(int cashier_id);
 extern Config c;  // Declare or include the Config structure
-
+int number_of_people_served = 0;
 
 
 int main(int argc, char** argv ) {
@@ -81,9 +81,11 @@ void receive_and_process_messages(int cashier_id) {
                     exit(-1);
                 }
 
-                printf("Cashier %d received customer %d ", cashier_id, customer_data.customer_id);
+                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
+                number_of_people_served++;
+                printf("Number of people served : %d\n", number_of_people_served);
             }
         }
 

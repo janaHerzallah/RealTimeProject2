@@ -9,6 +9,7 @@ struct Customer customer_info;
 extern Config c;  // Declare or include the Config structure
 extern Item items[MAX_LINE_LENGTH];
 extern int num_items;
+float calculate_total_price(const struct Customer *customer );
 
 int main(int argc, char** argv ) {
 
@@ -24,7 +25,11 @@ int main(int argc, char** argv ) {
     print_customer_data(&customer_info);
     printf("\n \n");
 
-    send_customer_message(&customer_info);
+
+
+    send_customer_message(&customer_info); // Send the customer message to the queue
+
+
 
     exit(0);
 
@@ -65,9 +70,9 @@ void fill_data(){
 
 
 
-
-
     fill_cart(&customer_info);
+
+    customer_info.total_price = calculate_total_price(&customer_info);
 
 
 
@@ -100,10 +105,26 @@ void print_customer_data(const struct Customer *customer) {
             printf("Unknown\n");
     }
 
+    float total = 0.0;
     printf("Items in Cart: ");
     for (int i = 0; i < customer->num_items; ++i) {
         printf(" %s ", items[customer->cart[i]].name);
+        total += items[customer->cart[i]].price;
+
+
     }
 
+    printf("\nTotal Price: $%.2f\n", total);
 
+
+}
+
+
+float calculate_total_price(const struct Customer *customer ) {
+    float total = 0.0;
+
+    for (int i = 0; i < customer->num_items; ++i) {
+        total += items[customer->cart[i]].price;
+    }
+    return total;
 }

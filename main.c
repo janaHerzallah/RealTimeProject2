@@ -50,9 +50,7 @@ int main(int argc, char** argv){
 
    /***********************************************************************************************************************************************************/
 
-    // Print configuration variables
 
-    //Config config = read_config("config.txt");
 
     c =  read_config("config.txt");
 
@@ -70,7 +68,7 @@ int main(int argc, char** argv){
 
 
 
-  /*  pid_t arr_customers_pid[5];
+   pid_t arr_customers_pid[5];
 
     for(int i = 0; i < 5; i++){
         arr_customers_pid[i] = fork();
@@ -88,6 +86,7 @@ int main(int argc, char** argv){
     }
 
 
+   /*
 
      // create cashier process
 
@@ -108,15 +107,8 @@ int main(int argc, char** argv){
             waitpid(cashiers[i], NULL, 0);
         }*/
 
-        pid_t customer = fork();
 
-        if(customer < 0){
-            perror("Error: Unable to fork customer process.\n");
-            exit(EXIT_FAILURE);
-        }
-        else if(customer == 0){
-            execlp("./customer", "./customer", NULL);
-        }
+
 
         pid_t cashier = fork();
 
@@ -130,8 +122,6 @@ int main(int argc, char** argv){
 
 
 
-
-       waitpid(customer, NULL, 0);
         waitpid(cashier, NULL, 0);
 
     clean_all_semaphores();

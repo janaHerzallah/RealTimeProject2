@@ -13,6 +13,7 @@ struct queue {
     int item_count; // Number of items in the message
     Item items[MAX_ITEMS]; // Array of items
     char customer_name[50];
+    float total_price;
 };
 
 typedef struct queue customerQueue;
