@@ -12,12 +12,11 @@ extern int num_items;
 
 int main(int argc, char** argv ) {
 
-    increment_total_customers();
+
     read_items("supermarket_items.txt");
     c = read_config("config.txt");
 
 
-     printf("I'm the customer  with the id:%d \n", getpid());
 
      fill_data();  // Populate customer_info with data
 
@@ -96,4 +95,11 @@ void print_customer_data(const struct Customer *customer) {
         default:
             printf("Unknown\n");
     }
+
+    printf("Items in Cart:\n");
+    for (int i = 0; i < customer->num_items; ++i) {
+        printf("\n %s", items[customer->cart[i]].name);
+    }
+
+
 }

@@ -77,7 +77,7 @@ int main(int argc, char** argv){
         }
     }
 
-    for(int i = 0; i < 3; i++) {
+    for(int i = 0; i < 5; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 

@@ -76,7 +76,6 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
     srand((unsigned int)time(NULL) + customer->id);
 
-    printf(" \n \niam in a pick_up_items()   my id is %d \n \n \n", customer->id);
 
     printf("Customer %d is picking up items:\n", customer->id);
 
@@ -129,7 +128,6 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
 
 void fill_cart(struct Customer *customer) {
-    printf("i am inside fill_cart() \n \n");
 
     int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), 0666);
     if (shmid == -1) {
@@ -147,13 +145,16 @@ void fill_cart(struct Customer *customer) {
     pick_up_items_mutex = get_semaphore(Pick_key);
     lock_sem(pick_up_items_mutex);
 
+    increment_total_customers(); // Increment totalCustomers and assign ID
+
     // Critical section starts here
     customer->id = get_total_customers(); // Increment totalCustomers and assign ID
     customer->num_items = 0;
-    printf("Customer %d is picking up items:\n", customer->id);
 
+    printf("\n----------------------------------------\n");
     pick_up_items(customer, shared_items);
 
+    printf("\n----------------------------------------\n");
     // Simulate shopping time
     int random_shopping_time = generate_shopping_time();
     sleep(random_shopping_time);
