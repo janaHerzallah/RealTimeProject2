@@ -129,22 +129,17 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 void fill_cart(struct Customer *customer) {
     printf("i am inside fill_cart() \n \n");
 
-    // Create the shared memory segment for items
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    // Attach to the shared memory segment
     Item *shared_items = (Item *)shmat(shmid, NULL, 0);
     if (shared_items == (Item *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
     }
-
-    // Initialize shared memory with initial data
-    memcpy(shared_items, items, num_items * sizeof(Item));
 
     // Acquire semaphore for picking up items
     pick_up_items_mutex = get_semaphore(Pick_key);
@@ -173,12 +168,8 @@ void fill_cart(struct Customer *customer) {
         exit(EXIT_FAILURE);
     }
 
-    // Remove shared memory segment
-    // Note: This should be done when you are sure no other process will need it.
-    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
-        perror("shmctl");
-        exit(EXIT_FAILURE);
-    }
+    return;
+
 }
 
 

@@ -6,6 +6,14 @@
 #include "semphores.h"
 
 
+
+void create_all_shared_memories();
+void create_STM();
+
+void clean_all_shared_memories();
+void clean_STM();
+
+
 void create_all_semaphores();
 void create_STM_semaphore();
 
@@ -16,8 +24,6 @@ void clean_STM_semaphore();
 Config c;
 int main(int argc, char** argv){
 
-
-    create_all_semaphores();
 
 
     // print items area start
@@ -49,6 +55,10 @@ int main(int argc, char** argv){
 
    /***********************************************************************************************************************************************************/
 
+    create_all_semaphores();
+    create_all_shared_memories();
+
+
 
     pid_t customer_pid = fork();
 
@@ -64,11 +74,41 @@ int main(int argc, char** argv){
     wait(NULL);
 
     clean_all_semaphores();
-
+    clean_all_shared_memories();
 
     return 0;
 }
 
+
+void create_all_shared_memories(){
+    create_STM();
+
+}
+void create_STM(){
+
+
+    // Create the shared memory segment for items
+    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
+    if (shared_items == (Item *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // Initialize shared memory with item data
+    memcpy(shared_items, items, num_items * sizeof(Item));
+
+    // Detach from the shared memory
+    if (shmdt(shared_items) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+}
 
 void create_all_semaphores(){
     create_STM_semaphore();
@@ -88,6 +128,24 @@ void create_STM_semaphore(){
         exit(-1);
     }
     sem_close(stm_sem);
+}
+
+void clean_all_shared_memories(){
+    clean_STM();
+
+}
+void clean_STM(){
+    // Remove the shared memory segment for items
+    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void clean_all_semaphores(){
