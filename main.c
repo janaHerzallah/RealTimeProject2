@@ -4,8 +4,7 @@
 #include "functions.h"
 #include "customer_header"
 
-
-
+Config c;
 int main(int argc, char** argv){
 
 
@@ -26,7 +25,7 @@ int main(int argc, char** argv){
     // Print configuration variables
 
     //Config config = read_config("config.txt");
-    Config c;
+
     c =  read_config("config.txt");
 
     print_config(c); // Print the configuration variables funtion from functions.h

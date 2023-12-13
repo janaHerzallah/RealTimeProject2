@@ -27,8 +27,6 @@ typedef struct {
     int num_cashiers;
 } Config;
 
-// Declare the config variable as extern
-extern Config config;
 
 // Function to read config from file
 Config read_config(const char *filename);
@@ -44,7 +42,6 @@ Config read_config(const char *filename);
 
 int elapseTime = 0;
 
-Config c;  // Declare or include the Config structure
 sem_t *mutex;
 
 
