@@ -24,6 +24,9 @@ int main(int argc, char** argv ) {
     print_customer_data(&customer_info);
     printf("\n \n");
 
+    printf("before send_customer_message \n");
+    send_customer_message(&customer_info);
+    printf("after send_customer_message \n");
 
     exit(0);
 
@@ -98,7 +101,7 @@ void print_customer_data(const struct Customer *customer) {
 
     printf("Items in Cart:\n");
     for (int i = 0; i < customer->num_items; ++i) {
-        printf("\n %s", items[customer->cart[i]].name);
+        printf(" %s ", items[customer->cart[i]].name);
     }
 
 

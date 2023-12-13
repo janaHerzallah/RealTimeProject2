@@ -69,9 +69,8 @@ int main(int argc, char** argv){
     create_all_shared_memories();
 
 
-/*
 
-    pid_t arr_customers_pid[5];
+  /*  pid_t arr_customers_pid[5];
 
     for(int i = 0; i < 5; i++){
         arr_customers_pid[i] = fork();
@@ -84,18 +83,17 @@ int main(int argc, char** argv){
         }
     }
 
-    for(int i = 0; i < 5; i++) {
+    for(int i = 0; i <5; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
-*/
 
 
      // create cashier process
 
-        pid_t cashiers[5];
+        pid_t cashiers[3];
 
-        for(int i = 0; i < 5; i++){
+        for(int i = 0; i <3; i++){
             cashiers[i] = fork();
             if(cashiers[i] < 0){
                 perror("Error: Unable to fork customer process.\n");
@@ -106,9 +104,35 @@ int main(int argc, char** argv){
             }
         }
 
-        for(int i = 0; i < 5; i++) {
+        for(int i = 0; i < 3; i++) {
             waitpid(cashiers[i], NULL, 0);
+        }*/
+
+        pid_t customer = fork();
+
+        if(customer < 0){
+            perror("Error: Unable to fork customer process.\n");
+            exit(EXIT_FAILURE);
         }
+        else if(customer == 0){
+            execlp("./customer", "./customer", NULL);
+        }
+
+        pid_t cashier = fork();
+
+        if(cashier < 0){
+            perror("Error: Unable to fork customer process.\n");
+            exit(EXIT_FAILURE);
+        }
+        else if(cashier == 0){
+            execlp("./cashier", "./cashier", NULL);
+        }
+
+
+
+
+       waitpid(customer, NULL, 0);
+        waitpid(cashier, NULL, 0);
 
     clean_all_semaphores();
     clean_all_shared_memories();

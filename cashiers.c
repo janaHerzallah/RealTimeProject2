@@ -1,13 +1,16 @@
 #include "header.h"
 #include "constants.h"
 #include "cashier_header.h"
-
+#include "semphores.h"
+#include "message_queues.h"
+#include "shared_memories.h"
 
 
 
 Cashier cashier_info ;
 void fill_data();
 void print_cashier_data2( );
+void receive_and_process_messages(int cashier_id);
 extern Config c;  // Declare or include the Config structure
 
 
@@ -18,6 +21,8 @@ int main(int argc, char** argv ) {
 
 
     fill_data();  // Populate customer_info with data
+
+    receive_and_process_messages(cashier_info.id);
 
 
     exit(0);
@@ -58,3 +63,30 @@ void print_cashier_data2( ) {
 
 }
 
+
+
+void receive_and_process_messages(int cashier_id) {
+    int queue = get_queue(C_KEY);
+    customerQueue customer_data;
+
+    // Receive and process messages
+    while (1) {
+        while (1){
+            // Check if the queue is not empty
+            if (!check_queue_empty(queue)){
+
+                // Receive customer data from the queue
+                if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
+                    perror("Queue receive error\n");
+                    exit(-1);
+                }
+
+                printf("Cashier %d received customer %d ", cashier_id, customer_data.customer_id);
+                printf(" with %d items\n", customer_data.item_count
+                );
+            }
+        }
+
+    }
+
+    }

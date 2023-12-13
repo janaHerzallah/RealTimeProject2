@@ -8,6 +8,7 @@ const char *TIMER_SEMAPHORE = "1254";
 const char *Pick_key = "Picking_mutex";
 const char *total_customers_key = "total_customers";
 const char *total_cashiers_key = "total_cashiers";
+const char *cashier_waiting_key = "cashier_waiting";
 
 sem_t* pick_up_items_mutex; // Semaphore for picking up items in customers header
 sem_t* customers_total_mutex; // Semaphore for picking up items in customers header
