@@ -105,19 +105,19 @@ int main(int argc, char** argv){
     if(cashier1 == 0){
         execlp("./cashier", "cashier", "1", NULL);
     }
-    usleep(200000);
+    sleep(1);
 
     pid_t cashier2 = fork();
     if(cashier2 == 0){
         execlp("./cashier", "cashier", "2", NULL);
     }
-    usleep(200000);
+    sleep(1);
 
     pid_t cashier3 = fork();
     if(cashier3 == 0){
         execlp("./cashier", "cashier", "3", NULL);
     }
-
+    sleep(1);
 
    pid_t arr_customers_pid[3];
 
@@ -130,6 +130,8 @@ int main(int argc, char** argv){
         else if(arr_customers_pid[i] == 0){
             execlp("./customer", "./customer", NULL);
         }
+        usleep(200000);
+        usleep(200000);
     }
 
     for(int i = 0; i <3; i++) {
@@ -137,10 +139,7 @@ int main(int argc, char** argv){
     }
 
 
-
-
-
-
+    sleep(40);
 
     if (kill(cashier1, SIGTERM) == -1) {
         perror("Error sending SIGTERM");

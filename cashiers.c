@@ -26,16 +26,6 @@ int main(int argc, char** argv ) {
 
     c = read_config("config.txt");
 
-
-    if (argc < 2){
-        perror("args less than 2\n");
-        exit(-1);
-    }
-
-    int cashier_id = atoi(argv[1]); // Assuming the first argument is customer ID
-   // cashier_info.id = cashier_id;
-
-
     fill_data();  // Populate customer_info with data
 
 
@@ -64,8 +54,6 @@ int main(int argc, char** argv ) {
     }
 
 
-
-
     exit(0);
 
 
@@ -74,30 +62,9 @@ int main(int argc, char** argv ) {
 
 void fill_data(){
 
-
-
- /*   // Acquire the semaphore before modifying shared memory
-    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
-
-
-    lock_sem(cashier_mutex);
-
     increment_total_cashiers();
 
-    // Release the semaphore
-    unlock_sem(cashier_mutex);
-
-    // Close the semaphore
-    close_semaphore(cashier_mutex);
-*/
-    // Detach from shared memory
-
-
-
     srand(time(NULL));   // for making random choices for each customer
-
-
-     increment_total_cashiers();
     cashier_info.id = get_total_cashiers();
     cashier_info.numPeopleInQueue = 0;
     cashier_info.happiness = 20;
@@ -139,9 +106,16 @@ void receive_and_process_messages(int cashier_id) {
                     exit(-1);
                 }
 
-                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
+                printf("Cashier 1 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
+
+                sleep(cashier_info.scanningTime);
+
+                printf("Cashier 1 is done selling custermor %d \n",customer_data.customer_id);
+
+                printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
+
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
             }
@@ -167,10 +141,16 @@ void receive_and_process_messages2(int cashier_id) {
                     perror("Queue receive error\n");
                     exit(-1);
                 }
+                printf("Cashier 2 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
 
-                printf("Cashier 2 received customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
+                sleep(cashier_info.scanningTime);
+
+                printf("Cashier 2 is done selling custermor %d \n",customer_data.customer_id);
+
+                printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
+
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
             }
@@ -192,15 +172,23 @@ void receive_and_process_messages3(int cashier_id) {
             if (!check_queue_empty(queue)){
 
 
+
                 // Receive customer data from the queue
                 if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
                     perror("Queue receive error\n");
                     exit(-1);
                 }
 
-                printf("Cashier 3 received customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
+                printf("Cashier 3 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
+
+                sleep(cashier_info.scanningTime);
+
+                printf("Cashier 3 is done selling custermor %d \n",customer_data.customer_id);
+
+                printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
+
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
             }
@@ -212,10 +200,10 @@ void receive_and_process_messages3(int cashier_id) {
 
 float score( ){
 
-    float queueSizeWeight = 0.5;
-    float totalItemsWeight = 0.25;
-    float scanningSpeedWeight = 0.25;
-    float behaviorScoreWeight = 0.25;
+    float queueSizeWeight = -0.5; // Negative because a larger queue is worse
+    float totalItemsWeight = -0.25; // Negative because more items generally mean slower processing
+    float scanningSpeedWeight = 0.25; // Positive, assuming higher value means faster scanning
+    float behaviorScoreWeight = 0.25; // Positive, higher happiness score is better
 
     // Calculate the weighted score
     int score = (cashier_info.numPeopleInQueue * queueSizeWeight) +
