@@ -31,6 +31,17 @@ void clean_CNM_semaphore();
 void clean_cashier_semaphore();
 
 
+void create_all_message_queues();
+void create_Q1();
+void create_Q2();
+void create_Q3();
+
+void clean_all_message_queues();
+void clean_O1();
+void clean_Q2();
+void clean_Q3();
+
+
 Config c;
 int main(int argc, char** argv){
 
@@ -316,3 +327,69 @@ void clean_cashier_semaphore(){
     }
 }
 /** semaphores area end *************************************************************************************************************************/
+
+/** message queues area start *************************************************************************************************************************/
+
+
+void create_all_message_queues(){
+    create_Q1();
+    create_Q2();
+    create_Q3();
+
+}
+
+void create_Q1(){
+    if ( msgget(C_KEY, IPC_CREAT | 0777) == -1 ) {
+        perror("OQ Create Error\n");
+        exit(-1);
+    }
+}
+void create_Q2(){
+    if ( msgget(C_KEY2, IPC_CREAT | 0777) == -1 ) {
+        perror("OQ Create Error\n");
+        exit(-1);
+    }
+}
+
+void create_Q3(){
+    if ( msgget(C_KEY3, IPC_CREAT | 0777) == -1 ) {
+        perror("OQ Create Error\n");
+        exit(-1);
+    }
+}
+
+void clean_all_message_queues(){
+    clean_O1();
+    clean_Q2();
+    clean_Q3();
+
+}
+
+void clean_O1(){
+    int queue;
+    if ( (queue = msgget(C_KEY, IPC_CREAT | 0777)) == -1 ) {
+        perror("OQ Get Error\n");
+        exit(-1);
+    }
+    msgctl(queue, IPC_RMID, 0);/* remove */
+}
+
+void clean_Q2(){
+    int queue;
+    if ( (queue = msgget(C_KEY2, IPC_CREAT | 0777)) == -1 ) {
+        perror("OQ Get Error\n");
+        exit(-1);
+    }
+    msgctl(queue, IPC_RMID, 0);/* remove */
+}
+
+void clean_Q3(){
+    int queue;
+    if ( (queue = msgget(C_KEY3, IPC_CREAT | 0777)) == -1 ) {
+        perror("OQ Get Error\n");
+        exit(-1);
+    }
+    msgctl(queue, IPC_RMID, 0);/* remove */
+}
+
+/** message queues area end *************************************************************************************************************************/

@@ -92,3 +92,59 @@ void receive_and_process_messages(int cashier_id) {
     }
 
 }
+
+void receive_and_process_messages2(int cashier_id) {
+    int queue = get_queue(C_KEY2);
+    customerQueue customer_data;
+
+    // Receive and process messages
+    while (1) {
+        while (1){
+            // Check if the queue is not empty
+            if (!check_queue_empty(queue)){
+
+                // Receive customer data from the queue
+                if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
+                    perror("Queue receive error\n");
+                    exit(-1);
+                }
+
+                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
+                printf(" with %d items\n", customer_data.item_count
+                );
+                number_of_people_served++;
+                printf("Number of people served : %d\n", number_of_people_served);
+            }
+        }
+
+    }
+
+}
+
+void receive_and_process_messages3(int cashier_id) {
+    int queue = get_queue(C_KEY3);
+    customerQueue customer_data;
+
+    // Receive and process messages
+    while (1) {
+        while (1){
+            // Check if the queue is not empty
+            if (!check_queue_empty(queue)){
+
+                // Receive customer data from the queue
+                if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
+                    perror("Queue receive error\n");
+                    exit(-1);
+                }
+
+                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
+                printf(" with %d items\n", customer_data.item_count
+                );
+                number_of_people_served++;
+                printf("Number of people served : %d\n", number_of_people_served);
+            }
+        }
+
+    }
+
+}
