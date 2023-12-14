@@ -27,7 +27,14 @@ int main(int argc, char** argv ) {
     c = read_config("config.txt");
 
 
-    increment_total_cashiers();
+    if (argc < 2){
+        perror("args less than 2\n");
+        exit(-1);
+    }
+
+    int cashier_id = atoi(argv[1]); // Assuming the first argument is customer ID
+   // cashier_info.id = cashier_id;
+
 
     fill_data();  // Populate customer_info with data
 
@@ -38,7 +45,8 @@ int main(int argc, char** argv ) {
     printf("**********************\n ");
     // make the cashier goes to its own queue.
 
-    change_score1_cashier1(3);
+   // change_score1_cashier1(3);
+    change_score2_cashier2(4);
 
     switch (cashier_info.id) {
         case 1:
@@ -68,10 +76,28 @@ void fill_data(){
 
 
 
+ /*   // Acquire the semaphore before modifying shared memory
+    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
+
+
+    lock_sem(cashier_mutex);
+
+    increment_total_cashiers();
+
+    // Release the semaphore
+    unlock_sem(cashier_mutex);
+
+    // Close the semaphore
+    close_semaphore(cashier_mutex);
+*/
+    // Detach from shared memory
+
+
+
     srand(time(NULL));   // for making random choices for each customer
 
 
-
+     increment_total_cashiers();
     cashier_info.id = get_total_cashiers();
     cashier_info.numPeopleInQueue = 0;
     cashier_info.happiness = 20;
@@ -142,7 +168,7 @@ void receive_and_process_messages2(int cashier_id) {
                     exit(-1);
                 }
 
-                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
+                printf("Cashier 2 received customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
                 number_of_people_served++;
@@ -172,7 +198,7 @@ void receive_and_process_messages3(int cashier_id) {
                     exit(-1);
                 }
 
-                printf("Cashier %d received customer %d , Total price : %0.2f\n", cashier_id, customer_data.customer_id, customer_data.total_price);
+                printf("Cashier 3 received customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 printf(" with %d items\n", customer_data.item_count
                 );
                 number_of_people_served++;

@@ -101,6 +101,23 @@ int main(int argc, char** argv){
 
 
 
+    pid_t cashier1 = fork();
+    if(cashier1 == 0){
+        execlp("./cashier", "cashier", "1", NULL);
+    }
+    usleep(200000);
+
+    pid_t cashier2 = fork();
+    if(cashier2 == 0){
+        execlp("./cashier", "cashier", "2", NULL);
+    }
+    usleep(200000);
+
+    pid_t cashier3 = fork();
+    if(cashier3 == 0){
+        execlp("./cashier", "cashier", "3", NULL);
+    }
+
 
    pid_t arr_customers_pid[3];
 
@@ -120,65 +137,22 @@ int main(int argc, char** argv){
     }
 
 
-   /*
-
-     // create cashier process
-
-        pid_t cashiers[3];
-
-        for(int i = 0; i <3; i++){
-            cashiers[i] = fork();
-            if(cashiers[i] < 0){
-                perror("Error: Unable to fork customer process.\n");
-                exit(EXIT_FAILURE);
-            }
-            else if(cashiers[i] == 0){
-                execlp("./cashier", "./cashier", NULL);
-            }
-        }
-
-        for(int i = 0; i < 3; i++) {
-            waitpid(cashiers[i], NULL, 0);
-        }*/
 
 
 
 
-        pid_t cashier = fork();
 
-        if(cashier < 0){
-            perror("Error: Unable to fork customer process.\n");
-            exit(EXIT_FAILURE);
-        }
-        else if(cashier == 0){
-            execlp("./cashier", "./cashier", NULL);
-        }
-
-    pid_t cashier2 = fork();
-
-    if(cashier2 < 0){
-        perror("Error: Unable to fork customer process.\n");
+    if (kill(cashier1, SIGTERM) == -1) {
+        perror("Error sending SIGTERM");
+        exit(EXIT_FAILURE);
+    } if (kill(cashier2, SIGTERM) == -1) {
+        perror("Error sending SIGTERM");
+        exit(EXIT_FAILURE);
+    } if (kill(cashier3, SIGTERM) == -1) {
+        perror("Error sending SIGTERM");
         exit(EXIT_FAILURE);
     }
-    else if(cashier2 == 0){
-        execlp("./cashier", "./cashier", NULL);
-    }
 
-    pid_t cashier3 = fork();
-
-    if(cashier3 < 0){
-        perror("Error: Unable to fork customer process.\n");
-        exit(EXIT_FAILURE);
-    }
-    else if(cashier3 == 0){
-        execlp("./cashier", "./cashier", NULL);
-    }
-
-
-
-
-    waitpid(cashier, NULL, 0);
-    waitpid(cashier2, NULL, 0);
 
     clean_all_message_queues();
     clean_all_semaphores();

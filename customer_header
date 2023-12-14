@@ -277,7 +277,7 @@ void send_customer_message2(struct Customer *customer) {
      */
 
 
-    sleep(4);
+    sleep(5);
 
     //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 

@@ -24,6 +24,9 @@ typedef struct {
 
 // Function to generate random scanning time based on config
 int generate_scanning_time(int cashier_id) {
+
+
+
     srand((unsigned int)time(NULL) + 7*cashier_id);
     return rand() % c.scanning_time + 1; // Random number between 1 and scanning_time
 }
@@ -84,13 +87,16 @@ void increment_total_cashiers() {
     // Acquire the semaphore before modifying shared memory
     sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
 
+
     lock_sem(cashier_mutex);
 
-    // Increment the totalCustomers value
-    shared_data->totalCashiers++;
+    // Increment the totalCashiers value
+    shared_data->totalCashiers= shared_data->totalCashiers + 1;
 
     // Release the semaphore
     unlock_sem(cashier_mutex);
+
+    // Close the semaphore
     close_semaphore(cashier_mutex);
 
     // Detach from shared memory

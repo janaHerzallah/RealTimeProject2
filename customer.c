@@ -26,8 +26,11 @@ int main(int argc, char** argv ) {
     print_customer_data(&customer_info);
     printf("\n \n");
 
+    float  socre1 = get_score1_cashier1();
+    float  socre2 = get_score2_cashier2();
+    float  socre3 = get_score3_cashier3();
 
-   int  what_cashier = find_max_score_index(get_score1_cashier1(),get_score2_cashier2(),get_score3_cashier3());
+   int  what_cashier = find_max_score_index(socre1,socre2,socre3);
 
 
     switch (what_cashier) {
@@ -41,7 +44,7 @@ int main(int argc, char** argv ) {
             send_customer_message3(&customer_info);
             break;
         default:
-              1;
+            printf("error in finding the max score\n");
 
     }
 
@@ -154,7 +157,7 @@ int find_max_score_index(float score1, float score2, float score3) {
     } else if(score3 >= score1 && score3 >= score2) {
         return 3;
     } else
-        return 1;
+        return 3;
 
 
 }
