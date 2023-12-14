@@ -33,7 +33,7 @@ int generate_scanning_time(int cashier_id) {
 }
 
 
-int get_total_cashiers() {
+int get_total_cashiers( int num_of_cashier_queue) {
 
 
     int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
@@ -55,7 +55,22 @@ int get_total_cashiers() {
     lock_sem(cashier_mutex);
 
     // Increment the totalCustomers value
-    int total_cash = shared_data->totalCashiers;
+
+    int total_cash ;
+
+    if(num_of_cashier_queue == 0){
+        total_cash = shared_data->totalCashiers;
+    }
+    else if(num_of_cashier_queue == 1){
+        total_cash = shared_data->scanning_time1;
+    }else if(num_of_cashier_queue == 2){
+        total_cash = shared_data->scanning_time2 ;
+    }else if(num_of_cashier_queue == 3) {
+        total_cash = shared_data->scanning_time3 ;
+    }
+
+
+
 
     // Release the semaphore
     unlock_sem(cashier_mutex);
@@ -70,7 +85,8 @@ int get_total_cashiers() {
     return total_cash;
 }
 
-void increment_total_cashiers() {
+
+void increment_total_cashiers(int num, int num_of_cashier_queue ) {
     // Get the shared memory ID
     int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
     if (shmid == -1) {
@@ -91,8 +107,21 @@ void increment_total_cashiers() {
 
     lock_sem(cashier_mutex);
 
-    // Increment the totalCashiers value
-    shared_data->totalCashiers= shared_data->totalCashiers + 1;
+
+    if(num_of_cashier_queue == 0){
+        shared_data->totalCashiers = shared_data->totalCashiers + num;
+    }
+     else if(num_of_cashier_queue == 1){
+        shared_data->scanning_time1 = num;
+    }else if(num_of_cashier_queue == 2){
+        shared_data->scanning_time2 = num;
+     }else if(num_of_cashier_queue == 3) {
+        shared_data->scanning_time3 = num;
+    }
+
+
+
+
 
     // Release the semaphore
     unlock_sem(cashier_mutex);

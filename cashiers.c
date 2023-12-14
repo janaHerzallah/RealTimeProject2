@@ -64,13 +64,27 @@ int main(int argc, char** argv ) {
 
 void fill_data(){
 
-    increment_total_cashiers();
+    increment_total_cashiers(1,0);
 
     srand(time(NULL));   // for making random choices for each customer
-    cashier_info.id = get_total_cashiers();
+    cashier_info.id = get_total_cashiers(0);
     cashier_info.numPeopleInQueue = 0;
     cashier_info.happiness = 20;
     cashier_info.scanningTime = generate_scanning_time( cashier_info.id);
+
+    switch (cashier_info.id) {
+        case 1:
+            increment_total_cashiers(cashier_info.scanningTime,1);
+            break;
+        case 2:
+            increment_total_cashiers(cashier_info.scanningTime,2);
+            break;
+        case 3:
+            increment_total_cashiers(cashier_info.scanningTime,3);
+            break;
+
+
+    }
 
 
 
@@ -97,12 +111,19 @@ void receive_and_process_messages(int cashier_id) {
     int queue = get_queue(C_KEY);
     customerQueue customer_data;
 
+    int array1[3] = {0,0,0};
+    int array2[3] = {0,0,0};
+
     printf(" Cashier 1 is here \n \n");
     // Receive and process messages
     while (1) {
         while (1){
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
+
+                get_score_att(array1,array2);
+                printf(" people in queue %d \n", array1[0]);
+                printf(" number of items %d \n", array2[0]);
 
                 // Receive customer data from the queue
                 if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
@@ -120,13 +141,14 @@ void receive_and_process_messages(int cashier_id) {
                 printf(" with %d items\n", customer_data.item_count
                 );
 
-
+                write_score_att(-(customer_data.item_count),1,2);
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
 
                 write_score_att(-1,1,1);
+
 
             }
         }
@@ -164,6 +186,8 @@ void receive_and_process_messages2(int cashier_id) {
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
                 write_score_att(-1,2,1);
+                write_score_att(-(customer_data.item_count),2,2);
+
 
             }
         }
@@ -210,6 +234,7 @@ void receive_and_process_messages3(int cashier_id) {
 
 
                 cashier_info.numPeopleInQueue--;
+                write_score_att(-(customer_data.item_count),3,2);
 
                 write_score_att(-1,3,1);
             }

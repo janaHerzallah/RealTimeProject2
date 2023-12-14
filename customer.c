@@ -173,6 +173,7 @@ void send_customer_message(struct Customer *customer) {
 
 
     write_score_att(1,1,1);
+    write_score_att(customer->num_items,1,2);
 
 
     int queue = get_queue(C_KEY);
@@ -195,7 +196,7 @@ void send_customer_message(struct Customer *customer) {
      */
 
 
-    sleep(4);
+    sleep(get_total_cashiers(1));
 
     //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 
@@ -222,6 +223,7 @@ void send_customer_message(struct Customer *customer) {
 void send_customer_message2(struct Customer *customer) {
 
     write_score_att(1,2,1);
+    write_score_att(customer->num_items,2,2);
 
     int queue = get_queue(C_KEY2);
 
@@ -242,7 +244,7 @@ void send_customer_message2(struct Customer *customer) {
      */
 
 
-    sleep(5);
+    sleep(get_total_cashiers(2));
 
     //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 
@@ -266,7 +268,9 @@ void send_customer_message2(struct Customer *customer) {
 }
 
 void send_customer_message3(struct Customer *customer) {
+
     write_score_att(1,3,1);
+    write_score_att(customer->num_items,3,2);
 
 
     int queue = get_queue(C_KEY3);
@@ -284,7 +288,8 @@ void send_customer_message3(struct Customer *customer) {
     lock_sem(customers_total_mutex);
 
 
-    sleep(4);
+    sleep(get_total_cashiers(3));
+
 
     // Send the message
     if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {

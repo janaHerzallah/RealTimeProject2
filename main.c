@@ -131,9 +131,9 @@ int main(int argc, char** argv){
     // cashiers area end
 
    // customers area start
-   pid_t arr_customers_pid[8];
+   pid_t arr_customers_pid[3];
 
-    for(int i = 0; i < 8; i++){
+    for(int i = 0; i < 3; i++){
         arr_customers_pid[i] = fork();
 
         if(arr_customers_pid[i] < 0){
@@ -146,7 +146,7 @@ int main(int argc, char** argv){
 
     }
 
-    for(int i = 0; i <8; i++) {
+    for(int i = 0; i <3; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 

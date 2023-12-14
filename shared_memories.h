@@ -20,6 +20,10 @@
 
 typedef struct {
     int totalCashiers;
+    int scanning_time1;
+    int scanning_time2;
+    int scanning_time3;
+
 } total_cashiers;
 
 typedef struct{
