@@ -103,13 +103,13 @@ void increment_total_cashiers() {
 
 void change_score1_cashier1(float score1) {
 
-    int shmid = shmget(cashier1_score_key, sizeof(SharedData), 0666);
+    int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    cashier_score1_shared_memory *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    cashier_score1_shared_memory *shared_data = (cashier_score1_shared_memory *)shmat(shmid, NULL, 0);
     if (shared_data == (void *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
@@ -139,13 +139,13 @@ void change_score1_cashier1(float score1) {
 
 void change_score2_cashier2(float score2){
 
-    int shmid = shmget(cashier2_score_key , sizeof(SharedData), 0666);
+    int shmid = shmget(cashier2_score_key , sizeof(cashier_score2_shared_memory), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    cashier_score2_shared_memory *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    cashier_score2_shared_memory *shared_data = (cashier_score2_shared_memory *)shmat(shmid, NULL, 0);
     if (shared_data == (void *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
@@ -172,13 +172,13 @@ void change_score2_cashier2(float score2){
 
 void change_score3_cashier3(float score3) {
 
-    int shmid = shmget(cashier3_score_key, sizeof(SharedData), 0666);
+    int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    cashier_score3_shared_memory *shared_data = (SharedData *) shmat(shmid, NULL, 0);
+    cashier_score3_shared_memory *shared_data = (cashier_score3_shared_memory *) shmat(shmid, NULL, 0);
     if (shared_data == (void *) -1) {
         perror("shmat");
         exit(EXIT_FAILURE);

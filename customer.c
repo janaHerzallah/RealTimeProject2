@@ -10,6 +10,7 @@ extern Config c;  // Declare or include the Config structure
 extern Item items[MAX_LINE_LENGTH];
 extern int num_items;
 float calculate_total_price(const struct Customer *customer );
+int find_max_score_index(float score1, float score2, float score3);
 
 int main(int argc, char** argv ) {
 
@@ -26,8 +27,24 @@ int main(int argc, char** argv ) {
     printf("\n \n");
 
 
+   int  what_cashier = find_max_score_index(get_score1_cashier1(),get_score2_cashier2(),get_score3_cashier3());
 
-    send_customer_message3(&customer_info); // Send the customer message to the queue
+
+    switch (what_cashier) {
+        case 1:
+            send_customer_message(&customer_info);
+            break;
+        case 2:
+            send_customer_message2(&customer_info);
+            break;
+        case 3:
+            send_customer_message3(&customer_info);
+            break;
+        default:
+              1;
+
+    }
+
 
 
 
@@ -127,4 +144,17 @@ float calculate_total_price(const struct Customer *customer ) {
         total += items[customer->cart[i]].price;
     }
     return total;
+}
+
+int find_max_score_index(float score1, float score2, float score3) {
+    if (score1 >= score2 && score1 >= score3) {
+        return 1;
+    } else if (score2 >= score1 && score2 >= score3) {
+        return 2;
+    } else if(score3 >= score1 && score3 >= score2) {
+        return 3;
+    } else
+        return 1;
+
+
 }

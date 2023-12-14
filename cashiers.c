@@ -30,11 +30,13 @@ int main(int argc, char** argv ) {
     fill_data();  // Populate customer_info with data
 
 
+
     printf("**********************\n ");
     print_cashier_data();
     printf("**********************\n ");
     // make the cashier goes to its own queue.
 
+    change_score1_cashier1(3);
 
     switch (cashier_info.id) {
         case 1:
