@@ -93,6 +93,7 @@ void receive_and_process_messages(int cashier_id) {
     int queue = get_queue(C_KEY);
     customerQueue customer_data;
 
+    printf(" Cashier 1 is here \n \n");
     // Receive and process messages
     while (1) {
         while (1){
@@ -121,6 +122,7 @@ void receive_and_process_messages2(int cashier_id) {
     int queue = get_queue(C_KEY2);
     customerQueue customer_data;
 
+    printf(" Cashier 2 is here \n \n");
     // Receive and process messages
     while (1) {
         while (1){
@@ -149,6 +151,7 @@ void receive_and_process_messages3(int cashier_id) {
     int queue = get_queue(C_KEY3);
     customerQueue customer_data;
 
+    printf(" Cashier 3 is here \n \n");
     // Receive and process messages
     while (1) {
         while (1){

@@ -140,9 +140,31 @@ int main(int argc, char** argv){
             execlp("./cashier", "./cashier", NULL);
         }
 
+    pid_t cashier2 = fork();
+
+    if(cashier2 < 0){
+        perror("Error: Unable to fork customer process.\n");
+        exit(EXIT_FAILURE);
+    }
+    else if(cashier2 == 0){
+        execlp("./cashier", "./cashier", NULL);
+    }
+
+    pid_t cashier3 = fork();
+
+    if(cashier3 < 0){
+        perror("Error: Unable to fork customer process.\n");
+        exit(EXIT_FAILURE);
+    }
+    else if(cashier3 == 0){
+        execlp("./cashier", "./cashier", NULL);
+    }
 
 
-        waitpid(cashier, NULL, 0);
+
+
+    waitpid(cashier, NULL, 0);
+    waitpid(cashier2, NULL, 0);
 
     clean_all_message_queues();
     clean_all_semaphores();

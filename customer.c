@@ -27,7 +27,7 @@ int main(int argc, char** argv ) {
 
 
 
-    send_customer_message(&customer_info); // Send the customer message to the queue
+    send_customer_message3(&customer_info); // Send the customer message to the queue
 
 
 
