@@ -16,6 +16,7 @@ void create_CNM();
 void create_SC1SM(); // shared memory for cashier score
 void create_SC2SM(); // shared memory for cashier2 score
 void create_SC3SM(); // shared memory for cashier3 score
+void create_SHTCSH(); // shared memory for total number of cashiers
 
 void clean_all_shared_memories();
 void clean_STM();
@@ -23,7 +24,7 @@ void clean_CNM();
 void clean_SC1SM();
 void clean_SC2SM();
 void clean_SC3SM();
-
+void clean_SHTCSH();
 
 void create_all_semaphores(); // create all semaphores
 
@@ -101,9 +102,9 @@ int main(int argc, char** argv){
 
 
 
-   pid_t arr_customers_pid[5];
+   pid_t arr_customers_pid[3];
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 3; i++){
         arr_customers_pid[i] = fork();
         if(arr_customers_pid[i] < 0){
             perror("Error: Unable to fork customer process.\n");
@@ -114,7 +115,7 @@ int main(int argc, char** argv){
         }
     }
 
-    for(int i = 0; i <5; i++) {
+    for(int i = 0; i <3; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
@@ -193,6 +194,7 @@ void create_all_shared_memories(){
     create_SC1SM();
     create_SC2SM();
     create_SC3SM();
+    create_SHTCSH();
 
 }
 
@@ -238,7 +240,6 @@ void create_CNM() {
     }
 
     shared_data->totalCustomers = 0;
-    shared_data->totalCashiers= 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -308,6 +309,27 @@ void create_SC3SM(){
         exit(EXIT_FAILURE);
     }
 }
+
+void create_SHTCSH(){
+    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    total_cashiers *shared_data = (total_cashiers *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    shared_data->totalCashiers = 0;
+
+    if (shmdt(shared_data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+}
 // clean all shared memories
 
 void clean_all_shared_memories(){
@@ -316,6 +338,7 @@ void clean_all_shared_memories(){
     clean_SC1SM();
     clean_SC2SM();
     clean_SC3SM();
+    clean_SHTCSH();
 
 }
 
@@ -374,6 +397,19 @@ void clean_SC2SM(){
 
 void clean_SC3SM(){
     int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+}
+
+void clean_SHTCSH(){
+    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);

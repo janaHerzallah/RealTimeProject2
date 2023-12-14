@@ -1,7 +1,7 @@
 #ifndef CUSTOMERS_HEADER
 #define CUSTOMERS_HEADER
 #define MAX_QUEUE_SIZE 20
-#define MAX_ITEMS_IN_CART 10
+#define MAX_ITEMS_IN_CART 5
 #define MAX_SHOPPING_TIME 10
 
 /* End Thresholds */

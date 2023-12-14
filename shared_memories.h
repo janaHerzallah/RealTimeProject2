@@ -14,6 +14,12 @@
 #define cashier2_score_key 0x1237
 #define cashier3_score_key 0x1238
 
+#define total_num_cashiers_key 0x1239
+
+typedef struct {
+    int totalCashiers;
+} total_cashiers;
+
 typedef struct{
 
     float score1;
@@ -32,6 +38,7 @@ typedef struct{
 typedef struct cashier_score1_shared_memory * SC1SM;
 typedef struct cashier_score2_shared_memory * SC2SM;
 typedef struct cashier_score3_shared_memory * SC3SM;
+typedef struct total_cashiers * TC;
 
 #define MAX_LINE_LENGTH 100
 

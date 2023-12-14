@@ -27,6 +27,8 @@ int main(int argc, char** argv ) {
     c = read_config("config.txt");
 
 
+    increment_total_cashiers();
+
     fill_data();  // Populate customer_info with data
 
 
@@ -65,16 +67,17 @@ int main(int argc, char** argv ) {
 void fill_data(){
 
 
-    increment_total_cashiers();
+
     srand(time(NULL));   // for making random choices for each customer
 
-    int r = rand() % 2;      // Returns a pseudo-random integer between 0 and 1.
 
-    // Put the current time as id for the new person
+
     cashier_info.id = get_total_cashiers();
     cashier_info.numPeopleInQueue = 0;
     cashier_info.happiness = 20;
     cashier_info.scanningTime = generate_scanning_time( cashier_info.id);
+
+
 
 
 

@@ -32,13 +32,13 @@ int generate_scanning_time(int cashier_id) {
 int get_total_cashiers() {
 
 
-    int shmid = shmget(CUS_NUM_KEY, sizeof(SharedData), 0666);
+    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    SharedData *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    total_cashiers *shared_data = (total_cashiers *)shmat(shmid, NULL, 0);
     if (shared_data == (void *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
@@ -46,7 +46,7 @@ int get_total_cashiers() {
 
     // mutex code
     // Acquire the semaphore before modifying shared memory
-    sem_t *cashier_mutex = get_semaphore(total_customers_key);
+    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
 
     lock_sem(cashier_mutex);
 
@@ -68,21 +68,21 @@ int get_total_cashiers() {
 
 void increment_total_cashiers() {
     // Get the shared memory ID
-    int shmid = shmget(CUS_NUM_KEY, sizeof(SharedData), 0666);
+    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
     // Attach to the shared memory
-    SharedData *shared_data = (SharedData *)shmat(shmid, NULL, 0);
+    total_cashiers *shared_data = (total_cashiers *)shmat(shmid, NULL, 0);
     if (shared_data == (void *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
     }
 
     // Acquire the semaphore before modifying shared memory
-    sem_t *cashier_mutex = get_semaphore(total_customers_key);
+    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
 
     lock_sem(cashier_mutex);
 
