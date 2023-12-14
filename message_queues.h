@@ -16,6 +16,7 @@ struct queue {
     Item items[MAX_ITEMS]; // Array of items
     char customer_name[50];
     float total_price;
+    pid_t pid;
 };
 
 typedef struct queue customerQueue;

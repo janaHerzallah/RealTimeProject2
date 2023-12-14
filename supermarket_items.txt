@@ -1,4 +1,4 @@
-Milk,1,1.99
+Milk,20,1.99
 Bread,10,2.50
-Eggs,3,3.00
-Apples,1,0.50
+Eggs,70,3.00
+Apples,16,0.50

@@ -7,6 +7,7 @@
 
 
 
+
 Cashier cashier_info ;
 
 void fill_data();
@@ -54,6 +55,7 @@ int main(int argc, char** argv ) {
     }
 
 
+
     exit(0);
 
 
@@ -91,6 +93,7 @@ void print_cashier_data( ) {
 
 void receive_and_process_messages(int cashier_id) {
 
+
     int queue = get_queue(C_KEY);
     customerQueue customer_data;
 
@@ -117,10 +120,14 @@ void receive_and_process_messages(int cashier_id) {
                 printf(" with %d items\n", customer_data.item_count
                 );
 
+
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
+
+                write_score_att(-1,1,1);
+
             }
         }
 
@@ -156,6 +163,8 @@ void receive_and_process_messages2(int cashier_id) {
 
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
+                write_score_att(-1,2,1);
+
             }
         }
 
@@ -173,6 +182,7 @@ void receive_and_process_messages3(int cashier_id) {
         while (1){
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
+
 
                 cashier_info.numPeopleInQueue++;
 
@@ -200,6 +210,8 @@ void receive_and_process_messages3(int cashier_id) {
 
 
                 cashier_info.numPeopleInQueue--;
+
+                write_score_att(-1,3,1);
             }
         }
 

@@ -16,6 +16,8 @@
 
 #define total_num_cashiers_key 0x1239
 
+#define score_atrributes_key 0x1240
+
 typedef struct {
     int totalCashiers;
 } total_cashiers;
@@ -35,10 +37,19 @@ typedef struct{
     float score3;
 } cashier_score3_shared_memory;
 
+typedef struct{
+
+    int total_waiting_customers[3];
+    int total_num_of_items[3];
+
+} score_atrributes;
+
+
 typedef struct cashier_score1_shared_memory * SC1SM;
 typedef struct cashier_score2_shared_memory * SC2SM;
 typedef struct cashier_score3_shared_memory * SC3SM;
 typedef struct total_cashiers * TC;
+typedef struct score_atrributes * SA;
 
 #define MAX_LINE_LENGTH 100
 

@@ -209,4 +209,60 @@ void change_score3_cashier3(float score3) {
 }
 
 
+// num for people or  items to add
+// queue_num_index for the queue number
+// item_or_people_array_type 1 for people 2 for items
+
+void write_score_att(int num ,int queue_num_index , int people_1_items_2){
+
+    int shmid = shmget(score_atrributes_key, sizeof(score_atrributes), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    score_atrributes *shared_data = (score_atrributes *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    sem_t* score_att = get_semaphore(score_atrributes_key_sem);
+
+    lock_sem(score_att);
+
+    // 1 for people 2 for items
+
+
+    if(people_1_items_2 == 1){
+        shared_data->total_waiting_customers[queue_num_index -1] = num + shared_data->total_waiting_customers[queue_num_index -1];
+    }else if(people_1_items_2 == 2){
+        shared_data->total_num_of_items[queue_num_index-1] += num;
+    }
+
+
+
+    unlock_sem(score_att);
+    close_semaphore(score_att);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
+
+
+}
+
+
+
+
+
+
+
 #endif

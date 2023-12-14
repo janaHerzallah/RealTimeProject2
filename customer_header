@@ -115,6 +115,7 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
         customer->cart[i] = random_index;
         customer->num_items++;
 
+        //sleep((5-(customer->id % 5))%5);
         printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
         // Release the mutex
 
@@ -210,140 +211,6 @@ int get_total_customers() {
     return total_cus;
 }
 
-void send_customer_message(struct Customer *customer) {
-
-
-    int queue = get_queue(C_KEY);
-
-    customerQueue customer_data;
-    customer_data.customer_id = customer->id;
-    customer_data.item_count = customer->num_items;
-    customer_data.total_price = customer->total_price;
-
-
-    // mutex code
-
-    customers_total_mutex = get_semaphore(queu1_key);
-
-    lock_sem(customers_total_mutex);
-
-    /* increase_cashier_queue_size(cashier_id);
-     int size = get_cashier_queue_size(cashier_id);
-     */
-
-
-    sleep(4);
-
-    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
-
-    //fflush(stdout); // Flush the output buffer to ensure immediate display
-
-    // Send the message
-    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
-        perror("customer_data");
-        exit(EXIT_FAILURE);
-    }
-
-
-
-    unlock_sem(customers_total_mutex);
-    close_semaphore(customers_total_mutex);
-
-    //end mutex code
-
-
-
-}
-
-void send_customer_message2(struct Customer *customer) {
-
-
-    int queue = get_queue(C_KEY2);
-
-    customerQueue customer_data;
-    customer_data.customer_id = customer->id;
-    customer_data.item_count = customer->num_items;
-    customer_data.total_price = customer->total_price;
-
-
-    // mutex code
-
-    customers_total_mutex = get_semaphore(queu2_key);
-
-    lock_sem(customers_total_mutex);
-
-    /* increase_cashier_queue_size(cashier_id);
-     int size = get_cashier_queue_size(cashier_id);
-     */
-
-
-    sleep(5);
-
-    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
-
-    //fflush(stdout); // Flush the output buffer to ensure immediate display
-
-    // Send the message
-    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
-        perror("customer_data");
-        exit(EXIT_FAILURE);
-    }
-
-
-
-    unlock_sem(customers_total_mutex);
-    close_semaphore(customers_total_mutex);
-
-    //end mutex code
-
-
-
-}
-
-void send_customer_message3(struct Customer *customer) {
-
-
-    int queue = get_queue(C_KEY3);
-
-    customerQueue customer_data;
-    customer_data.customer_id = customer->id;
-    customer_data.item_count = customer->num_items;
-    customer_data.total_price = customer->total_price;
-
-
-    // mutex code
-
-    customers_total_mutex = get_semaphore(queu3_key);
-
-    lock_sem(customers_total_mutex);
-
-    /* increase_cashier_queue_size(cashier_id);
-     int size = get_cashier_queue_size(cashier_id);
-     */
-
-
-    sleep(4);
-
-    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
-
-    //fflush(stdout); // Flush the output buffer to ensure immediate display
-
-    // Send the message
-    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
-        perror("customer_data");
-        exit(EXIT_FAILURE);
-    }
-
-
-
-    unlock_sem(customers_total_mutex);
-    close_semaphore(customers_total_mutex);
-
-    //end mutex code
-
-
-
-}
 
 void increment_total_customers() {
     // Get the shared memory ID
@@ -489,6 +356,58 @@ float get_score3_cashier3(){
     return score3;
 
 }
+
+
+/*
+
+void updateArrays(const int new_waiting_customers[3], const int new_num_of_items[3]) {
+    memcpy(total_waiting_customers, new_waiting_customers, sizeof(total_waiting_customers));
+    memcpy(total_num_of_items, new_num_of_items, sizeof(total_num_of_items));
+}
+*/
+
+
+void get_score_att(const int new_waiting_customers[3], const int new_num_of_items[3]){
+
+    int shmid = shmget(score_atrributes_key, sizeof(score_atrributes), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    score_atrributes *shared_data = (score_atrributes *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    sem_t* score_att = get_semaphore(score_atrributes_key_sem);
+
+    lock_sem(score_att);
+
+    memcpy(new_waiting_customers,shared_data->total_waiting_customers, sizeof(shared_data->total_waiting_customers));
+    memcpy(new_num_of_items,shared_data->total_num_of_items, sizeof(shared_data->total_num_of_items));
+
+
+    unlock_sem(score_att);
+    close_semaphore(score_att);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
+
+
+}
+
+
+
 
 
 

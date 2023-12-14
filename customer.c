@@ -1,6 +1,7 @@
 #include "header.h"
 #include "constants.h"
 #include "customer_header"
+#include "cashier_header.h"
 
 void fill_data();
 void print_customer_data(const struct Customer *customer);
@@ -11,6 +12,10 @@ extern Item items[MAX_LINE_LENGTH];
 extern int num_items;
 float calculate_total_price(const struct Customer *customer );
 int find_max_score_index(float score1, float score2, float score3);
+
+void send_customer_message(struct Customer *customer);
+void send_customer_message2(struct Customer *customer);
+void send_customer_message3(struct Customer *customer);
 
 int main(int argc, char** argv ) {
 
@@ -32,6 +37,7 @@ int main(int argc, char** argv ) {
 
    int  what_cashier = find_max_score_index(socre1,socre2,socre3);
 
+  //  int what_cashier =  rand() % 3 + 1;      // Returns a pseudo-random integer between 1 and 3.
 
     switch (what_cashier) {
         case 1:
@@ -158,6 +164,143 @@ int find_max_score_index(float score1, float score2, float score3) {
         return 3;
     } else
         return 3;
+
+
+}
+
+
+void send_customer_message(struct Customer *customer) {
+
+
+    write_score_att(1,1,1);
+
+
+    int queue = get_queue(C_KEY);
+
+    customerQueue customer_data;
+    customer_data.customer_id = customer->id;
+    customer_data.item_count = customer->num_items;
+    customer_data.total_price = customer->total_price;
+    customer_data.pid= getpid();
+
+
+    // mutex code
+
+    customers_total_mutex = get_semaphore(queu1_key);
+
+    lock_sem(customers_total_mutex);
+
+    /* increase_cashier_queue_size(cashier_id);
+     int size = get_cashier_queue_size(cashier_id);
+     */
+
+
+    sleep(4);
+
+    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
+
+    //fflush(stdout); // Flush the output buffer to ensure immediate display
+
+    // Send the message
+    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
+        perror("customer_data");
+        exit(EXIT_FAILURE);
+    }
+
+
+
+
+    unlock_sem(customers_total_mutex);
+    close_semaphore(customers_total_mutex);
+
+    //end mutex code
+
+
+
+}
+
+void send_customer_message2(struct Customer *customer) {
+
+    write_score_att(1,2,1);
+
+    int queue = get_queue(C_KEY2);
+
+    customerQueue customer_data;
+    customer_data.customer_id = customer->id;
+    customer_data.item_count = customer->num_items;
+    customer_data.total_price = customer->total_price;
+
+
+    // mutex code
+
+    customers_total_mutex = get_semaphore(queu2_key);
+
+    lock_sem(customers_total_mutex);
+
+    /* increase_cashier_queue_size(cashier_id);
+     int size = get_cashier_queue_size(cashier_id);
+     */
+
+
+    sleep(5);
+
+    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
+
+    //fflush(stdout); // Flush the output buffer to ensure immediate display
+
+    // Send the message
+    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
+        perror("customer_data");
+        exit(EXIT_FAILURE);
+    }
+
+
+
+    unlock_sem(customers_total_mutex);
+    close_semaphore(customers_total_mutex);
+
+    //end mutex code
+
+
+
+}
+
+void send_customer_message3(struct Customer *customer) {
+    write_score_att(1,3,1);
+
+
+    int queue = get_queue(C_KEY3);
+
+    customerQueue customer_data;
+    customer_data.customer_id = customer->id;
+    customer_data.item_count = customer->num_items;
+    customer_data.total_price = customer->total_price;
+
+
+    // mutex code
+
+    customers_total_mutex = get_semaphore(queu3_key);
+
+    lock_sem(customers_total_mutex);
+
+
+    sleep(4);
+
+    // Send the message
+    if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {
+        perror("customer_data");
+        exit(EXIT_FAILURE);
+    }
+
+
+
+
+
+    unlock_sem(customers_total_mutex);
+    close_semaphore(customers_total_mutex);
+
+    //end mutex code
+
 
 
 }
