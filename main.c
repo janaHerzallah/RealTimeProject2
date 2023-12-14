@@ -134,8 +134,7 @@ int main(int argc, char** argv){
         else if(arr_customers_pid[i] == 0){
             execlp("./customer", "./customer", NULL);
         }
-        usleep(200000);
-        usleep(200000);
+
     }
 
     for(int i = 0; i <3; i++) {

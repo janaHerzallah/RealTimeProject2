@@ -19,7 +19,8 @@ typedef struct {
     struct Customer queue[MAX_QUEUE_SIZE]; // Queue of customers
     int happiness;              // Happiness level of the cashier
     int scanningTime;
-    int number_of_all_items// Time taken by the cashier to scan each item
+    int number_of_all_items ;// Time taken by the cashier to scan each item
+    float total_sales;
 } Cashier;
 
 // Function to generate random scanning time based on config

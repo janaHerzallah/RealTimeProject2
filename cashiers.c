@@ -117,6 +117,8 @@ void receive_and_process_messages(int cashier_id) {
                 printf(" with %d items\n", customer_data.item_count
                 );
 
+                cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
+                printf("Total sales: %f\n", cashier_info.total_sales);
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
             }
