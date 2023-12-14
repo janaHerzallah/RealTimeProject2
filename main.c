@@ -100,7 +100,7 @@ int main(int argc, char** argv){
     create_all_message_queues();
 
 
-
+   // cashiers area start
     pid_t cashier1 = fork();
     if(cashier1 == 0){
         execlp("./cashier", "cashier", "1", NULL);
@@ -119,10 +119,14 @@ int main(int argc, char** argv){
     }
     sleep(1);
 
+    // cashiers area end
+
+   // customers area start
    pid_t arr_customers_pid[3];
 
     for(int i = 0; i < 3; i++){
         arr_customers_pid[i] = fork();
+
         if(arr_customers_pid[i] < 0){
             perror("Error: Unable to fork customer process.\n");
             exit(EXIT_FAILURE);
@@ -138,7 +142,10 @@ int main(int argc, char** argv){
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
+    // customers area end
 
+
+    // clean area start
     sleep(40);
 
     if (kill(cashier1, SIGTERM) == -1) {
@@ -156,6 +163,9 @@ int main(int argc, char** argv){
     clean_all_message_queues();
     clean_all_semaphores();
     clean_all_shared_memories();
+
+    // clean area end
+
 
     return 0;
 }

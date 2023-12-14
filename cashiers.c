@@ -35,8 +35,8 @@ int main(int argc, char** argv ) {
     printf("**********************\n ");
     // make the cashier goes to its own queue.
 
-   // change_score1_cashier1(3);
-    change_score2_cashier2(4);
+   change_score1_cashier1(3);
+   // change_score2_cashier2(4);
 
     switch (cashier_info.id) {
         case 1:
@@ -90,6 +90,7 @@ void print_cashier_data( ) {
 
 
 void receive_and_process_messages(int cashier_id) {
+
     int queue = get_queue(C_KEY);
     customerQueue customer_data;
 
@@ -171,6 +172,7 @@ void receive_and_process_messages3(int cashier_id) {
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
 
+                cashier_info.numPeopleInQueue++;
 
 
                 // Receive customer data from the queue
@@ -186,11 +188,16 @@ void receive_and_process_messages3(int cashier_id) {
                 printf("Cashier 3 is done selling custermor %d \n",customer_data.customer_id);
 
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
-                printf(" with %d items\n", customer_data.item_count
-                );
 
+                /*float current_score = score();
+                printf("Current score: %f\n", current_score);
+                change_score2_cashier2(current_score);
+*/
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
+
+
+                cashier_info.numPeopleInQueue--;
             }
         }
 
