@@ -19,6 +19,8 @@ void receive_and_process_messages3(int cashier_id);
 extern Config c;  // Declare or include the Config structure
 int number_of_people_served = 0;
 
+float score( );
+
 
 int main(int argc, char** argv ) {
 
@@ -158,6 +160,7 @@ void receive_and_process_messages3(int cashier_id) {
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
 
+
                 // Receive customer data from the queue
                 if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
                     perror("Queue receive error\n");
@@ -173,5 +176,22 @@ void receive_and_process_messages3(int cashier_id) {
         }
 
     }
+
+}
+
+float score( ){
+
+    float queueSizeWeight = 0.5;
+    float totalItemsWeight = 0.25;
+    float scanningSpeedWeight = 0.25;
+    float behaviorScoreWeight = 0.25;
+
+    // Calculate the weighted score
+    int score = (cashier_info.numPeopleInQueue * queueSizeWeight) +
+                (cashier_info.number_of_all_items * totalItemsWeight) +
+                (cashier_info.scanningTime * scanningSpeedWeight) +
+                (cashier_info.happiness * behaviorScoreWeight);
+
+    return score;
 
 }

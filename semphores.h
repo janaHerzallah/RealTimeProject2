@@ -15,6 +15,10 @@ const char *queu1_key = "queue1";
 const char *queu2_key = "queue2";
 const char *queu3_key = "queue3";
 
+const char *cashSem1_score_key = "cashier1_score";
+const char *cashSem2_score_key = "cashier2_score";
+const char *cashSem3_score_key = "cashier3_score";
+
 sem_t* pick_up_items_mutex; // Semaphore for picking up items in customers header
 sem_t* customers_total_mutex; // Semaphore for picking up items in customers header
 
