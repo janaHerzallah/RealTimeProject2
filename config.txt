@@ -1,6 +1,6 @@
 customers_per_interval=2
 interval_seconds=5
-SHOPPING_TIME_Max=10
+SHOPPING_TIME_Max=19
 SCANNING_TIME=15
 BEHAVIOR_DECAY_RATE=2
 MAX_WAIT_TIME=600

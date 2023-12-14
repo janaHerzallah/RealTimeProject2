@@ -31,9 +31,21 @@ int main(int argc, char** argv ) {
     print_customer_data(&customer_info);
     printf("\n \n");
 
+
+
     float  socre1 = get_score1_cashier1();
     float  socre2 = get_score2_cashier2();
     float  socre3 = get_score3_cashier3();
+
+    printf("***********************************\n");
+    printf("***********************************\n");
+    printf("iam customer %d i see this in shaerd memory \n",customer_info.id);
+    printf("score1 is %f \n",socre1);
+    printf("score2 is %f \n",socre2);
+    printf("score3 is %f \n",socre3);
+    printf("***********************************\n");
+    printf("***********************************\n");
+
 
    int  what_cashier = find_max_score_index(socre1,socre2,socre3);
 
@@ -42,12 +54,15 @@ int main(int argc, char** argv ) {
     switch (what_cashier) {
         case 1:
             send_customer_message(&customer_info);
+            change_score1_cashier1(socre1-1);
             break;
         case 2:
             send_customer_message2(&customer_info);
+            change_score2_cashier2(socre2-1);
             break;
         case 3:
             send_customer_message3(&customer_info);
+            change_score3_cashier3(socre3-1);
             break;
         default:
             printf("error in finding the max score\n");

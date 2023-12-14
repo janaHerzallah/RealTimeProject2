@@ -36,7 +36,7 @@ int main(int argc, char** argv ) {
     printf("**********************\n ");
     // make the cashier goes to its own queue.
 
-   change_score1_cashier1(3);
+  // change_score1_cashier1(3);
    // change_score2_cashier2(4);
 
     switch (cashier_info.id) {
@@ -125,10 +125,16 @@ void receive_and_process_messages(int cashier_id) {
                 printf(" people in queue %d \n", array1[0]);
                 printf(" number of items %d \n", array2[0]);
 
+                int last_coustmer_id = customer_data.customer_id;
                 // Receive customer data from the queue
                 if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
                     perror("Queue receive error\n");
                     exit(-1);
+                }
+
+                int current_coustmer_id = customer_data.customer_id;
+                if(last_coustmer_id == current_coustmer_id){
+                    continue;
                 }
 
                 printf("Cashier 1 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
@@ -141,14 +147,16 @@ void receive_and_process_messages(int cashier_id) {
                 printf(" with %d items\n", customer_data.item_count
                 );
 
-                write_score_att(-(customer_data.item_count),1,2);
+
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
 
+                write_score_att(-(customer_data.item_count),1,2);
                 write_score_att(-1,1,1);
-
+                change_score1_cashier1(score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
+                printf(" Score 1 : %f\n", score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
 
             }
         }
@@ -162,17 +170,31 @@ void receive_and_process_messages2(int cashier_id) {
     customerQueue customer_data;
 
     printf(" Cashier 2 is here \n \n");
+
+    int array1[3] = {0,0,0};
+    int array2[3] = {0,0,0};
+
     // Receive and process messages
     while (1) {
         while (1){
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
 
+                get_score_att(array1,array2);
+
+                int last_coustmer_id = customer_data.customer_id;
+
                 // Receive customer data from the queue
                 if(msgrcv(queue, &customer_data, sizeof(customer_data), 0, 0) == -1){
                     perror("Queue receive error\n");
                     exit(-1);
                 }
+
+                int current_coustmer_id = customer_data.customer_id;
+                if(last_coustmer_id == current_coustmer_id){
+                    continue;
+                }
+
                 printf("Cashier 2 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
 
                 sleep(cashier_info.scanningTime);
@@ -185,8 +207,11 @@ void receive_and_process_messages2(int cashier_id) {
 
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
+
                 write_score_att(-1,2,1);
                 write_score_att(-(customer_data.item_count),2,2);
+                change_score2_cashier2(score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
+                printf(" Score 2 : %f\n", score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
 
 
             }
@@ -200,12 +225,19 @@ void receive_and_process_messages3(int cashier_id) {
     int queue = get_queue(C_KEY3);
     customerQueue customer_data;
 
+    int array1[3] = {0,0,0};
+    int array2[3] = {0,0,0};
+
     printf(" Cashier 3 is here \n \n");
     // Receive and process messages
     while (1) {
         while (1){
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
+
+                int last_coustmer_id = customer_data.customer_id;
+
+                get_score_att(array1,array2);
 
 
                 cashier_info.numPeopleInQueue++;
@@ -216,6 +248,15 @@ void receive_and_process_messages3(int cashier_id) {
                     perror("Queue receive error\n");
                     exit(-1);
                 }
+
+                int current_coustmer_id = customer_data.customer_id;
+
+                if(last_coustmer_id == current_coustmer_id){
+                    continue;
+                }
+
+
+
 
                 printf("Cashier 3 is selling custermor %d the scnning time is %d \n",customer_data.customer_id,cashier_info.scanningTime);
 
@@ -229,14 +270,21 @@ void receive_and_process_messages3(int cashier_id) {
                 printf("Current score: %f\n", current_score);
                 change_score2_cashier2(current_score);
 */
+
                 number_of_people_served++;
                 printf("Number of people served : %d\n", number_of_people_served);
 
 
                 cashier_info.numPeopleInQueue--;
+
                 write_score_att(-(customer_data.item_count),3,2);
 
                 write_score_att(-1,3,1);
+                change_score3_cashier3(score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
+                printf(" Score 3 : %f\n", score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
+
+
+
             }
         }
 
@@ -244,18 +292,15 @@ void receive_and_process_messages3(int cashier_id) {
 
 }
 
-float score( ){
+float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  ){
 
     float queueSizeWeight = -0.5; // Negative because a larger queue is worse
-    float totalItemsWeight = -0.25; // Negative because more items generally mean slower processing
-    float scanningSpeedWeight = 0.25; // Positive, assuming higher value means faster scanning
-    float behaviorScoreWeight = 0.25; // Positive, higher happiness score is better
+    float totalItemsWeight = 0; // Negative because more items generally mean slower processing
+    float scanningSpeedWeight = 0; // Positive, assuming higher value means faster scanning
+    float behaviorScoreWeight = 0; // Positive, higher happiness score is better
 
     // Calculate the weighted score
-    int score = (cashier_info.numPeopleInQueue * queueSizeWeight) +
-                (cashier_info.number_of_all_items * totalItemsWeight) +
-                (cashier_info.scanningTime * scanningSpeedWeight) +
-                (cashier_info.happiness * behaviorScoreWeight);
+    float score = queueSizeWeight * numPeopleInQueue + totalItemsWeight * number_of_all_items + scanningSpeedWeight * scanningTime + behaviorScoreWeight * happiness;
 
     return score;
 
