@@ -19,16 +19,24 @@ void clean_STM();
 void clean_CNM();
 
 
-void create_all_semaphores();
+void create_all_semaphores(); // create all semaphores
+
 void create_STM_semaphore();
 void create_CNM_semaphore();
 void create_cashier_semaphore();
+void create_q1_semaphore();
+void create_q2_semaphore();
+void create_q3_semaphore();
 
 
-void clean_all_semaphores();
+void clean_all_semaphores();// clean all semaphores
+
 void clean_STM_semaphore();
 void clean_CNM_semaphore();
 void clean_cashier_semaphore();
+void clean_q1_semaphore();
+void clean_q2_semaphore();
+void clean_q3_semaphore();
 
 
 void create_all_message_queues();
@@ -73,9 +81,10 @@ int main(int argc, char** argv){
    // print config area end
 
    /***********************************************************************************************************************************************************/
-
-    create_all_semaphores();
     create_all_shared_memories();
+    create_all_semaphores();
+    create_all_message_queues();
+
 
 
 
@@ -135,6 +144,7 @@ int main(int argc, char** argv){
 
         waitpid(cashier, NULL, 0);
 
+    clean_all_message_queues();
     clean_all_semaphores();
     clean_all_shared_memories();
 
@@ -241,9 +251,13 @@ void clean_STM(){
 /** semaphores area start *************************************************************************************************************************/
 
 void create_all_semaphores(){
-    create_STM_semaphore();
-    create_CNM_semaphore();
-    create_cashier_semaphore();
+
+    create_STM_semaphore(); // for itmeas
+    create_CNM_semaphore(); // for customers total num
+    create_cashier_semaphore(); // for cashier total num
+    create_q1_semaphore(); // for queue 1
+    create_q2_semaphore(); // for queue 2
+    create_q3_semaphore(); // for queue 3
 
 
 }
@@ -294,13 +308,65 @@ void create_CNM_semaphore(){
     sem_close(cnm_sem);
 }
 
+void create_q1_semaphore(){
+
+
+    sem_t *cnm_sem = sem_open(queu1_key, O_CREAT, 0777, 0);
+    if(cnm_sem == SEM_FAILED){
+        perror("CNM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cnm_sem) < 0){
+        perror("CNM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cnm_sem);
+
+}
+
+void create_q2_semaphore(){
+    sem_t *cnm_sem = sem_open(queu2_key, O_CREAT, 0777, 0);
+    if(cnm_sem == SEM_FAILED){
+        perror("CNM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cnm_sem) < 0){
+        perror("CNM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cnm_sem);
+}
+
+void create_q3_semaphore(){
+
+    sem_t *cnm_sem = sem_open(queu3_key, O_CREAT, 0777, 0);
+    if(cnm_sem == SEM_FAILED){
+        perror("CNM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cnm_sem) < 0){
+        perror("CNM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cnm_sem);
+}
 
 
 
+// clean area ==============================================================================================================
 void clean_all_semaphores(){
     clean_STM_semaphore();
     clean_CNM_semaphore();
     clean_cashier_semaphore();
+    clean_q1_semaphore();
+    clean_q2_semaphore();
+    clean_q3_semaphore();
 
 }
 
@@ -326,6 +392,28 @@ void clean_cashier_semaphore(){
         exit(-1);
     }
 }
+
+void clean_q1_semaphore(){
+    if(sem_unlink(queu1_key ) < 0){
+        perror("Cashier Unlink Error\n");
+        exit(-1);
+    }
+}
+
+void clean_q2_semaphore(){
+    if(sem_unlink(queu2_key ) < 0){
+        perror("Cashier Unlink Error\n");
+        exit(-1);
+    }
+}
+
+void clean_q3_semaphore(){
+    if(sem_unlink(queu3_key ) < 0){
+        perror("Cashier Unlink Error\n");
+        exit(-1);
+    }
+}
+
 /** semaphores area end *************************************************************************************************************************/
 
 /** message queues area start *************************************************************************************************************************/

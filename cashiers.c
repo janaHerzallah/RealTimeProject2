@@ -8,9 +8,14 @@
 
 
 Cashier cashier_info ;
+
 void fill_data();
-void print_cashier_data2( );
+void print_cashier_data( );
+
 void receive_and_process_messages(int cashier_id);
+void receive_and_process_messages2(int cashier_id);
+void receive_and_process_messages3(int cashier_id);
+
 extern Config c;  // Declare or include the Config structure
 int number_of_people_served = 0;
 
@@ -22,7 +27,29 @@ int main(int argc, char** argv ) {
 
     fill_data();  // Populate customer_info with data
 
-    receive_and_process_messages(cashier_info.id);
+
+    printf("**********************\n ");
+    print_cashier_data();
+    printf("**********************\n ");
+    // make the cashier goes to its own queue.
+
+
+    switch (cashier_info.id) {
+        case 1:
+            receive_and_process_messages(cashier_info.id);
+            break;
+        case 2:
+            receive_and_process_messages2(cashier_info.id);
+            break;
+        case 3:
+            receive_and_process_messages3(cashier_info.id);
+            break;
+        default:
+            break;
+
+    }
+
+
 
 
     exit(0);
@@ -45,14 +72,11 @@ void fill_data(){
     cashier_info.happiness = 20;
     cashier_info.scanningTime = generate_scanning_time( cashier_info.id);
 
-    printf("\n ");
-    print_cashier_data2();
-    printf("\n ");
 
 
 }
 
-void print_cashier_data2( ) {
+void print_cashier_data( ) {
 
 
 
