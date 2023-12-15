@@ -29,16 +29,21 @@ typedef struct {
 typedef struct{
 
     float score1;
+    float total_sales1;
+
 } cashier_score1_shared_memory;
 
 typedef struct{
 
     float score2;
+    float total_sales2;
 } cashier_score2_shared_memory;
 
 typedef struct{
 
     float score3;
+    float total_sales3;
+
 } cashier_score3_shared_memory;
 
 typedef struct{

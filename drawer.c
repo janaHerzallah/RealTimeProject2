@@ -446,20 +446,23 @@ void readDataFromSharedMemory()
 
 
      peopleInTheInnerHall = get_total_customers();
-/*
 
-    cashier1_totalCount = read_queue_size(MIDDLE, MALE);
-    cashier3_totalCount = read_queue_size(MIDDLE, FEMALE);
-    receptionHallMaleCount = read_queue_size(OUTSIDE, MALE) ;
-    receptionHallFemaleCount =read_queue_size(OUTSIDE, FEMALE);
-    birthCertificateCnt = read_tellers_numbers(B);
-    bakeryCnt = read_tellers_numbers(T);
-    dair_eggsCnt = read_tellers_numbers(R);
-    packagedCnt = read_tellers_numbers(I);
-    drawer_current_time = time_to_string();
-    unservedCostumersCnt= read_ends(UNSERVED);
-    cashier2_totalCnt= read_ends(UNHAPPY);
-    cashier_stoppedCnt= read_ends(SATISFIED);*/
+
+    cashier1_totalCount = get_score1_cashier1(2);
+
+    cashier2_totalCnt= get_score2_cashier2(2);
+    cashier3_totalCount = get_score3_cashier3(2);
+
+  //  receptionHallMaleCount = read_queue_size(OUTSIDE, MALE) ;
+   // receptionHallFemaleCount =read_queue_size(OUTSIDE, FEMALE);
+   // birthCertificateCnt = read_tellers_numbers(B);
+   // bakeryCnt = read_tellers_numbers(T);
+  //  dair_eggsCnt = read_tellers_numbers(R);
+  //  packagedCnt = read_tellers_numbers(I);
+  //  drawer_current_time = time_to_string();
+   // unservedCostumersCnt= read_ends(UNSERVED);
+
+   // cashier_stoppedCnt= read_ends(SATISFIED)
 
 
 }

@@ -137,7 +137,7 @@ void increment_total_cashiers(int num, int num_of_cashier_queue ) {
 }
 
 
-void change_score1_cashier1(float score1) {
+void change_score1_cashier1(float score1, int score1_or_total_sales2 ){
 
     int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), 0666);
     if (shmid == -1) {
@@ -158,6 +158,14 @@ void change_score1_cashier1(float score1) {
     lock_sem(score1_mutex);
 
 
+    if( score1_or_total_sales2 == 1){
+        shared_data->score1 = score1 ;
+    }
+    else if(score1_or_total_sales2 == 2){
+        shared_data->total_sales1= score1 ;
+    }
+
+
      shared_data->score1 = score1;
 
     unlock_sem(score1_mutex);
@@ -173,7 +181,7 @@ void change_score1_cashier1(float score1) {
 
 }
 
-void change_score2_cashier2(float score2){
+void change_score2_cashier2(float score2, int score1_or_total_sales2){
 
     int shmid = shmget(cashier2_score_key , sizeof(cashier_score2_shared_memory), 0666);
     if (shmid == -1) {
@@ -192,7 +200,13 @@ void change_score2_cashier2(float score2){
 
     lock_sem(score2_mutex);
 
-    shared_data->score2 = score2;
+    if( score1_or_total_sales2 == 1){
+        shared_data->score2 = score2 ;
+    }
+    else if(score1_or_total_sales2 == 2){
+        shared_data->total_sales2= score2 ;
+    }
+
 
     unlock_sem(score2_mutex);
     close_semaphore(score2_mutex);
@@ -206,7 +220,7 @@ void change_score2_cashier2(float score2){
 
 }
 
-void change_score3_cashier3(float score3) {
+void change_score3_cashier3(float score3, int score1_or_total_sales2) {
 
     int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), 0666);
     if (shmid == -1) {
@@ -225,7 +239,15 @@ void change_score3_cashier3(float score3) {
 
     lock_sem(score3_mutex);
 
-    shared_data->score3 = score3;
+
+    if( score1_or_total_sales2 == 1){
+        shared_data->score3 = score3 ;
+    }
+    else if(score1_or_total_sales2 == 2){
+        shared_data->total_sales3= score3 ;
+    }
+
+
 
     unlock_sem(score3_mutex);
     close_semaphore(score3_mutex);

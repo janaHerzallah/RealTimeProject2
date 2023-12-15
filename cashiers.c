@@ -151,12 +151,13 @@ void receive_and_process_messages(int cashier_id) {
 
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
+                change_score1_cashier1(cashier_info.total_sales,2);
                 number_of_people_served++;
         //        printf("Number of people served : %d\n", number_of_people_served);
 
                 write_score_att(-(customer_data.item_count),1,2);
                 write_score_att(-1,1,1);
-                change_score1_cashier1(score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
+                change_score1_cashier1(score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness),1);
                 printf(" Score 1 : %f\n", score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
 
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");
@@ -209,12 +210,16 @@ void receive_and_process_messages2(int cashier_id) {
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 // printf(" with %d items\n", customer_data.item_count);
 
+                cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
+                change_score2_cashier2(cashier_info.total_sales,2);
+
+
                 number_of_people_served++;
              //   printf("Number of people served : %d\n", number_of_people_served);
 
                 write_score_att(-1,2,1);
                 write_score_att(-(customer_data.item_count),2,2);
-                change_score2_cashier2(score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
+                change_score2_cashier2(score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness),1);
                 printf(" Score 2 : %f\n", score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
 
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");
@@ -287,8 +292,14 @@ void receive_and_process_messages3(int cashier_id) {
 
                 write_score_att(-(customer_data.item_count),3,2);
 
+
+                cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
+                printf("Total sales: %f\n", cashier_info.total_sales);
+
+                change_score3_cashier3(cashier_info.total_sales,2);
+
                 write_score_att(-1,3,1);
-                change_score3_cashier3(score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
+                change_score3_cashier3(score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness),1);
                 printf(" Score 3 : %f\n", score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
 
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");

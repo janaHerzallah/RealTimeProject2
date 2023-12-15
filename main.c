@@ -268,7 +268,7 @@ void create_CNM() {
 void create_SC1SM(){
     int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget");
+        perror("shmget score1");
         exit(EXIT_FAILURE);
     }
 
@@ -279,6 +279,7 @@ void create_SC1SM(){
     }
 
     shared_data->score1 = 0;
+    shared_data->total_sales1 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -289,7 +290,7 @@ void create_SC1SM(){
 void create_SC2SM(){
     int shmid = shmget(cashier2_score_key, sizeof(cashier_score2_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget");
+        perror("shmget score2");
         exit(EXIT_FAILURE);
     }
 
@@ -300,6 +301,7 @@ void create_SC2SM(){
     }
 
     shared_data->score2 = 0;
+    shared_data->total_sales2 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -310,7 +312,7 @@ void create_SC2SM(){
 void create_SC3SM(){
     int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget");
+        perror("shmget score3");
         exit(EXIT_FAILURE);
     }
 
@@ -321,6 +323,7 @@ void create_SC3SM(){
     }
 
     shared_data->score3 = 0;
+    shared_data->total_sales3 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
