@@ -216,23 +216,35 @@ void send_customer_message(struct Customer *customer) {
     lock_sem(customers_total_mutex);
 
 
- /*   if(value ){
-
-        send_customer_message2(customer);
-
-
-    }*/
-
-    /* increase_cashier_queue_size(cashier_id);
-     int size = get_cashier_queue_size(cashier_id);
-     */
+    if(get_happiest_cashier(1) == 0){
 
 
 
+        float  socre2 = get_score2_cashier2();
+        float  socre3 = get_score3_cashier3();
 
-    //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
+        int  what_cashier = find_max_score_index(-1000,socre2,socre3); // meaning  that cashier 1 is empty and not available.
 
-    //fflush(stdout); // Flush the output buffer to ensure immediate display
+        //  int what_cashier =  rand() % 3 + 1;      // Returns a pseudo-random integer between 1 and 3.
+
+        switch (what_cashier) {
+            case 1:
+                break;
+            case 2:
+                send_customer_message2(&customer_info);
+                change_score2_cashier2(socre2-1);
+                break;
+            case 3:
+                send_customer_message3(&customer_info);
+                change_score3_cashier3(socre3-1);
+                break;
+
+
+        }
+
+    }
+
+
 
     // Send the message
     if (msgsnd(queue, &customer_data, sizeof(customer_data), 0) == -1) {

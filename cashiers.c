@@ -165,13 +165,13 @@ void receive_and_process_messages(int cashier_id) {
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 write_total(1,cashier_info.total_sales);
                 // Check if the new total sales is above the threshold
-                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
+                if (cashier_info.total_sales > c.income_threshold ) {
                         printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
         
     
                         // Send a signal to the parent process
-                        kill(getppid(), SIGUSR1);
-                      //  kill(getpid(),SIGUSR1);
+                     kill(getppid(), SIGQUIT);
+
 
                         totalSalesAboveThreshold = 1;  // Set the flag
                     
@@ -226,7 +226,7 @@ void receive_and_process_messages2(int cashier_id) {
 
                 if(cashier_info.happiness == 0){
                     printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
-                    kill(getppid(), SIGUSR1);
+                    kill(getppid(), SIGUSR2);
                 }
 
 
@@ -262,13 +262,12 @@ void receive_and_process_messages2(int cashier_id) {
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 // printf(" with %d items\n", customer_data.item_count);
 
-                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
+                if (cashier_info.total_sales > c.income_threshold ) {
                     printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
 
 
                     // Send a signal to the parent process
-                    kill(getppid(), SIGUSR1);
-                    //  kill(getpid(),SIGUSR1);
+                    kill(getppid(), SIGQUIT);
 
                     totalSalesAboveThreshold = 1;  // Set the flag
 
@@ -323,9 +322,11 @@ void receive_and_process_messages3(int cashier_id) {
             if (!check_queue_empty(queue)){
 
 
+
+
                 if(cashier_info.happiness == 0){
                     printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
-                    kill(getppid(), SIGUSR1);
+                    kill(getppid(), SIGRTMIN);
                 }
 
 
@@ -367,12 +368,12 @@ void receive_and_process_messages3(int cashier_id) {
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
 
 
-                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
+                if (cashier_info.total_sales > c.income_threshold ) {
                     printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
 
 
                     // Send a signal to the parent process
-                    kill(getppid(), SIGUSR1);
+                    kill(getppid(), SIGQUIT);
                     //  kill(getpid(),SIGUSR1);
 
                     totalSalesAboveThreshold = 1;  // Set the flag
