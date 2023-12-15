@@ -17,6 +17,8 @@ void send_customer_message(struct Customer *customer);
 void send_customer_message2(struct Customer *customer);
 void send_customer_message3(struct Customer *customer);
 
+float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  );
+
 int main(int argc, char** argv ) {
 
 
@@ -31,7 +33,14 @@ int main(int argc, char** argv ) {
     print_customer_data(&customer_info);
     printf("\n \n");
 
+    int array1[3] = {0,0,0};
+    int array2[3] = {0,0,0};
+    get_score_att(array1,array2);
 
+
+    change_score3_cashier3(score( array1[2], array2[2], get_total_cashiers(1), get_happiest_cashier(1) ));
+    change_score2_cashier2(score( array1[1], array2[1], get_total_cashiers(2), get_happiest_cashier(2) ));
+    change_score1_cashier1(score( array1[0], array2[0], get_total_cashiers(3), get_happiest_cashier(3)));
 
     float  socre1 = get_score1_cashier1();
     float  socre2 = get_score2_cashier2();
@@ -333,5 +342,74 @@ void send_customer_message3(struct Customer *customer) {
     //end mutex code
 
 
+
+}
+
+int get_cashier_happiness(int cashier_id){
+
+    int shmid = shmget(happiest_cashier_key, sizeof(cashier_happiness_Shared_Memory), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    cashier_happiness_Shared_Memory *shared_data = (cashier_happiness_Shared_Memory *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    sem_t* cashier_happiness = get_semaphore(happiest_cashier_key_sem);
+
+    lock_sem(cashier_happiness);
+
+    int happiness = 0;
+
+    switch (cashier_id) {
+        case 1:
+            happiness = shared_data->happy_cashier_1;
+            break;
+        case 2:
+            happiness = shared_data->happy_cashier_2;
+            break;
+        case 3:
+            happiness = shared_data->happy_cashier_3;
+            break;
+        default:
+            printf("error in finding the max score\n");
+
+    }
+
+    unlock_sem(cashier_happiness);
+    close_semaphore(cashier_happiness);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
+
+    return happiness;
+
+}
+
+
+
+float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  ){
+
+    float queueSizeWeight = -0.8; // Negative because a larger queue is worse
+    float totalItemsWeight = -0.8; // Negative because more items generally mean slower processing
+    float scanningSpeedWeight = 0.1; // Positive, assuming higher value means faster scanning
+    float behaviorScoreWeight = 0.1; // Positive, higher happiness score is better
+
+    // Calculate the weighted score
+    float score = queueSizeWeight * numPeopleInQueue + totalItemsWeight * number_of_all_items + scanningSpeedWeight * scanningTime + behaviorScoreWeight * happiness;
+
+    return score;
 
 }

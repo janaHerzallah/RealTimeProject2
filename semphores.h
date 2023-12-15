@@ -23,6 +23,7 @@ const char *score_atrributes_key_sem = "score_atrributes";
 
 const char *totalsale_key_sem = "totalsale";
 
+const char *happiest_cashier_key_sem = "happiest_cashier";
 
 sem_t* pick_up_items_mutex; // Semaphore for picking up items in customers header
 sem_t* customers_total_mutex; // Semaphore for picking up items in customers header

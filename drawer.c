@@ -28,8 +28,11 @@ int cashier1_totalCount = 0;
 int  cashier3_totalCount = 0;
 int cashier2_totalCnt=0;
 
+int queueCount[3] = {0, 0, 0};
+int itemCount[3] = {0, 0, 0};
+
       int   receptionHallMaleCount = 0,
-        receptionHallFemaleCount = 0,
+        cashier_count = 0,
         birthCertificateCnt = 0,
         bakeryCnt = 0,
         dair_eggsCnt = 0,
@@ -420,8 +423,8 @@ void drawText()
             bakery[30] = " Eggs : ",
             dair_eggs[30] = "Bread  : ",
             packaged[30] = "Apples : ",
-            unservedCostumers[30]="Costumers unserved   : ",
-            cashier_stopped[30]="Cashier stopped : ",
+            unservedCostumers[30]="",
+            cashier_stopped[30]="",
             numberOfPeopleIncashier1_total[5] = "",
             numberOfPeopleInFemalQueue[5] = "",
             numberOfMaleInTheReceptionHall[5] = "",
@@ -434,10 +437,24 @@ void drawText()
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
 
+    char  cashierQueueInfo1[30], cashierQueueInfo2[30], cashierQueueInfo3[30],
+            cashierItemsInfo1[30], cashierItemsInfo2[30], cashierItemsInfo3[30];
+
+    // Prepare strings for queue counts
+    sprintf(cashierQueueInfo1, "Cashier 1 Queue: %d", queueCount[0]);
+    sprintf(cashierQueueInfo2, "Cashier 2 Queue: %d", queueCount[1]);
+    sprintf(cashierQueueInfo3, "Cashier 3 Queue: %d", queueCount[2]);
+
+    // Prepare strings for item counts
+    sprintf(cashierItemsInfo1, "Cashier 1 Items: %d", itemCount[0]);
+    sprintf(cashierItemsInfo2, "Cashier 2 Items: %d", itemCount[1]);
+    sprintf(cashierItemsInfo3, "Cashier 3 Items: %d", itemCount[2]);
+
+
     sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);
     sprintf(numberOfcashier2_total, "%d", cashier2_totalCnt);
     sprintf(numberOfPeopleInFemalQueue, "%d", cashier3_totalCount);
-    sprintf(numberOfFemaleInTheReceptionHall, "%d", receptionHallFemaleCount);
+    sprintf(numberOfFemaleInTheReceptionHall, "%d", cashier_count);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
     sprintf(numberOfBusyTellersForBirthCertificate, "%d", birthCertificateCnt);
@@ -475,8 +492,16 @@ void drawText()
     renderText(14, -9, GLUT_BITMAP_TIMES_ROMAN_24, packaged);
     renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
 
-    renderText(-8, 15, GLUT_BITMAP_TIMES_ROMAN_24, unservedCostumers);
-    renderText(-18, 2, GLUT_BITMAP_TIMES_ROMAN_24, cashier_stopped); // cashier stopped
+  //  renderText(-8, 15, GLUT_BITMAP_TIMES_ROMAN_24, unservedCostumers);
+   // renderText(-18, 2, GLUT_BITMAP_TIMES_ROMAN_24, cashier_stopped); // cashier stopped
+
+    renderText(-18, 8, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo1); // Queue info for Cashier 1
+    renderText(-18, 6, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo2); // Queue info for Cashier 2
+    renderText(-18, 4, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo3); // Queue info for Cashier 3
+
+    renderText(-18, -6, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo1);  // Item info for Cashier 1
+    renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
+    renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
 }
 
 void renderText(int x, int y, void *font, char *string)
@@ -497,6 +522,7 @@ void renderText(int x, int y, void *font, char *string)
 void readDataFromSharedMemory()
 {
 
+     get_score_att(queueCount,itemCount);
 
      peopleInTheInnerHall = get_total_customers();
 
@@ -506,8 +532,12 @@ void readDataFromSharedMemory()
     cashier2_totalCnt= get_total_sales(2); // for cahier total sales 2
     cashier3_totalCount = get_total_sales(3); // for cahier total sales 3
 
+
+
+    cashier_count = get_total_cashiers(0);
+
   //  receptionHallMaleCount = read_queue_size(OUTSIDE, MALE) ;
-   // receptionHallFemaleCount =read_queue_size(OUTSIDE, FEMALE);
+
    // birthCertificateCnt = read_tellers_numbers(B);
 
    // bakeryCnt = read_tellers_numbers(T);

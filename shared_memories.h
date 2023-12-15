@@ -20,6 +20,16 @@
 
 #define total_sales_key 0x1241
 
+#define happiest_cashier_key 0x1242
+
+typedef struct {
+
+    int happy_cashier_1;
+    int happy_cashier_2;
+    int happy_cashier_3;
+
+} cashier_happiness_Shared_Memory;
+
 typedef struct {
 
     float total_sales1;

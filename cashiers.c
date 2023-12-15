@@ -88,7 +88,9 @@ void fill_data(){
     }
 
 
-
+    write_happiest_cashier(1,cashier_info.happiness);
+    write_happiest_cashier(2,cashier_info.happiness);
+    write_happiest_cashier(3,cashier_info.happiness);
 
 
 }
@@ -156,7 +158,7 @@ void receive_and_process_messages(int cashier_id) {
 
 
                // printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
-              ///  printf(" with %d items\n", customer_data.item_coun );
+              //  printf(" with %d items\n", customer_data.item_coun );
 
 
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
@@ -193,6 +195,7 @@ void receive_and_process_messages(int cashier_id) {
 
                 write_score_att(-(customer_data.item_count),1,2);
                 write_score_att(-1,1,1);
+                write_happiest_cashier(1,cashier_info.happiness);
 
                 change_score1_cashier1(score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
                 printf(" Score 1 : %f\n", score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
@@ -290,6 +293,7 @@ void receive_and_process_messages2(int cashier_id) {
 
                 write_score_att(-(customer_data.item_count),2,2);
                 write_score_att(-1,2,1);
+                write_happiest_cashier(2,cashier_info.happiness);
 
 
                 change_score2_cashier2(score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
@@ -396,6 +400,7 @@ void receive_and_process_messages3(int cashier_id) {
 
                 write_score_att(-1,3,1);
                 write_score_att(-(customer_data.item_count),3,2);
+                write_happiest_cashier(3,cashier_info.happiness);
 
 
 
@@ -422,10 +427,10 @@ void receive_and_process_messages3(int cashier_id) {
 
 float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  ){
 
-    float queueSizeWeight = -0.5; // Negative because a larger queue is worse
-    float totalItemsWeight = -0.3; // Negative because more items generally mean slower processing
-    float scanningSpeedWeight = 0.4; // Positive, assuming higher value means faster scanning
-    float behaviorScoreWeight = 0.3; // Positive, higher happiness score is better
+    float queueSizeWeight = -0.8; // Negative because a larger queue is worse
+    float totalItemsWeight = -0.8; // Negative because more items generally mean slower processing
+    float scanningSpeedWeight = 0.1; // Positive, assuming higher value means faster scanning
+    float behaviorScoreWeight = 0.1; // Positive, higher happiness score is better
 
     // Calculate the weighted score
     float score = queueSizeWeight * numPeopleInQueue + totalItemsWeight * number_of_all_items + scanningSpeedWeight * scanningTime + behaviorScoreWeight * happiness;

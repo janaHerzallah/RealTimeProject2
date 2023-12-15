@@ -21,6 +21,8 @@ void create_SC3SM(); // shared memory for cashier3 score
 void create_SHTCSH(); // shared memory for total number of cashiers
 void create_SCORA(); // shared memory for score attributes
 void create_SALESSH(); // shared memory for total sales
+void create_HPPSH(); // shared memory for happiness
+
 
 void clean_all_shared_memories();
 void clean_STM();
@@ -31,6 +33,7 @@ void clean_SC3SM();
 void clean_SHTCSH();
 void clean_SCORA();
 void clean_SALESSH();
+void clean_HPPSH();
 
 
 
@@ -47,6 +50,7 @@ void create_score2_semaphore();
 void create_score3_semaphore();
 void score_attributes_semaphore();
 void create_total_sales_semaphore();
+void create_happiest_cashier_semaphore();
 
 
 void clean_all_semaphores();// clean all semaphores
@@ -62,6 +66,7 @@ void clean_score2_semaphore();
 void clean_score3_semaphore();
 void clean_score_attributes_semaphore();
 void clean_total_sales_semaphore();
+void clean_happiest_cashier_semaphore();
 
 void create_all_message_queues();
 void create_Q1();
@@ -263,6 +268,7 @@ void create_all_shared_memories(){
     create_SHTCSH();
     create_SCORA();
     create_SALESSH();
+    create_HPPSH();
 
 }
 
@@ -449,6 +455,29 @@ void create_SALESSH(){
     }
 }
 
+void create_HPPSH(){
+    int shmid = shmget(happiest_cashier_key, sizeof(cashier_happiness_Shared_Memory), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    cashier_happiness_Shared_Memory *shared_data = (cashier_happiness_Shared_Memory *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    shared_data->happy_cashier_1 = 0;
+    shared_data->happy_cashier_2 = 0;
+    shared_data->happy_cashier_3 = 0;
+
+    if (shmdt(shared_data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+}
+
 // clean all shared memories
 
 void clean_all_shared_memories(){
@@ -460,6 +489,7 @@ void clean_all_shared_memories(){
     clean_SHTCSH();
     clean_SCORA();
     clean_SALESSH();
+    clean_HPPSH();
 
 }
 
@@ -567,7 +597,18 @@ void clean_SALESSH(){
         exit(EXIT_FAILURE);
     }
 }
+void clean_HPPSH(){
+    int shmid = shmget(happiest_cashier_key, sizeof(cashier_happiness_Shared_Memory), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
 
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+}
 
 /** shared memory area end *************************************************************************************************************************/
 
@@ -586,6 +627,7 @@ void create_all_semaphores(){
     create_score3_semaphore(); // for cashier 3 score
     score_attributes_semaphore(); // for score attributes
     create_total_sales_semaphore(); // for total sales
+    create_happiest_cashier_semaphore(); // for happiest cashier
 
 
 }
@@ -766,8 +808,26 @@ void create_total_sales_semaphore(){
     sem_close(cnm_sem);
 
 
+}
+
+void create_happiest_cashier_semaphore(){
+
+    sem_t *cnm_sem = sem_open(happiest_cashier_key_sem, O_CREAT, 0777, 0);
+    if(cnm_sem == SEM_FAILED){
+        perror("CNM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cnm_sem) < 0){
+        perror("CNM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cnm_sem);
+
 
 }
+
 
 // clean area ==============================================================================================================
 void clean_all_semaphores(){
@@ -782,6 +842,7 @@ void clean_all_semaphores(){
     clean_score3_semaphore();
     clean_score_attributes_semaphore();
     clean_total_sales_semaphore();
+    clean_happiest_cashier_semaphore();
 
 }
 
@@ -864,6 +925,12 @@ void clean_total_sales_semaphore(){
     }
 }
 
+void clean_happiest_cashier_semaphore(){
+    if(sem_unlink(happiest_cashier_key_sem ) < 0){
+        perror("happiest cashier Unlink Error\n");
+        exit(-1);
+    }
+}
 
 /** semaphores area end *************************************************************************************************************************/
 

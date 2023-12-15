@@ -398,6 +398,55 @@ void write_total(int num_of_cashier_queue , float sales){
 
 }
 
+void write_happiest_cashier(int num_of_cashier_queue , int happiest_cashier){
+
+    int shmid = shmget(happiest_cashier_key, sizeof(cashier_happiness_Shared_Memory), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    cashier_happiness_Shared_Memory *shared_data = (cashier_happiness_Shared_Memory *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    sem_t* happiest_cashier_mutex = get_semaphore(happiest_cashier_key_sem);
+
+    lock_sem(happiest_cashier_mutex);
+
+    // 1 for people 2 for items
+
+    if(num_of_cashier_queue == 1){
+        shared_data->happy_cashier_1 = happiest_cashier;
+
+    }else if(num_of_cashier_queue == 2){
+
+        shared_data->happy_cashier_2 = happiest_cashier;
+
+    }
+    else if(num_of_cashier_queue == 3){
+
+        shared_data->happy_cashier_3 = happiest_cashier;
+    }
+
+    unlock_sem(happiest_cashier_mutex);
+
+    close_semaphore(happiest_cashier_mutex);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
+
+}
 
 
 
