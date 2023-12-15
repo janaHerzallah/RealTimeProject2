@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include<sys/shm.h>
 #include <errno.h>
-//#include <GL/glut.h>
+#include <GL/glut.h>
 
 
 #endif

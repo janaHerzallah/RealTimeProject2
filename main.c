@@ -73,46 +73,9 @@ void clean_O1();
 void clean_Q2();
 void clean_Q3();
 
-int num_customers ;
-int elapseTime=0;
 
 Config c;
 
-
-
-
-// Function to generate a random number of customers each interval
-int generate_customers_per_interval() {
-    // Generate a random number of customers between 1 and customerPerInterval
-    return (rand() % c.customers_per_interval) + 1;
-}
-
-void terminate_handler(int signo) {
-    if (signo == SIGUSR1) {
-        printf("Received signal: Cashier's behavior below threshold. Stopping the program.\n");
-        exit_program = 1;
-        totalSalesAboveThreshold = 1;
-        // Send SIGTERM to the process group (including children)
-        kill(0, SIGKILL);
-
-    }
-}
-
-// Main program loop
-void terminate_simulation() {
-    while (!exit_program) {
-        // Optional: Add a sleep to avoid tight-looping and reduce CPU usage
-        sleep(1);
-
-        // Check if any cashier's behavior fell below the threshold
-        if (totalSalesAboveThreshold) {
-            printf("Exiting the main program because a cashier's behavior is below the threshold.\n");
-            fflush(stdout);
-
-            _exit(EXIT_SUCCESS);
-        }
-    }
-}
 
 int main(int argc, char** argv){
 
@@ -148,29 +111,7 @@ int main(int argc, char** argv){
 
    /********************************************/
 
-   // signal area
- // Register the signal handler using sigaction for better signal handling
-    struct sigaction sa;
-    sa.sa_handler = terminate_handler;
-    sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
-    if (sigaction(SIGUSR1, &sa, NULL) == -1) {
-        perror("sigaction");
-        exit(EXIT_FAILURE);
-    }
-
     // Fork a child process to run the main program loop
-    
-    pid_t pid = fork();
-
-    if (pid == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    } else if (pid == 0) {
-        // Child process (main program loop)
-        terminate_simulation();
-        exit(EXIT_SUCCESS);
-    }
 
    /**************************************/
     create_all_shared_memories();
@@ -179,7 +120,7 @@ int main(int argc, char** argv){
 
     
 
- /*   // drawer area start
+   // drawer area start
     pid_t drawer;
 
     if((drawer = fork()) == -1){
@@ -196,52 +137,46 @@ int main(int argc, char** argv){
         exit(-1);
     }
 
-
-
     // drawer area end
 
-*/
+    // generator  area start
 
-   // cashiers area start
-    pid_t cashier1 = fork();
-    if(cashier1 == 0){
-        execlp("./cashier", "cashier", "1", NULL);
+    pid_t generator;
+
+    if((generator = fork()) == -1){
+        perror("The generator fork error\n");
+        exit(-1);
+
+    }else if( generator == 0){
+        execlp("./generater", "generater", (char *) NULL);
+
+        // If the program not have enough memory then will raise error
+        perror("exec Failure\n");
+        exit(-1);
     }
-    sleep(1);
 
-    pid_t cashier2 = fork();
-    if(cashier2 == 0){
-        execlp("./cashier", "cashier", "2", NULL);
-    }
-    sleep(1);
 
-    pid_t cashier3 = fork();
-    if(cashier3 == 0){
-        execlp("./cashier", "cashier", "3", NULL);
-    }
-    sleep(1);
-
-    // cashiers area end
+    // generator area end
 
     
    // customers area start
 
  
 
-int customerCapacity = 7;  // Set your desired customer capacity
+int customerCapacity = 20;  // Set your desired customer capacity
 pid_t arr_customers_pid[customerCapacity];
-    int totalCustomers = 0;
+
 
     // Read the maximum customers from config.txt (assuming it contains a single integer)
     // TODO: Add code to read from config.txt and set maxCustomers
 
     //int maxCustomers = 5; // Example value, replace it with the actual value read from config.txt
 
-    while (totalCustomers < customerCapacity) {
+    while (get_total_customers() < customerCapacity) {
         // Generate a random number of customers for this batch (up to maxCustomers)
-        int customersInBatch = rand() % (c.customers_per_interval + 1);
+        int customersInBatch = rand() % (c.customers_per_interval + 3);
 
-        for (int i = 0; i < customersInBatch && totalCustomers < customerCapacity; i++) {
+        for (int i = 0; i < customersInBatch ; i++) {
             arr_customers_pid[i] = fork();
 
             if (arr_customers_pid[i] < 0) {
@@ -253,56 +188,20 @@ pid_t arr_customers_pid[customerCapacity];
                 exit(EXIT_FAILURE);
             }
 
-            totalCustomers++;
+
         }
 
-        // Wait for all customer processes in this batch to complete
-        for (int i = 0; i < customersInBatch; i++) {
-            waitpid(arr_customers_pid[i], NULL, 0);
-        }
 
-        // Sleep for the specified interval
-        sleep(c.interval_seconds);
+
+        sleep(7);
         printf("**sleeping interval is :%d\n",c.interval_seconds);
+
+
     }
 
-/*
-pid_t arr_customers_pid[customerCapacity];
-    int totalCustomers = 0;
-
-    while (totalCustomers < customerCapacity) {
-        num_customers  = generate_customers_per_interval();
-
-        for (int i = 0; i < num_customers; ++i) {
-            // Check if the total number of customers exceeds the capacity
-            if (totalCustomers >= customerCapacity) {
-                break;
-            }
-
-            
-            arr_customers_pid[i] = fork();
-        
-            if(arr_customers_pid[i] < 0){
-            perror("Error: Unable to fork customer process.\n");
-            exit(EXIT_FAILURE);
-        }
-
-        else if(arr_customers_pid[i] == 0){
-            increment_total_customers(1);
-            totalCustomers++;
-            execlp("./customer", "./customer", NULL);
-        }
-            
-            
-            
-        }
-
-        // Sleep for the intervalSeconds before creating the next batch of customers
-        elapseTime = elapseTime + c.interval_seconds;
-        printf("**%d**\n", elapseTime);
-        sleep(c.interval_seconds);
+    for(int i = 0; i <customerCapacity; i++) {
+        waitpid(arr_customers_pid[i], NULL, 0);
     }
-*/
 /*
     
    pid_t arr_customers_pid[customerCapacity];
@@ -331,7 +230,7 @@ pid_t arr_customers_pid[customerCapacity];
     sleep(40);
 */
 
-    if (kill(cashier1, SIGTERM) == -1) {
+   /* if (kill(cashier1, SIGTERM) == -1) {
         perror("Error sending SIGTERM");
         exit(EXIT_FAILURE);
     } if (kill(cashier2, SIGTERM) == -1) {
@@ -341,6 +240,7 @@ pid_t arr_customers_pid[customerCapacity];
         perror("Error sending SIGTERM");
         exit(EXIT_FAILURE);
     }
+*/
 
 
     clean_all_message_queues();

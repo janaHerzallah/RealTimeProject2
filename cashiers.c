@@ -162,7 +162,7 @@ void receive_and_process_messages(int cashier_id) {
     
                         // Send a signal to the parent process
                         kill(getppid(), SIGUSR1);
-                        kill(getpid(),SIGUSR1);
+                      //  kill(getpid(),SIGUSR1);
 
                         totalSalesAboveThreshold = 1;  // Set the flag
                     

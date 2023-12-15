@@ -232,6 +232,7 @@ void send_customer_message(struct Customer *customer) {
     //end mutex code
 
 
+    exit(0);
 
 }
 

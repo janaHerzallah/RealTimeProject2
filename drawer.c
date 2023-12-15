@@ -1,6 +1,6 @@
 
 #include "header.h"
-//#include <GL/glut.h>
+#include <GL/glut.h>
 #include "shared_memories.h"
 #include "customer_header"
 #include "cashier_header.h"
@@ -24,9 +24,9 @@ void readDataFromSharedMemory();
 
 
 int peopleInTheInnerHall = 0;
-float cashier1_totalCount = 0;
-float cashier3_totalCount = 0;
-float cashier2_totalCnt=0;
+int cashier1_totalCount = 0;
+int  cashier3_totalCount = 0;
+int cashier2_totalCnt=0;
 
       int   receptionHallMaleCount = 0,
         receptionHallFemaleCount = 0,
@@ -384,9 +384,9 @@ void drawText()
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
 
-    sprintf(numberOfPeopleIncashier1_total, "%0.2f", cashier1_totalCount);
-    sprintf(numberOfcashier2_total, "%0.2f", cashier2_totalCnt);
-    sprintf(numberOfPeopleInFemalQueue, "%0.2f", cashier3_totalCount);
+    sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);
+    sprintf(numberOfcashier2_total, "%d", cashier2_totalCnt);
+    sprintf(numberOfPeopleInFemalQueue, "%d", cashier3_totalCount);
     sprintf(numberOfFemaleInTheReceptionHall, "%d", receptionHallFemaleCount);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
