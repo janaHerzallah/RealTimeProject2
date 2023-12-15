@@ -126,6 +126,15 @@ void receive_and_process_messages(int cashier_id) {
 
                 if(cashier_info.happiness == 0){
                     printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+
+
+
+                    customers_total_mutex = get_semaphore(queu1_key);
+
+                    unlock_sem(customers_total_mutex);
+                    close_semaphore(customers_total_mutex);
+
+
                     kill(getppid(), SIGUSR1);
                 }
 
@@ -226,6 +235,12 @@ void receive_and_process_messages2(int cashier_id) {
 
                 if(cashier_info.happiness == 0){
                     printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+                    customers_total_mutex = get_semaphore(queu2_key);
+
+                    unlock_sem(customers_total_mutex);
+                    close_semaphore(customers_total_mutex);
+
+
                     kill(getppid(), SIGUSR2);
                 }
 
@@ -326,6 +341,12 @@ void receive_and_process_messages3(int cashier_id) {
 
                 if(cashier_info.happiness == 0){
                     printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+                    customers_total_mutex = get_semaphore(queu3_key);
+
+                    unlock_sem(customers_total_mutex);
+                    close_semaphore(customers_total_mutex);
+
+
                     kill(getppid(), SIGRTMIN);
                 }
 
@@ -399,6 +420,8 @@ void receive_and_process_messages3(int cashier_id) {
 
                 }
 
+                 cashier_info.happiness= cashier_info.happiness -1;
+
                 write_score_att(-1,3,1);
                 write_score_att(-(customer_data.item_count),3,2);
                 write_happiest_cashier(3,cashier_info.happiness);
@@ -408,7 +431,7 @@ void receive_and_process_messages3(int cashier_id) {
                 cashier_info.numPeopleInQueue--;
 
 
-                cashier_info.happiness= cashier_info.happiness -1;
+
                 printf("happeniss %d \n", cashier_info.happiness);
 
 
@@ -429,7 +452,7 @@ void receive_and_process_messages3(int cashier_id) {
 float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  ){
 
     float queueSizeWeight = -0.8; // Negative because a larger queue is worse
-    float totalItemsWeight = -0.8; // Negative because more items generally mean slower processing
+    float totalItemsWeight = -3; // Negative because more items generally mean slower processing
     float scanningSpeedWeight = 0.1; // Positive, assuming higher value means faster scanning
     float behaviorScoreWeight = 0.1; // Positive, higher happiness score is better
 

@@ -196,8 +196,13 @@ int find_max_score_index(float score1, float score2, float score3) {
 void send_customer_message(struct Customer *customer) {
 
 
-    write_score_att(1,1,1);
-    write_score_att(customer->num_items,1,2);
+    if(get_happiest_cashier(1) != 0){
+
+        write_score_att(1,1,1);
+        write_score_att(customer->num_items,1,2);
+
+
+    }
 
 
     int queue = get_queue(C_KEY);
@@ -269,8 +274,14 @@ void send_customer_message(struct Customer *customer) {
 
 void send_customer_message2(struct Customer *customer) {
 
-    write_score_att(1,2,1);
-    write_score_att(customer->num_items,2,2);
+
+    if(get_happiest_cashier(2) != 0){
+
+        write_score_att(1,2,1);
+        write_score_att(customer->num_items,2,2);
+    }
+
+
 
     int queue = get_queue(C_KEY2);
 
@@ -346,8 +357,11 @@ void send_customer_message2(struct Customer *customer) {
 
 void send_customer_message3(struct Customer *customer) {
 
-    write_score_att(1,3,1);
-    write_score_att(customer->num_items,3,2);
+    if(get_happiest_cashier(3) != 0){
+
+            write_score_att(1,3,1);
+            write_score_att(customer->num_items,3,2);
+    }
 
 
     int queue = get_queue(C_KEY3);
@@ -470,7 +484,7 @@ int get_cashier_happiness(int cashier_id){
 float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, int happiness  ){
 
     float queueSizeWeight = -0.8; // Negative because a larger queue is worse
-    float totalItemsWeight = -0.8; // Negative because more items generally mean slower processing
+    float totalItemsWeight = -4; // Negative because more items generally mean slower processing
     float scanningSpeedWeight = 0.1; // Positive, assuming higher value means faster scanning
     float behaviorScoreWeight = 0.1; // Positive, higher happiness score is better
 
