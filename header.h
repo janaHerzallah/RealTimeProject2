@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include <sys/types.h>
+#include <sys/types.h>s
 #include <signal.h>
 #include <string.h>
 #include <fcntl.h>
@@ -20,7 +20,7 @@
 #include <pthread.h>
 #include<sys/shm.h>
 #include <errno.h>
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 
 #endif

@@ -12,6 +12,8 @@
 #include "shared_memories.h"
 
 int get_total_cashiers();
+volatile sig_atomic_t exit_program = 0;
+volatile sig_atomic_t totalSalesAboveThreshold = 0;
 
 typedef struct {
     int id;                     // Cashier ID

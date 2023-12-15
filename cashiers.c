@@ -155,6 +155,18 @@ void receive_and_process_messages(int cashier_id) {
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 write_total(1,cashier_info.total_sales);
+                // Check if the new total sales is above the threshold
+                    if (cashier_info.total_sales > c.income_threshold) {
+                        printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
+        
+    
+                        // Send a signal to the parent process
+                        kill(getppid(), SIGUSR1);
+                        kill(getpid(),SIGUSR1);
+
+                        totalSalesAboveThreshold = 1;  // Set the flag
+                    
+                    }
                 number_of_people_served++;
         //        printf("Number of people served : %d\n", number_of_people_served);
 

@@ -12,7 +12,6 @@
 
 
 
-
 void create_all_shared_memories();
 void create_STM();
 void create_CNM();
@@ -74,10 +73,48 @@ void clean_O1();
 void clean_Q2();
 void clean_Q3();
 
+int num_customers ;
+int elapseTime=0;
 
 Config c;
-int main(int argc, char** argv){
 
+
+
+
+// Function to generate a random number of customers each interval
+int generate_customers_per_interval() {
+    // Generate a random number of customers between 1 and customerPerInterval
+    return (rand() % c.customers_per_interval) + 1;
+}
+
+void terminate_handler(int signo) {
+    if (signo == SIGUSR1) {
+        printf("Received signal: Cashier's behavior below threshold. Stopping the program.\n");
+        exit_program = 1;
+        totalSalesAboveThreshold = 1;
+        // Send SIGTERM to the process group (including children)
+        kill(0, SIGKILL);
+
+    }
+}
+
+// Main program loop
+void terminate_simulation() {
+    while (!exit_program) {
+        // Optional: Add a sleep to avoid tight-looping and reduce CPU usage
+        sleep(1);
+
+        // Check if any cashier's behavior fell below the threshold
+        if (totalSalesAboveThreshold) {
+            printf("Exiting the main program because a cashier's behavior is below the threshold.\n");
+            fflush(stdout);
+
+            _exit(EXIT_SUCCESS);
+        }
+    }
+}
+
+int main(int argc, char** argv){
 
 
     // print items area start
@@ -106,12 +143,41 @@ int main(int argc, char** argv){
    // print config area end
 
    /***********************************************************************************************************************************************************/
+
+
+
+   /********************************************/
+
+   // signal area
+ // Register the signal handler using sigaction for better signal handling
+    struct sigaction sa;
+    sa.sa_handler = terminate_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGUSR1, &sa, NULL) == -1) {
+        perror("sigaction");
+        exit(EXIT_FAILURE);
+    }
+
+    // Fork a child process to run the main program loop
+    
+    pid_t pid = fork();
+
+    if (pid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    } else if (pid == 0) {
+        // Child process (main program loop)
+        terminate_simulation();
+        exit(EXIT_SUCCESS);
+    }
+
+   /**************************************/
     create_all_shared_memories();
     create_all_semaphores();
     create_all_message_queues();
 
-    int total_customers = 0;
-    total_customers++;
+    
 
  /*   // drawer area start
     pid_t drawer;
@@ -157,16 +223,94 @@ int main(int argc, char** argv){
 
     // cashiers area end
 
+    
    // customers area start
 
+ 
 
+int customerCapacity = 7;  // Set your desired customer capacity
+pid_t arr_customers_pid[customerCapacity];
+    int totalCustomers = 0;
 
-   pid_t arr_customers_pid[9];
+    // Read the maximum customers from config.txt (assuming it contains a single integer)
+    // TODO: Add code to read from config.txt and set maxCustomers
 
-    for(int i = 0; i < 9; i++){
+    //int maxCustomers = 5; // Example value, replace it with the actual value read from config.txt
+
+    while (totalCustomers < customerCapacity) {
+        // Generate a random number of customers for this batch (up to maxCustomers)
+        int customersInBatch = rand() % (c.customers_per_interval + 1);
+
+        for (int i = 0; i < customersInBatch && totalCustomers < customerCapacity; i++) {
+            arr_customers_pid[i] = fork();
+
+            if (arr_customers_pid[i] < 0) {
+                perror("Error: Unable to fork customer process.\n");
+                exit(EXIT_FAILURE);
+            } else if (arr_customers_pid[i] == 0) {
+                execlp("./customer", "./customer", NULL);
+                perror("Error: Unable to execute customer process.\n");
+                exit(EXIT_FAILURE);
+            }
+
+            totalCustomers++;
+        }
+
+        // Wait for all customer processes in this batch to complete
+        for (int i = 0; i < customersInBatch; i++) {
+            waitpid(arr_customers_pid[i], NULL, 0);
+        }
+
+        // Sleep for the specified interval
+        sleep(c.interval_seconds);
+        printf("**sleeping interval is :%d\n",c.interval_seconds);
+    }
+
+/*
+pid_t arr_customers_pid[customerCapacity];
+    int totalCustomers = 0;
+
+    while (totalCustomers < customerCapacity) {
+        num_customers  = generate_customers_per_interval();
+
+        for (int i = 0; i < num_customers; ++i) {
+            // Check if the total number of customers exceeds the capacity
+            if (totalCustomers >= customerCapacity) {
+                break;
+            }
+
+            
+            arr_customers_pid[i] = fork();
+        
+            if(arr_customers_pid[i] < 0){
+            perror("Error: Unable to fork customer process.\n");
+            exit(EXIT_FAILURE);
+        }
+
+        else if(arr_customers_pid[i] == 0){
+            increment_total_customers(1);
+            totalCustomers++;
+            execlp("./customer", "./customer", NULL);
+        }
+            
+            
+            
+        }
+
+        // Sleep for the intervalSeconds before creating the next batch of customers
+        elapseTime = elapseTime + c.interval_seconds;
+        printf("**%d**\n", elapseTime);
+        sleep(c.interval_seconds);
+    }
+*/
+/*
+    
+   pid_t arr_customers_pid[customerCapacity];
+
+    for(int i = 0; i < customerCapacity; i++){
         arr_customers_pid[i] = fork();
 
-        if(arr_customers_pid[i] < 0){
+        if(arr_customers_pid[customerCapacity] < 0){
             perror("Error: Unable to fork customer process.\n");
             exit(EXIT_FAILURE);
         }
@@ -176,7 +320,7 @@ int main(int argc, char** argv){
 
     }
 
-    for(int i = 0; i <9; i++) {
+    for(int i = 0; i <customerCapacity; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
@@ -185,6 +329,7 @@ int main(int argc, char** argv){
 
     // clean area start
     sleep(40);
+*/
 
     if (kill(cashier1, SIGTERM) == -1) {
         perror("Error sending SIGTERM");
