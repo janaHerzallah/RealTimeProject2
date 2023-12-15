@@ -18,32 +18,39 @@
 
 #define score_atrributes_key 0x1240
 
+#define total_sales_key 0x1241
+
+typedef struct {
+
+    float total_sales1;
+    float total_sales2;
+    float total_sales3
+
+} total_sales;
+
 typedef struct {
     int totalCashiers;
     int scanning_time1;
     int scanning_time2;
     int scanning_time3;
 
+
 } total_cashiers;
 
 typedef struct{
 
     float score1;
-    float total_sales1;
 
 } cashier_score1_shared_memory;
 
 typedef struct{
 
     float score2;
-    float total_sales2;
 } cashier_score2_shared_memory;
 
 typedef struct{
 
     float score3;
-    float total_sales3;
-
 } cashier_score3_shared_memory;
 
 typedef struct{
@@ -59,6 +66,7 @@ typedef struct cashier_score2_shared_memory * SC2SM;
 typedef struct cashier_score3_shared_memory * SC3SM;
 typedef struct total_cashiers * TC;
 typedef struct score_atrributes * SA;
+typedef struct total_sales * TS;
 
 #define MAX_LINE_LENGTH 100
 

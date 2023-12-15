@@ -21,6 +21,7 @@ void create_SC2SM(); // shared memory for cashier2 score
 void create_SC3SM(); // shared memory for cashier3 score
 void create_SHTCSH(); // shared memory for total number of cashiers
 void create_SCORA(); // shared memory for score attributes
+void create_SALESSH(); // shared memory for total sales
 
 void clean_all_shared_memories();
 void clean_STM();
@@ -30,6 +31,7 @@ void clean_SC2SM();
 void clean_SC3SM();
 void clean_SHTCSH();
 void clean_SCORA();
+void clean_SALESSH();
 
 
 
@@ -45,7 +47,7 @@ void create_score1_semaphore();
 void create_score2_semaphore();
 void create_score3_semaphore();
 void score_attributes_semaphore();
-
+void create_total_sales_semaphore();
 
 
 void clean_all_semaphores();// clean all semaphores
@@ -60,7 +62,7 @@ void clean_score1_semaphore();
 void clean_score2_semaphore();
 void clean_score3_semaphore();
 void clean_score_attributes_semaphore();
-
+void clean_total_sales_semaphore();
 
 void create_all_message_queues();
 void create_Q1();
@@ -111,8 +113,7 @@ int main(int argc, char** argv){
     int total_customers = 0;
     total_customers++;
 
-    // drawer area start
-
+ /*   // drawer area start
     pid_t drawer;
 
     if((drawer = fork()) == -1){
@@ -133,7 +134,7 @@ int main(int argc, char** argv){
 
     // drawer area end
 
-
+*/
 
    // cashiers area start
     pid_t cashier1 = fork();
@@ -157,6 +158,9 @@ int main(int argc, char** argv){
     // cashiers area end
 
    // customers area start
+
+
+
    pid_t arr_customers_pid[9];
 
     for(int i = 0; i < 9; i++){
@@ -213,6 +217,7 @@ void create_all_shared_memories(){
     create_SC3SM();
     create_SHTCSH();
     create_SCORA();
+    create_SALESSH();
 
 }
 
@@ -268,7 +273,7 @@ void create_CNM() {
 void create_SC1SM(){
     int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget score1");
+        perror("shmget");
         exit(EXIT_FAILURE);
     }
 
@@ -279,7 +284,6 @@ void create_SC1SM(){
     }
 
     shared_data->score1 = 0;
-    shared_data->total_sales1 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -290,7 +294,7 @@ void create_SC1SM(){
 void create_SC2SM(){
     int shmid = shmget(cashier2_score_key, sizeof(cashier_score2_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget score2");
+        perror("shmget");
         exit(EXIT_FAILURE);
     }
 
@@ -301,7 +305,6 @@ void create_SC2SM(){
     }
 
     shared_data->score2 = 0;
-    shared_data->total_sales2 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -312,7 +315,7 @@ void create_SC2SM(){
 void create_SC3SM(){
     int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), IPC_CREAT | 0666);
     if (shmid == -1) {
-        perror("shmget score3");
+        perror("shmget");
         exit(EXIT_FAILURE);
     }
 
@@ -323,7 +326,6 @@ void create_SC3SM(){
     }
 
     shared_data->score3 = 0;
-    shared_data->total_sales3 = 0;
 
     if (shmdt(shared_data) == -1) {
         perror("shmdt");
@@ -379,6 +381,29 @@ void create_SCORA(){
     }
 }
 
+void create_SALESSH(){
+    int shmid = shmget(total_sales_key, sizeof(total_sales), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    total_sales *shared_data = (total_sales *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    shared_data->total_sales1 = 0;
+    shared_data->total_sales2 = 0;
+    shared_data->total_sales3 = 0;
+
+    if (shmdt(shared_data) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+}
+
 // clean all shared memories
 
 void clean_all_shared_memories(){
@@ -389,6 +414,7 @@ void clean_all_shared_memories(){
     clean_SC3SM();
     clean_SHTCSH();
     clean_SCORA();
+    clean_SALESSH();
 
 }
 
@@ -484,6 +510,18 @@ void clean_SCORA(){
     }
 }
 
+void clean_SALESSH(){
+    int shmid = shmget(total_sales_key, sizeof(total_sales), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        exit(EXIT_FAILURE);
+    }
+}
 
 
 /** shared memory area end *************************************************************************************************************************/
@@ -502,6 +540,7 @@ void create_all_semaphores(){
     create_score2_semaphore(); // for cashier 2 score
     create_score3_semaphore(); // for cashier 3 score
     score_attributes_semaphore(); // for score attributes
+    create_total_sales_semaphore(); // for total sales
 
 
 }
@@ -666,6 +705,24 @@ void score_attributes_semaphore(){
     sem_close(cnm_sem);
 }
 
+void create_total_sales_semaphore(){
+
+    sem_t *cnm_sem = sem_open(totalsale_key_sem, O_CREAT, 0777, 0);
+    if(cnm_sem == SEM_FAILED){
+        perror("CNM Semaphore Open Error\n");
+        exit(-1);
+    }
+
+    // When return -1 then wrong issue happened
+    if (sem_post(cnm_sem) < 0){
+        perror("CNM Semaphore Release Error\n");
+        exit(-1);
+    }
+    sem_close(cnm_sem);
+
+
+
+}
 
 // clean area ==============================================================================================================
 void clean_all_semaphores(){
@@ -679,6 +736,7 @@ void clean_all_semaphores(){
     clean_score2_semaphore();
     clean_score3_semaphore();
     clean_score_attributes_semaphore();
+    clean_total_sales_semaphore();
 
 }
 
@@ -750,6 +808,13 @@ void clean_score3_semaphore(){
 void clean_score_attributes_semaphore(){
     if(sem_unlink(score_atrributes_key_sem ) < 0){
         perror("score attributes Unlink Error\n");
+        exit(-1);
+    }
+}
+
+void clean_total_sales_semaphore(){
+    if(sem_unlink(totalsale_key_sem ) < 0){
+        perror("total sales Unlink Error\n");
         exit(-1);
     }
 }

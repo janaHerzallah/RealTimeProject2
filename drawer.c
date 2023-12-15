@@ -1,9 +1,9 @@
 
 #include "header.h"
-#include <GL/glut.h>
+//#include <GL/glut.h>
 #include "shared_memories.h"
 #include "customer_header"
-#include "customer_header"
+#include "cashier_header.h"
 
 unsigned int read_queue_size();
 
@@ -23,16 +23,18 @@ void renderText(int, int, void *, char *);
 void readDataFromSharedMemory();
 
 
-int peopleInTheInnerHall = 0,
-        cashier1_totalCount = 0,
-        cashier3_totalCount = 0,
-        receptionHallMaleCount = 0,
+int peopleInTheInnerHall = 0;
+float cashier1_totalCount = 0;
+float cashier3_totalCount = 0;
+float cashier2_totalCnt=0;
+
+      int   receptionHallMaleCount = 0,
         receptionHallFemaleCount = 0,
         birthCertificateCnt = 0,
         bakeryCnt = 0,
         dair_eggsCnt = 0,
         packagedCnt = 0,
-        cashier2_totalCnt=0,
+
         unservedCostumersCnt=0,
         cashier_stoppedCnt=0,
         fram_rate = 1000 / 120;
@@ -323,7 +325,7 @@ void drawChairs()
 void drawTellers()
 {
     glBegin(GL_POLYGON_BIT);
-    glColor3f(0.1, 0.9, 0.4);
+    glColor3f(7, 0.3, 10);
     glVertex2i(20, 12);
     glVertex2i(12, 12);
     glVertex2i(20, 6);
@@ -364,10 +366,10 @@ void drawText()
             cashier1_total[30] = "cashier1 Total Sales : $ ",
             cashier2_total[30]="cashier2 Total Sales : $ ",
             cashier3_total[30] = "cashier3 Total Sales  : $ ",
-            freshProduce[30] = "Fresh Produce : ",
-            bakery[30] = " Bakery : ",
-            dair_eggs[30] = "Dairy and Eggs : ",
-            packaged[30] = "Packaged Goods : ",
+            freshProduce[30] = "Milk : ",
+            bakery[30] = " Eggs : ",
+            dair_eggs[30] = "Bread  : ",
+            packaged[30] = "Apples : ",
             unservedCostumers[30]="Costumers unserved   : ",
             cashier_stopped[30]="Cashier stopped : ",
             numberOfPeopleIncashier1_total[5] = "",
@@ -382,8 +384,9 @@ void drawText()
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
 
-    sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);
-    sprintf(numberOfPeopleInFemalQueue, "%d", cashier3_totalCount);
+    sprintf(numberOfPeopleIncashier1_total, "%0.2f", cashier1_totalCount);
+    sprintf(numberOfcashier2_total, "%0.2f", cashier2_totalCnt);
+    sprintf(numberOfPeopleInFemalQueue, "%0.2f", cashier3_totalCount);
     sprintf(numberOfFemaleInTheReceptionHall, "%d", receptionHallFemaleCount);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
@@ -392,7 +395,7 @@ void drawText()
     sprintf(numberOfBusyTellersFordair_eggs, "%d", dair_eggsCnt);
     sprintf(numberOfBusyTellersForpackaged, "%d", packagedCnt);
 
-    sprintf(numberOfcashier2_total, "%d", cashier2_totalCnt);
+
     sprintf(numberOfunservedCostumers, "%d", unservedCostumersCnt);
     sprintf(numberOfcashier_stopped, "%d", cashier_stoppedCnt);
 
@@ -448,14 +451,15 @@ void readDataFromSharedMemory()
      peopleInTheInnerHall = get_total_customers();
 
 
-    cashier1_totalCount = get_score1_cashier1(2);
+    cashier1_totalCount = get_total_sales(1); // for cahier total sales 1
 
-    cashier2_totalCnt= get_score2_cashier2(2);
-    cashier3_totalCount = get_score3_cashier3(2);
+    cashier2_totalCnt= get_total_sales(2); // for cahier total sales 2
+    cashier3_totalCount = get_total_sales(3); // for cahier total sales 3
 
   //  receptionHallMaleCount = read_queue_size(OUTSIDE, MALE) ;
    // receptionHallFemaleCount =read_queue_size(OUTSIDE, FEMALE);
    // birthCertificateCnt = read_tellers_numbers(B);
+
    // bakeryCnt = read_tellers_numbers(T);
   //  dair_eggsCnt = read_tellers_numbers(R);
   //  packagedCnt = read_tellers_numbers(I);

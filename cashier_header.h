@@ -137,7 +137,7 @@ void increment_total_cashiers(int num, int num_of_cashier_queue ) {
 }
 
 
-void change_score1_cashier1(float score1, int score1_or_total_sales2 ){
+void change_score1_cashier1(float score1) {
 
     int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), 0666);
     if (shmid == -1) {
@@ -158,14 +158,6 @@ void change_score1_cashier1(float score1, int score1_or_total_sales2 ){
     lock_sem(score1_mutex);
 
 
-    if( score1_or_total_sales2 == 1){
-        shared_data->score1 = score1 ;
-    }
-    else if(score1_or_total_sales2 == 2){
-        shared_data->total_sales1= score1 ;
-    }
-
-
      shared_data->score1 = score1;
 
     unlock_sem(score1_mutex);
@@ -181,7 +173,7 @@ void change_score1_cashier1(float score1, int score1_or_total_sales2 ){
 
 }
 
-void change_score2_cashier2(float score2, int score1_or_total_sales2){
+void change_score2_cashier2(float score2){
 
     int shmid = shmget(cashier2_score_key , sizeof(cashier_score2_shared_memory), 0666);
     if (shmid == -1) {
@@ -200,13 +192,7 @@ void change_score2_cashier2(float score2, int score1_or_total_sales2){
 
     lock_sem(score2_mutex);
 
-    if( score1_or_total_sales2 == 1){
-        shared_data->score2 = score2 ;
-    }
-    else if(score1_or_total_sales2 == 2){
-        shared_data->total_sales2= score2 ;
-    }
-
+    shared_data->score2 = score2;
 
     unlock_sem(score2_mutex);
     close_semaphore(score2_mutex);
@@ -220,7 +206,7 @@ void change_score2_cashier2(float score2, int score1_or_total_sales2){
 
 }
 
-void change_score3_cashier3(float score3, int score1_or_total_sales2) {
+void change_score3_cashier3(float score3) {
 
     int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), 0666);
     if (shmid == -1) {
@@ -239,15 +225,7 @@ void change_score3_cashier3(float score3, int score1_or_total_sales2) {
 
     lock_sem(score3_mutex);
 
-
-    if( score1_or_total_sales2 == 1){
-        shared_data->score3 = score3 ;
-    }
-    else if(score1_or_total_sales2 == 2){
-        shared_data->total_sales3= score3 ;
-    }
-
-
+    shared_data->score3 = score3;
 
     unlock_sem(score3_mutex);
     close_semaphore(score3_mutex);
@@ -307,6 +285,113 @@ void write_score_att(int num ,int queue_num_index , int people_1_items_2){
 
     }
 
+
+}
+
+float get_total_sales(int num_of_cashier_queue){
+
+
+    int shmid = shmget(total_sales_key, sizeof(total_sales), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    total_sales *shared_data = (total_sales *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+
+    // mutex code
+
+    sem_t* total_sales_mutex = get_semaphore(totalsale_key_sem);
+
+    lock_sem(total_sales_mutex);
+
+    // 1 for people 2 for items
+    float  sales = 0;
+
+    if(num_of_cashier_queue == 1){
+       sales = shared_data->total_sales1;
+
+    }else if(num_of_cashier_queue == 2){
+        sales = shared_data->total_sales2;
+
+    }
+    else if(num_of_cashier_queue == 3){
+        sales = shared_data->total_sales3;
+
+    }
+
+
+    unlock_sem(total_sales_mutex);
+
+    close_semaphore(total_sales_mutex);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
+
+    return sales;
+
+}
+
+void write_total(int num_of_cashier_queue , float sales){
+
+    int shmid = shmget(total_sales_key, sizeof(total_sales), IPC_CREAT | 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    total_sales *shared_data = (total_sales *)shmat(shmid, NULL, 0);
+    if (shared_data == (void *)-1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+    }
+
+    // mutex code
+
+    sem_t* total_sales_mutex = get_semaphore(totalsale_key_sem);
+
+    lock_sem(total_sales_mutex);
+
+    // 1 for people 2 for items
+
+    if(num_of_cashier_queue == 1){
+        shared_data->total_sales1 = sales;
+
+    }else if(num_of_cashier_queue == 2){
+
+        shared_data->total_sales2 = sales;
+
+    }
+    else if(num_of_cashier_queue == 3){
+
+        shared_data->total_sales3 = sales;
+    }
+
+
+
+    unlock_sem(total_sales_mutex);
+
+    close_semaphore(total_sales_mutex);
+
+    //end mutex code
+
+    if (shmdt(shared_data) == -1) {
+
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+
+    }
 
 }
 
