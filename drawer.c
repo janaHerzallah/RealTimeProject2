@@ -446,9 +446,9 @@ void drawText()
     sprintf(cashierQueueInfo3, "Cashier 3 Queue: %d", queueCount[2]);
 
     // Prepare strings for item counts
-    sprintf(cashierItemsInfo1, "Cashier 1 Items: %d", itemCount[0]);
-    sprintf(cashierItemsInfo2, "Cashier 2 Items: %d", itemCount[1]);
-    sprintf(cashierItemsInfo3, "Cashier 3 Items: %d", itemCount[2]);
+    sprintf(cashierItemsInfo1, "Cashier 1 Items: %d", get_happiest_cashier(1));
+    sprintf(cashierItemsInfo2, "Cashier 2 Items: %d", get_happiest_cashier(2));
+    sprintf(cashierItemsInfo3, "Cashier 3 Items: %d", get_happiest_cashier(3));
 
 
     sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);

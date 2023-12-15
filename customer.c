@@ -290,8 +290,38 @@ void send_customer_message2(struct Customer *customer) {
      int size = get_cashier_queue_size(cashier_id);
      */
 
+    if(get_happiest_cashier(2) == 0){
 
-    sleep(get_total_cashiers(2));
+
+
+
+        float  socre1 = get_score1_cashier1();
+        float  socre3 = get_score3_cashier3();
+
+        int  what_cashier = find_max_score_index(socre1,-1000,socre3); // meaning  that cashier 1 is empty and not available.
+
+        //  int what_cashier =  rand() % 3 + 1;      // Returns a pseudo-random integer between 1 and 3.
+
+        switch (what_cashier) {
+            case 1:
+                send_customer_message(&customer_info);
+                change_score1_cashier1(socre1-1);
+                break;
+            case 2:
+
+                break;
+            case 3:
+                send_customer_message3(&customer_info);
+                change_score3_cashier3(socre3-1);
+                break;
+
+
+        }
+
+    }
+
+
+
 
     //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 
@@ -302,7 +332,7 @@ void send_customer_message2(struct Customer *customer) {
         perror("customer_data");
         exit(EXIT_FAILURE);
     }
-
+    sleep(get_total_cashiers(2));
 
 
     unlock_sem(customers_total_mutex);
@@ -335,7 +365,32 @@ void send_customer_message3(struct Customer *customer) {
     lock_sem(customers_total_mutex);
 
 
-    sleep(get_total_cashiers(3));
+    if(get_happiest_cashier(3) == 0) {
+
+        float socre1 = get_score1_cashier1();
+        float socre2 = get_score2_cashier2();
+
+        int what_cashier = find_max_score_index(socre1, socre2,
+                                                -1000); // meaning  that cashier 1 is empty and not available.
+
+        //  int what_cashier =  rand() % 3 + 1;      // Returns a pseudo-random integer between 1 and 3.
+
+        switch (what_cashier) {
+            case 1:
+                send_customer_message(&customer_info);
+                change_score1_cashier1(socre1 - 1);
+                break;
+            case 2:
+                send_customer_message2(&customer_info);
+                change_score2_cashier2(socre2 - 1);
+                break;
+            case 3:
+
+                break;
+
+        }
+    }
+
 
 
     // Send the message
@@ -343,7 +398,7 @@ void send_customer_message3(struct Customer *customer) {
         perror("customer_data");
         exit(EXIT_FAILURE);
     }
-
+    sleep(get_total_cashiers(3));
 
 
 
