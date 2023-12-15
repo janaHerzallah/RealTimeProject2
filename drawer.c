@@ -21,7 +21,7 @@ void drawTellers();
 void drawText();
 void renderText(int, int, void *, char *);
 void readDataFromSharedMemory();
-
+void drawCashier1();
 
 int peopleInTheInnerHall = 0;
 int cashier1_totalCount = 0;
@@ -82,6 +82,7 @@ void display(void) {
     drawWattingHall();
     drawMetalDetector();
     drawChairs();
+    drawCashier1();
     drawTellers();
     drawText();
 
@@ -322,6 +323,55 @@ void drawChairs()
 
 
 }
+
+void drawCashier1()
+{
+    /*int peopleCount = 0, jTemp = -9, iTemp = 6; // Adjusted initial values for iTemp and jTemp
+    int xShift = -10; // Shift in the x-direction
+    int yShift = 3;   // Shift in the y-direction
+    int ySpace = 4;   // Space between the two rows, adjusted for clarity
+
+    glPointSize(5);
+    glBegin(GL_POINTS);
+    glColor3f(1.0, 0.1, 0.1);
+
+    // Drawing the first row
+    for (int i = iTemp; i >= 0; i--) // Iterate 7 times for the first row
+    {
+        int f = 0;
+        for (int j = jTemp; j < jTemp + 1; j++) // Iterate once for the first row
+        {
+            glVertex2i(i + xShift, j + yShift); // Apply the shift here
+            peopleCount++;
+            if (peopleCount == peopleInTheInnerHall)
+            {
+                f = 1;
+                iTemp = i;  // Save the last i position
+                jTemp = j;  // Save the last j position
+                break;
+            }
+        }
+        if (f)
+            break;
+    }
+    glEnd();
+
+    glPointSize(5);
+    glBegin(GL_POINTS);
+    glColor3f(0.0, 0.0, 1.0);
+
+    // Drawing the second row
+    for (int i = iTemp; i >= 0; i--) // Start from the last i position of the first row
+    {
+        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace; j++) // Start from the last j position of the first row + ySpace
+        {
+            glVertex2i(i + xShift, j + yShift); // Apply the shift here
+        }
+    }
+    glEnd();
+    glFlush();*/
+}
+
 void drawTellers()
 {
     glBegin(GL_POLYGON_BIT);

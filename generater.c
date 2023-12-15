@@ -65,7 +65,8 @@ int main(int argc, char *argv[ ])
 
 
 
-    terminate_simulation();
+
+        terminate_simulation();
         exit(EXIT_SUCCESS);
 
 

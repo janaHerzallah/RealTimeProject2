@@ -206,12 +206,20 @@ void send_customer_message(struct Customer *customer) {
 
     lock_sem(customers_total_mutex);
 
+
+ /*   if(value ){
+
+        send_customer_message2(customer);
+
+
+    }*/
+
     /* increase_cashier_queue_size(cashier_id);
      int size = get_cashier_queue_size(cashier_id);
      */
 
 
-    sleep(get_total_cashiers(1));
+
 
     //  printf("Queue size for %d is %d after assigning customer\n", cashier_id, size);
 
@@ -222,6 +230,8 @@ void send_customer_message(struct Customer *customer) {
         perror("customer_data");
         exit(EXIT_FAILURE);
     }
+
+    sleep(get_total_cashiers(1));
 
 
 

@@ -25,6 +25,7 @@ float score( );
 
 int main(int argc, char** argv ) {
 
+
     c = read_config("config.txt");
 
     fill_data();  // Populate customer_info with data
@@ -69,7 +70,7 @@ void fill_data(){
     srand(time(NULL));   // for making random choices for each customer
     cashier_info.id = get_total_cashiers(0);
     cashier_info.numPeopleInQueue = 0;
-    cashier_info.happiness = 20;
+    cashier_info.happiness = 5;
     cashier_info.scanningTime = generate_scanning_time( cashier_info.id);
 
     switch (cashier_info.id) {
@@ -121,6 +122,12 @@ void receive_and_process_messages(int cashier_id) {
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
 
+                if(cashier_info.happiness == 0){
+                    printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+                    kill(getppid(), SIGUSR1);
+                }
+
+
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");
 
                 get_score_att(array1,array2);
@@ -156,7 +163,7 @@ void receive_and_process_messages(int cashier_id) {
                 printf("Total sales: %f\n", cashier_info.total_sales);
                 write_total(1,cashier_info.total_sales);
                 // Check if the new total sales is above the threshold
-                    if (cashier_info.total_sales > c.income_threshold) {
+                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
                         printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
         
     
@@ -170,8 +177,23 @@ void receive_and_process_messages(int cashier_id) {
                 number_of_people_served++;
         //        printf("Number of people served : %d\n", number_of_people_served);
 
+                cashier_info.happiness= cashier_info.happiness -1;
+
+                printf("happeniss %d \n", cashier_info.happiness);
+
+
+
+                if(array2[0]>0 && array1[0]> 0){
+
+
+                }
+
+
+
+
                 write_score_att(-(customer_data.item_count),1,2);
                 write_score_att(-1,1,1);
+
                 change_score1_cashier1(score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
                 printf(" Score 1 : %f\n", score( array1[0], array2[0], cashier_info.scanningTime, cashier_info.happiness));
 
@@ -199,6 +221,12 @@ void receive_and_process_messages2(int cashier_id) {
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
 
+                if(cashier_info.happiness == 0){
+                    printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+                    kill(getppid(), SIGUSR1);
+                }
+
+
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");
 
                 get_score_att(array1,array2);
@@ -224,17 +252,46 @@ void receive_and_process_messages2(int cashier_id) {
 
                 cashier_info.total_sales= cashier_info.total_sales + customer_data.total_price;
                 printf("Total sales: %f\n", cashier_info.total_sales);
-                write_total(2,cashier_info.total_sales);
+                write_total(2,cashier_info.total_sales)
+                ;
+
 
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
                 // printf(" with %d items\n", customer_data.item_count);
+
+                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
+                    printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
+
+
+                    // Send a signal to the parent process
+                    kill(getppid(), SIGUSR1);
+                    //  kill(getpid(),SIGUSR1);
+
+                    totalSalesAboveThreshold = 1;  // Set the flag
+
+                }
+
                 increment_total_customers(-1);
 
                 number_of_people_served++;
              //   printf("Number of people served : %d\n", number_of_people_served);
 
-                write_score_att(-1,2,1);
+                cashier_info.happiness= cashier_info.happiness -1;
+                printf("happeniss %d \n", cashier_info.happiness);
+
+
+
+
+
+                if(array2[1]>0 && array1[1]>0){
+
+
+                }
+
                 write_score_att(-(customer_data.item_count),2,2);
+                write_score_att(-1,2,1);
+
+
                 change_score2_cashier2(score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
                 printf(" Score 2 : %f\n", score( array1[1], array2[1], cashier_info.scanningTime, cashier_info.happiness));
 
@@ -260,6 +317,12 @@ void receive_and_process_messages3(int cashier_id) {
         while (1){
             // Check if the queue is not empty
             if (!check_queue_empty(queue)){
+
+
+                if(cashier_info.happiness == 0){
+                    printf("Cashier %d's happiness got below the threshold. Signaling to stop the program.\n", cashier_info.id);
+                    kill(getppid(), SIGUSR1);
+                }
 
 
                 printf("\n \n ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n \n");
@@ -298,6 +361,20 @@ void receive_and_process_messages3(int cashier_id) {
                 write_total(3,cashier_info.total_sales);
 
                 printf(" the result Customer %d , Total price : %0.2f\n", customer_data.customer_id, customer_data.total_price);
+
+
+                if (cashier_info.total_sales > c.income_threshold || cashier_info.happiness ==0) {
+                    printf("Cashier %d's total Sales got above the threshold. Signaling to stop the program.\n", cashier_info.id);
+
+
+                    // Send a signal to the parent process
+                    kill(getppid(), SIGUSR1);
+                    //  kill(getpid(),SIGUSR1);
+
+                    totalSalesAboveThreshold = 1;  // Set the flag
+
+                }
+
                 increment_total_customers(-1);
 
                 /*float current_score = score();
@@ -310,11 +387,26 @@ void receive_and_process_messages3(int cashier_id) {
 
 
 
-                cashier_info.numPeopleInQueue--;
 
-                write_score_att(-(customer_data.item_count),3,2);
+                if(array2[2]>0 && array1[2]>0){
+
+
+
+                }
 
                 write_score_att(-1,3,1);
+                write_score_att(-(customer_data.item_count),3,2);
+
+
+
+                cashier_info.numPeopleInQueue--;
+
+
+                cashier_info.happiness= cashier_info.happiness -1;
+                printf("happeniss %d \n", cashier_info.happiness);
+
+
+
                 change_score3_cashier3(score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
                 printf(" Score 3 : %f\n", score( array1[2], array2[2], cashier_info.scanningTime, cashier_info.happiness));
 
@@ -332,8 +424,8 @@ float score( int numPeopleInQueue, int number_of_all_items, int scanningTime, in
 
     float queueSizeWeight = -0.5; // Negative because a larger queue is worse
     float totalItemsWeight = -0.3; // Negative because more items generally mean slower processing
-    float scanningSpeedWeight = 0; // Positive, assuming higher value means faster scanning
-    float behaviorScoreWeight = 0; // Positive, higher happiness score is better
+    float scanningSpeedWeight = 0.4; // Positive, assuming higher value means faster scanning
+    float behaviorScoreWeight = 0.3; // Positive, higher happiness score is better
 
     // Calculate the weighted score
     float score = queueSizeWeight * numPeopleInQueue + totalItemsWeight * number_of_all_items + scanningSpeedWeight * scanningTime + behaviorScoreWeight * happiness;
