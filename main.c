@@ -108,6 +108,32 @@ int main(int argc, char** argv){
     create_all_semaphores();
     create_all_message_queues();
 
+    int total_customers = 0;
+    total_customers++;
+
+    // drawer area start
+
+    pid_t drawer;
+
+    if((drawer = fork()) == -1){
+        perror("The drawer fork error\n");
+        exit(-1);
+    }
+
+    // To let the drawer leave the main code and go to drawer.c
+    if(!drawer){
+        execlp("./drawer", "drawer", (char *) NULL);
+
+        // If the program not have enough memory then will raise error
+        perror("exec Failure\n");
+        exit(-1);
+    }
+
+
+
+    // drawer area end
+
+
 
    // cashiers area start
     pid_t cashier1 = fork();
