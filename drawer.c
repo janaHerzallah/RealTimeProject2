@@ -527,10 +527,10 @@ void readDataFromSharedMemory()
      peopleInTheInnerHall = get_total_customers();
 
 
-    cashier1_totalCount = get_total_sales(1); // for cahier total sales 1
+    cashier1_totalCount = (int)get_total_sales(1); // for cahier total sales 1
 
-    cashier2_totalCnt= get_total_sales(2); // for cahier total sales 2
-    cashier3_totalCount = get_total_sales(3); // for cahier total sales 3
+    cashier2_totalCnt= (int)get_total_sales(2); // for cahier total sales 2
+    cashier3_totalCount = (int) get_total_sales(3); // for cahier total sales 3
 
 
 

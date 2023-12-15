@@ -2,7 +2,7 @@
 #include "shared_memories.h"
 #include "message_queues.h"
 #include "cashier_header.h"
-#include "customer_header.h"
+#include "customer_header"
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -72,7 +72,8 @@ void cashier_handler(int signo) {
         for (int i = 0; i < 3; i++) {
             kill(pid_cashier[i], SIGKILL);  // Immediately terminate all cashier processes
         }
-        exit(EXIT_SUCCESS);  // Exit the main program
+
+        kill(0, SIGKILL);  // Immediately terminate the main program
     }
 
     printf("Received termination signal for a cashier.\n");
@@ -81,21 +82,24 @@ void cashier_handler(int signo) {
     // Terminate specific cashier based on the signal
     if (signo == SIGUSR1) {
         kill(pid_cashier[0], SIGKILL);  // Terminate cashier 1
-        printf("Cashier 1 terminated.\n");
+        printf("Cashier 1 terminated happiness : i am sad .\n");
     } else if (signo == SIGUSR2) {
         kill(pid_cashier[1], SIGKILL);  // Terminate cashier 2
-        printf("Cashier 2 terminated.\n");
+        printf("Cashier 2 terminated happiness : i am sad .\n");
     } else if (signo == SIGRTMIN) {
         kill(pid_cashier[2], SIGKILL);  // Terminate cashier 3
-        printf("Cashier 3 terminated.\n");
+        printf("Cashier 3 terminated happiness : i am sad .\n");
     }
 
     // If two cashiers have been terminated, end everything
-    if (terminated_cashiers >= 2) {
+    if (terminated_cashiers >= c.cashier_behavior_threshold) {
         for (int i = 0; i < 3; i++) {
             kill(pid_cashier[i], SIGKILL);  // Terminate remaining cashiers
         }
+
         printf("Two cashiers terminated. Shutting down all processes.\n");
+        kill(0, SIGKILL);  // Immediately terminate the main program
+
         exit(EXIT_SUCCESS);  // Exit the main program
     }
 }
