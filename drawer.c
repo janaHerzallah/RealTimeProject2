@@ -25,10 +25,18 @@ void drawCashier1();
 void drawCashier2();
 void drawCashier3();
 
+
 int peopleInTheInnerHall = 0;
 int cashier1_totalCount = 0;
 int  cashier3_totalCount = 0;
 int cashier2_totalCnt=0;
+
+Item items_count[4];
+
+int milk_count = 0;
+int eggs_count = 0;
+int bread_count = 0;
+int apples_count = 0;
 
 int queueCount[3] = {0, 0, 0};
 int itemCount[3] = {0, 0, 0};
@@ -64,6 +72,10 @@ void mouseMotion(int x, int y) {
 
 int main(int argc, char **argv)
 {
+
+    read_items("supermarket_items.txt");
+    c = read_config("config.txt");
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
     glutInitWindowSize(1800, 1000);
@@ -557,10 +569,12 @@ void drawText()
     sprintf(numberOfFemaleInTheReceptionHall, "%d", cashier_count);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
-    sprintf(numberOfBusyTellersForBirthCertificate, "%d", birthCertificateCnt);
-    sprintf(numberOfBusyTellersForbakery, "%d", bakeryCnt);
-    sprintf(numberOfBusyTellersFordair_eggs, "%d", dair_eggsCnt);
-    sprintf(numberOfBusyTellersForpackaged, "%d", packagedCnt);
+    if(milk_count<=500)
+    sprintf(numberOfBusyTellersForBirthCertificate, "%d", milk_count);
+    sprintf(numberOfBusyTellersForbakery, "%d", eggs_count);
+    if(bread_count<=500)
+    sprintf(numberOfBusyTellersFordair_eggs, "%d", bread_count);
+    sprintf(numberOfBusyTellersForpackaged, "%d", apples_count);
 
 
     sprintf(numberOfunservedCostumers, "%d", unservedCostumersCnt);
@@ -633,20 +647,20 @@ void readDataFromSharedMemory()
     cashier3_totalCount = (int) get_total_sales(3); // for cahier total sales 3
 
 
-
     cashier_count = get_total_cashiers(0);
 
-  //  receptionHallMaleCount = read_queue_size(OUTSIDE, MALE) ;
 
-   // birthCertificateCnt = read_tellers_numbers(B);
 
-   // bakeryCnt = read_tellers_numbers(T);
-  //  dair_eggsCnt = read_tellers_numbers(R);
-  //  packagedCnt = read_tellers_numbers(I);
-  //  drawer_current_time = time_to_string();
-   // unservedCostumersCnt= read_ends(UNSERVED);
+    get_shared_items(items_count);
 
-   // cashier_stoppedCnt= read_ends(SATISFIED)
+    milk_count = items_count[0].quantity;
+    eggs_count = items_count[1].quantity;
+    bread_count = items_count[2].quantity;
+    apples_count = items_count[3].quantity;
+
+
+
+
 
 
 }
