@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
-#include <sys/types.h>s
+#include <sys/types.h>
 #include <signal.h>
 #include <string.h>
 #include <fcntl.h>

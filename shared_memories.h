@@ -34,9 +34,9 @@ typedef struct {
 
     float total_sales1;
     float total_sales2;
-    float total_sales3
+    float total_sales3;
 
-} total_sales;
+}total_sales;
 
 typedef struct {
     int totalCashiers;

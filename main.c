@@ -1,11 +1,8 @@
 
 #include "header.h"
-#include "constants.h"
 #include "functions.h"
-#include "customer_header"
+#include "customer_header.h"
 #include "semphores.h"
-#include "customer_header"
-#include "cashier_header.h"
 
 
 
@@ -146,19 +143,21 @@ int main(int argc, char** argv){
 
     // generator  area start
 
-    pid_t generator;
 
-    if((generator = fork()) == -1){
-        perror("The generator fork error\n");
-        exit(-1);
-
-    }else if( generator == 0){
-        execlp("./generater", "generater", (char *) NULL);
-
-        // If the program not have enough memory then will raise error
-        perror("exec Failure\n");
-        exit(-1);
-    }
+//    pid_t generator;
+//
+//    if((generator = fork()) == -1){
+//        perror("The generator fork error\n");
+//        exit(-1);
+//
+//    }else if( generator == 0){
+//        execlp("./generater", "generater", (char *) NULL);
+//
+//        // If the program not have enough memory then will raise error
+//        perror("exec Failure\n");
+//        exit(-1);
+//    }
+//
 
 
     // generator area end
@@ -168,18 +167,15 @@ int main(int argc, char** argv){
 
  
 
-int customerCapacity = 20;  // Set your desired customer capacity
-pid_t arr_customers_pid[customerCapacity];
+  // Set your desired customer capacity
+pid_t arr_customers_pid[c.customerCapacity];
 
 
-    // Read the maximum customers from config.txt (assuming it contains a single integer)
-    // TODO: Add code to read from config.txt and set maxCustomers
 
-    //int maxCustomers = 5; // Example value, replace it with the actual value read from config.txt
+    while (get_total_customers() < c.customerCapacity) {
 
-    while (get_total_customers() < customerCapacity) {
-        // Generate a random number of customers for this batch (up to maxCustomers)
-        int customersInBatch = rand() % (c.customers_per_interval + 3);
+        // Generate a random number of customers for this batch within the min-max range
+        int customersInBatch = c.minCustomerArrivalRate + rand() % (c.maxCustomerArrivalRate - c.minCustomerArrivalRate + 1);
 
         for (int i = 0; i < customersInBatch ; i++) {
             arr_customers_pid[i] = fork();
@@ -204,48 +200,9 @@ pid_t arr_customers_pid[customerCapacity];
 
     }
 
-    for(int i = 0; i <customerCapacity; i++) {
+    for(int i = 0; i <c.customerCapacity; i++) {
         waitpid(arr_customers_pid[i], NULL, 0);
     }
-/*
-    
-   pid_t arr_customers_pid[customerCapacity];
-
-    for(int i = 0; i < customerCapacity; i++){
-        arr_customers_pid[i] = fork();
-
-        if(arr_customers_pid[customerCapacity] < 0){
-            perror("Error: Unable to fork customer process.\n");
-            exit(EXIT_FAILURE);
-        }
-        else if(arr_customers_pid[i] == 0){
-            execlp("./customer", "./customer", NULL);
-        }
-
-    }
-
-    for(int i = 0; i <customerCapacity; i++) {
-        waitpid(arr_customers_pid[i], NULL, 0);
-    }
-
-    // customers area end
-
-
-    // clean area start
-    sleep(40);
-*/
-
-   /* if (kill(cashier1, SIGTERM) == -1) {
-        perror("Error sending SIGTERM");
-        exit(EXIT_FAILURE);
-    } if (kill(cashier2, SIGTERM) == -1) {
-        perror("Error sending SIGTERM");
-        exit(EXIT_FAILURE);
-    } if (kill(cashier3, SIGTERM) == -1) {
-        perror("Error sending SIGTERM");
-        exit(EXIT_FAILURE);
-    }
-*/
 
 
     clean_all_message_queues();
@@ -289,8 +246,13 @@ void create_STM(){
         exit(EXIT_FAILURE);
     }
 
+
     // Initialize shared memory with item data
-    memcpy(shared_items, items, num_items * sizeof(Item));
+
+    for (int i = 0; i < num_items; i++) {
+        shared_items[i] = items[i];
+    }
+
 
     // Detach from the shared memory
     if (shmdt(shared_items) == -1) {

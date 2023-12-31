@@ -4,8 +4,44 @@
 #ifndef __FUNCTIONS__
 #define __FUNCTIONS__
 
+#define MAX_LINE_LENGTH 100
+
 #include "header.h"
-#include "constants.h"
+
+
+
+// Config structure
+typedef struct {
+    int customerCapacity;
+    int customers_per_interval;
+    int interval_seconds;
+    int shopping_time_max;
+    int numberOfProducts;
+    int amountPerProductOnShelves;
+    int amountPerProductInStorage;
+    int numberOfShelvingTeams;
+    int numberOfEmployeesPerTeam;
+    int productRestockThreshold;
+    int minCustomerArrivalRate;
+    int maxCustomerArrivalRate;
+    int maxItemsPerCustomer;
+    int maxQuantityPerItem;
+    int simulationTimeLimit;
+} Config;
+
+// Function to read config from file
+Config read_config(const char *filename);
+
+// Structure for items in the supermarket
+typedef struct {
+    char name[MAX_LINE_LENGTH];
+    int quantity;
+    float price;
+} Item;
+
+
+int num_items;
+Item items[MAX_LINE_LENGTH];
 
 
 void read_items(const char *filename) {
@@ -42,16 +78,23 @@ Config read_config(const char *filename) {
     FILE *file = fopen(filename, "r");
 
     if (file != NULL) {
+        fscanf(file, "customerCapacity=%d\n", &config.customerCapacity);
         fscanf(file, "customers_per_interval=%d\n", &config.customers_per_interval);
         fscanf(file, "interval_seconds=%d\n", &config.interval_seconds);
         fscanf(file, "SHOPPING_TIME_Max=%d\n", &config.shopping_time_max);
-        fscanf(file, "SCANNING_TIME=%d\n", &config.scanning_time);
-        fscanf(file, "BEHAVIOR_DECAY_RATE=%d\n", &config.behavior_decay_rate);
-        fscanf(file, "MAX_WAIT_TIME=%d\n", &config.max_wait_time);
-        fscanf(file, "CASHIER_BEHAVIOR_THRESHOLD=%d\n", &config.cashier_behavior_threshold);
-        fscanf(file, "CUSTOMER_PATIENCE_THRESHOLD=%d\n", &config.customer_patience_threshold);
-        fscanf(file, "INCOME_THRESHOLD=%d\n", &config.income_threshold);
-        fscanf(file, "num_cashiers=%d\n", &config.num_cashiers);
+        fscanf(file, "numberOfProducts=%d\n", &config.numberOfProducts);
+        fscanf(file, "amountPerProductOnShelves=%d\n", &config.amountPerProductOnShelves);
+        fscanf(file, "amountPerProductInStorage=%d\n", &config.amountPerProductInStorage);
+        fscanf(file, "numberOfShelvingTeams=%d\n", &config.numberOfShelvingTeams);
+        fscanf(file, "numberOfEmployeesPerTeam=%d\n", &config.numberOfEmployeesPerTeam);
+        fscanf(file, "productRestockThreshold=%d\n", &config.productRestockThreshold);
+        fscanf(file, "minCustomerArrivalRate=%d\n", &config.minCustomerArrivalRate);
+        fscanf(file, "maxCustomerArrivalRate=%d\n", &config.maxCustomerArrivalRate);
+        fscanf(file, "maxItemsPerCustomer=%d\n", &config.maxItemsPerCustomer);
+        fscanf(file, "maxQuantityPerItem=%d\n", &config.maxQuantityPerItem);
+        fscanf(file, "simulationTimeLimit=%d\n", &config.simulationTimeLimit);
+
+
 
         fclose(file);
     } else {
@@ -67,17 +110,34 @@ Config read_config(const char *filename) {
 
 void print_config(Config config) {
     printf("\nConfiguration Variables:\n");
+    printf("customerCapacity=%d\n", config.customerCapacity);
     printf("customers_per_interval=%d\n", config.customers_per_interval);
     printf("interval_seconds=%d\n", config.interval_seconds);
     printf("SHOPPING_TIME_Max=%d\n", config.shopping_time_max);
-    printf("SCANNING_TIME=%d\n", config.scanning_time);
-    printf("BEHAVIOR_DECAY_RATE=%d\n", config.behavior_decay_rate);
-    printf("MAX_WAIT_TIME=%d\n", config.max_wait_time);
-    printf("CASHIER_BEHAVIOR_THRESHOLD=%d\n", config.cashier_behavior_threshold);
-    printf("CUSTOMER_PATIENCE_THRESHOLD=%d\n", config.customer_patience_threshold);
-    printf("INCOME_THRESHOLD=%d\n", config.income_threshold);
-    printf("num_cashiers=%d\n", config.num_cashiers);
+    printf("numberOfProducts=%d\n", config.numberOfProducts);
+    printf("amountPerProductOnShelves=%d\n", config.amountPerProductOnShelves);
+    printf("amountPerProductInStorage=%d\n", config.amountPerProductInStorage);
+    printf("numberOfShelvingTeams=%d\n", config.numberOfShelvingTeams);
+    printf("numberOfEmployeesPerTeam=%d\n", config.numberOfEmployeesPerTeam);
+    printf("productRestockThreshold=%d\n", config.productRestockThreshold);
+    printf("minCustomerArrivalRate=%d\n", config.minCustomerArrivalRate);
+    printf("maxCustomerArrivalRate=%d\n", config.maxCustomerArrivalRate);
+    printf("maxItemsPerCustomer=%d\n", config.maxItemsPerCustomer);
+    printf("maxQuantityPerItem=%d\n", config.maxQuantityPerItem);
+    printf("simulationTimeLimit=%d\n", config.simulationTimeLimit);
+
 }
 // print config area end ------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 #endif

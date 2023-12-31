@@ -2,8 +2,9 @@
 #include "header.h"
 #include <GL/glut.h>
 #include "shared_memories.h"
-#include "customer_header"
-#include "cashier_header.h"
+#include "customer_header.h"
+#include "shelving_team.h"
+#include "functions.h"
 
 unsigned int read_queue_size();
 
@@ -50,7 +51,7 @@ int itemCount[3] = {0, 0, 0};
 
         unservedCostumersCnt=0,
         cashier_stoppedCnt=0,
-        fram_rate = 1000 / 120;
+        fram_rate = 1000 / 20;
 
 float mouseX = 0.0f;
 float mouseY = 0.0f;
@@ -74,7 +75,6 @@ int main(int argc, char **argv)
 {
 
     read_items("supermarket_items.txt");
-    c = read_config("config.txt");
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
@@ -541,10 +541,10 @@ void drawText()
             numberOfPeopleInFemalQueue[5] = "",
             numberOfMaleInTheReceptionHall[5] = "",
             numberOfFemaleInTheReceptionHall[5] = "",
-            numberOfBusyTellersForBirthCertificate[3]="",
-            numberOfBusyTellersForbakery[3]="",
-            numberOfBusyTellersFordair_eggs[3]="",
-            numberOfBusyTellersForpackaged[3]="",
+            numberOfBusyTellersForBirthCertificate[7]="",
+            numberOfBusyTellersForbakery[8]="",
+            numberOfBusyTellersFordair_eggs[8]="",
+            numberOfBusyTellersForpackaged[8]="",
             numberOfcashier2_total[3]="",
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
@@ -553,14 +553,14 @@ void drawText()
             cashierItemsInfo1[30], cashierItemsInfo2[30], cashierItemsInfo3[30];
 
     // Prepare strings for queue counts
-    sprintf(cashierQueueInfo1, "Cashier Score 1 Queue: %0.2f", get_score1_cashier1());
-    sprintf(cashierQueueInfo2, "Cashier Score 2 Queue: %0.2f", get_score2_cashier2());
-    sprintf(cashierQueueInfo3, "Cashier Score 3 Queue: %0.2f", get_score3_cashier3());
+    sprintf(cashierQueueInfo1, "Cashier Score 1 Queue: %d", 0);
+    sprintf(cashierQueueInfo2, "Cashier Score 2 Queue: %d", 0);
+    sprintf(cashierQueueInfo3, "Cashier Score 3 Queue: %d", 0);
 
     // Prepare strings for item counts
-    sprintf(cashierItemsInfo1, "Cashier 1 happiness: %d", get_happiest_cashier(1));
-    sprintf(cashierItemsInfo2, "Cashier 2 happiness: %d", get_happiest_cashier(2));
-    sprintf(cashierItemsInfo3, "Cashier 3 happiness: %d", get_happiest_cashier(3));
+    sprintf(cashierItemsInfo1, "Cashier 1 happiness: %d",0);
+    sprintf(cashierItemsInfo2, "Cashier 2 happiness: %d", 0);
+    sprintf(cashierItemsInfo3, "Cashier 3 happiness: %d", 0);
 
 
     sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);
@@ -569,10 +569,9 @@ void drawText()
     sprintf(numberOfFemaleInTheReceptionHall, "%d", cashier_count);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
-    if(milk_count<=500)
+
     sprintf(numberOfBusyTellersForBirthCertificate, "%d", milk_count);
     sprintf(numberOfBusyTellersForbakery, "%d", eggs_count);
-    if(bread_count<=500)
     sprintf(numberOfBusyTellersFordair_eggs, "%d", bread_count);
     sprintf(numberOfBusyTellersForpackaged, "%d", apples_count);
 
@@ -606,8 +605,6 @@ void drawText()
     renderText(14, -9, GLUT_BITMAP_TIMES_ROMAN_24, packaged);
     renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
 
-  //  renderText(-8, 15, GLUT_BITMAP_TIMES_ROMAN_24, unservedCostumers);
-   // renderText(-18, 2, GLUT_BITMAP_TIMES_ROMAN_24, cashier_stopped); // cashier stopped
 
     renderText(-18, 8, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo1); // Queue info for Cashier 1
     renderText(-18, 6, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo2); // Queue info for Cashier 2
@@ -636,15 +633,14 @@ void renderText(int x, int y, void *font, char *string)
 void readDataFromSharedMemory()
 {
 
-     get_score_att(queueCount,itemCount);
+
 
      peopleInTheInnerHall = get_total_customers();
 
 
-    cashier1_totalCount = (int)get_total_sales(1); // for cahier total sales 1
-
-    cashier2_totalCnt= (int)get_total_sales(2); // for cahier total sales 2
-    cashier3_totalCount = (int) get_total_sales(3); // for cahier total sales 3
+    cashier1_totalCount = 0;
+    cashier2_totalCnt= 0;
+    cashier3_totalCount = 0;
 
 
     cashier_count = get_total_cashiers(0);
@@ -652,6 +648,7 @@ void readDataFromSharedMemory()
 
 
     get_shared_items(items_count);
+
 
     milk_count = items_count[0].quantity;
     eggs_count = items_count[1].quantity;

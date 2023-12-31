@@ -4,26 +4,6 @@
 #define MAX_ITEMS_IN_CART 5
 #define MAX_SHOPPING_TIME 10
 
-/* End Thresholds */
-#define CREATION_THRESHOLD 200 // The max number of peoples that we can generate
-#define UNSERVED_THRESHOLD 120
-#define UNHAPPY_THRESHOLD 20
-#define SATISFIED_THRESHOLD 50
-/* End Thresholds */
-
-#define SATISFIED_RATIO 85 // 85% SATISFIED AND 15% UNHAPPY IN THE END RESULT
-
-
-// Person leaving of stay depend on his patience
-enum PatienceDegree {LOW, MEDIUM, HIGH, VERY_HIGH};
-
-// The person end status
-enum END{CREATION, UNSERVED, UNHAPPY, SATISFIED};
-
-// For change the size of the queue
-enum STEP{INCREMENT, DECREMENT};
-
-
 
 struct Customer {
     int id;
@@ -31,7 +11,6 @@ struct Customer {
     int shopping_time;
     int cart[MAX_ITEMS_IN_CART];
     float total_price;
-    enum PatienceDegree patience_degree;
 } ;
 
 
@@ -40,7 +19,6 @@ struct Customer {
 
 
 #include "functions.h" // num_items of all , items array
-#include "constants.h" // Config c
 #include "header.h" // Config c
 #include "shared_memories.h"
 #include "semphores.h"
@@ -48,7 +26,9 @@ struct Customer {
 
 Config c;
 static int totalCustomers = 0;
-void increment_total_customers();
+
+void increment_total_customers(int num);
+
 int get_total_customers();
 
 /** Random number generator --------------------------------------------------------------------------------------*/
@@ -62,14 +42,8 @@ int generate_shopping_time() {
 
     return (rand() % c.shopping_time_max) + 1;
 
-
 }
 
-// Function to generate a random number of customers each interval
-int generate_customers_per_interval() {
-    // Generate a random number of customers between 1 and customerPerInterval
-    return (rand() % c.customers_per_interval) + 1;
-}
 
 /** Random number generator end ----------------------------------------------------------------------------------*/
 
@@ -181,7 +155,6 @@ void fill_cart(struct Customer *customer) {
 
 void get_shared_items(Item *destinationArray) {
 
-
     int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), 0666);
     if (shmid == -1) {
         perror("shmget");
@@ -196,9 +169,12 @@ void get_shared_items(Item *destinationArray) {
 
 
     // Copy items from shared memory to destination array
-    for (int i = 0; i < num_items; i++) {
-        destinationArray[i] = shared_items[i];
-    }
+
+
+
+        memcpy(destinationArray, shared_items, num_items * sizeof(Item));
+
+
 
     if (shmdt(shared_items) == -1) {
         perror("shmdt");
@@ -209,8 +185,6 @@ void get_shared_items(Item *destinationArray) {
 
 
 }
-
-
 
 int get_total_customers() {
     int shmid = shmget(CUS_NUM_KEY, sizeof(SharedData), 0666);
@@ -281,219 +255,6 @@ void increment_total_customers(int num ) {
         exit(EXIT_FAILURE);
     }
 }
-
-
-
-float get_score1_cashier1() {
-    int shmid = shmget(cashier1_score_key, sizeof(cashier_score1_shared_memory), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    cashier_score1_shared_memory *shared_data = (cashier_score1_shared_memory *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // mutex code
-
-    sem_t* score1_mutex = get_semaphore(cashSem1_score_key);
-
-    lock_sem(score1_mutex);
-
-
-    float score1 = shared_data->score1 ;
-
-    unlock_sem(score1_mutex);
-    close_semaphore(score1_mutex);
-
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    return score1;
-}
-
-float get_score2_cashier2(){
-
-    int shmid = shmget(cashier2_score_key, sizeof(cashier_score2_shared_memory), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    cashier_score2_shared_memory *shared_data = (cashier_score2_shared_memory *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // mutex code
-
-    sem_t* score2_mutex = get_semaphore(cashSem2_score_key);
-
-    lock_sem(score2_mutex);
-
-
-    float score2 = shared_data->score2 ;
-
-    unlock_sem(score2_mutex);
-    close_semaphore(score2_mutex);
-
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    return score2;
-
-}
-
-float get_score3_cashier3(){
-
-    int shmid = shmget(cashier3_score_key, sizeof(cashier_score3_shared_memory), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    cashier_score3_shared_memory *shared_data = (cashier_score3_shared_memory *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // mutex code
-
-    sem_t* score3_mutex = get_semaphore(cashSem3_score_key);
-
-    lock_sem(score3_mutex);
-
-
-    float score3 = shared_data->score3 ;
-
-    unlock_sem(score3_mutex);
-    close_semaphore(score3_mutex);
-
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    return score3;
-
-}
-
-
-/*
-
-void updateArrays(const int new_waiting_customers[3], const int new_num_of_items[3]) {
-    memcpy(total_waiting_customers, new_waiting_customers, sizeof(total_waiting_customers));
-    memcpy(total_num_of_items, new_num_of_items, sizeof(total_num_of_items));
-}
-*/
-
-
-void get_score_att(const int new_waiting_customers[3], const int new_num_of_items[3]){
-
-    int shmid = shmget(score_atrributes_key, sizeof(score_atrributes), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    score_atrributes *shared_data = (score_atrributes *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // mutex code
-
-    sem_t* score_att = get_semaphore(score_atrributes_key_sem);
-
-    lock_sem(score_att);
-
-    memcpy(new_waiting_customers,shared_data->total_waiting_customers, sizeof(shared_data->total_waiting_customers));
-    memcpy(new_num_of_items,shared_data->total_num_of_items, sizeof(shared_data->total_num_of_items));
-
-
-    unlock_sem(score_att);
-    close_semaphore(score_att);
-
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-
-    }
-
-
-}
-
-int get_happiest_cashier(int cashier_id) {
-    int shmid = shmget(happiest_cashier_key, sizeof(cashier_happiness_Shared_Memory), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    cashier_happiness_Shared_Memory *shared_data = (cashier_happiness_Shared_Memory *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // mutex code
-
-    sem_t* happiest_cashier_mutex = get_semaphore(happiest_cashier_key_sem);
-
-    lock_sem(happiest_cashier_mutex);
-
-    //get the the happines of each cashier
-
-    int cashier_happiness;
-
-    if(cashier_id == 1){
-        cashier_happiness = shared_data->happy_cashier_1;
-    }
-    else if(cashier_id == 2){
-        cashier_happiness = shared_data->happy_cashier_2;
-    }
-    else if(cashier_id == 3){
-        cashier_happiness = shared_data->happy_cashier_3;
-    }
-    else{
-        printf("Error: cashier_id is not valid\n");
-        exit(EXIT_FAILURE);
-    }
-
-
-    unlock_sem(happiest_cashier_mutex);
-    close_semaphore(happiest_cashier_mutex);
-
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    return cashier_happiness;
-}
-
-
 
 
 

@@ -6,8 +6,7 @@
 #define C_KEY 0x1234
 #define C_KEY2 0x1235
 #define C_KEY3 0x1236
-
-#include "constants.h"
+#include "functions.h"
 
 // Modified structure to include customer ID and multiple items
 struct queue {
