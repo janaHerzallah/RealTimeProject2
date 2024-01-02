@@ -25,7 +25,8 @@ typedef struct {
     int maxCustomerArrivalRate;
     int maxItemsPerCustomer;
     int maxQuantityPerItem;
-    int simulationTimeLimit;
+    int startHour;
+    int endHour;
 } Config;
 
 // Function to read config from file
@@ -91,7 +92,10 @@ Config read_config(const char *filename) {
         fscanf(file, "maxCustomerArrivalRate=%d\n", &config.maxCustomerArrivalRate);
         fscanf(file, "maxItemsPerCustomer=%d\n", &config.maxItemsPerCustomer);
         fscanf(file, "maxQuantityPerItem=%d\n", &config.maxQuantityPerItem);
-        fscanf(file, "simulationTimeLimit=%d\n", &config.simulationTimeLimit);
+        fscanf(file, "startHour=%d\n", &config.startHour);
+        fscanf(file, "endHour=%d\n", &config.endHour);
+
+
 
 
 
@@ -122,8 +126,8 @@ void print_config(Config config) {
     printf("maxCustomerArrivalRate=%d\n", config.maxCustomerArrivalRate);
     printf("maxItemsPerCustomer=%d\n", config.maxItemsPerCustomer);
     printf("maxQuantityPerItem=%d\n", config.maxQuantityPerItem);
-    printf("simulationTimeLimit=%d\n", config.simulationTimeLimit);
-
+    printf("startHour=%d\n", config.startHour);
+    printf("endHour=%d\n", config.endHour);
 }
 // print config area end ------------------------------------------------------------------------------------------------
 

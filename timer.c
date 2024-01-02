@@ -2,12 +2,15 @@
 #include "header.h"
 #include "processing_times.h"
 #include "shared_memories.h"
+#include "functions.h"
+Config c;
+int check_finish();
 
 time_t* handle_time(time_t hours, time_t minutes);
 
 int main( int argc, char** argv )
 {
-
+     c = read_config( "config.txt");
 
     // For get the STM
     int stm_id = shmget(STM_KEY, sizeof(struct shared_time_memory), IPC_CREAT | 0777);
@@ -60,15 +63,13 @@ int main( int argc, char** argv )
 
         usleep(TIME_STEP_INCREMENT * 1000000);
 
+        if(check_finish()){
+            printf("End Generation\n");
+            kill(getppid(), SIGINT);
+        }
+
     }
 
-
-    if (shmdt(stm_mem) == -1) {
-        perror("STM Detached Error\n");
-        exit(-1);
-    }
-
-    return(0);
 }
 
 time_t* handle_time(time_t hours, time_t minutes){
@@ -84,4 +85,17 @@ time_t* handle_time(time_t hours, time_t minutes){
     time[1] = minutes;
 
     return time;
+}
+
+
+int check_finish(){
+
+    time_t *current_time = read_current_time();
+    time_t current_hour = *current_time; // pointer to the current hour
+    time_t the_end = c.startHour + (c.endHour - c.startHour) ;
+
+    if(  current_hour >= the_end ){
+        return 1;
+    }
+    return 0;
 }

@@ -26,24 +26,6 @@
 // Generate person each 3 fake minutes - each real second will generate one person -
 #define GENERATING_PERSON_STEP 3 * FAKE_MINUTE
 
-// The amount of time a person can afford
-// the patience for the person for leaving or not in fake hours
-#define LOW_DEGREE 2
-#define MEDIUM_DEGREE 4
-#define HIGH_DEGREE 6
-#define VERY_HIGH_DEGREE 8
-
-
-// Middle Queues Times
-// How Much Time to receive a person by the door.c
-#define MALE_QUEUE_RECEIVING_TIME 2 * FAKE_MINUTE
-#define FEMALE_QUEUE_RECEIVING_TIME 3 * FAKE_MINUTE
-
-// Security Processing Time
-#define SECURITY_PROCESSING_TIME 4 * FAKE_MINUTE
-
-// Teller Processing Time
-#define TELLER_PROCESSING_TIME 24 * FAKE_MINUTE
 
 #endif
 
@@ -55,6 +37,7 @@
 
 
 #include "shared_memories.h"
+#include "header.h"
 
 time_t* read_current_time(){
     static time_t current_time[2];

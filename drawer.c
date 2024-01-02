@@ -5,6 +5,7 @@
 #include "customer_header.h"
 #include "shelving_team.h"
 #include "functions.h"
+#include "processing_times.h"
 
 unsigned int read_queue_size();
 
@@ -613,6 +614,9 @@ void drawText()
     renderText(-18, -6, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo1);  // Item info for Cashier 1
     renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
     renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
+
+    renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
+
 }
 
 void renderText(int x, int y, void *font, char *string)
@@ -643,7 +647,7 @@ void readDataFromSharedMemory()
     eggs_count = items_count[1].storageAmount;
     bread_count = items_count[2].storageAmount;
     apples_count = items_count[3].storageAmount;
-
+    drawer_current_time = time_to_string();
 
 
 

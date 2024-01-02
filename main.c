@@ -4,6 +4,10 @@
 #include "customer_header.h"
 #include "semphores.h"
 #include "shared_memories.h"
+#include "processing_times.h"
+
+int check_finish();
+void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
 
 void create_all_shared_memories();
 void create_TimerSHM();
@@ -39,6 +43,8 @@ Config c;
 int main(int argc, char** argv){
 
 
+    sigset(SIGINT, terminate_processes);
+
     // print items area start
     read_items("supermarket_items.txt");
 
@@ -67,18 +73,34 @@ int main(int argc, char** argv){
    /***********************************************************************************************************************************************************/
 
 
-
-   /********************************************/
-
     // Fork a child process to run the main program loop
 
    /**************************************/
     create_all_shared_memories();
     create_all_semaphores();
 
-    
 
-   // drawer area start
+    pid_t timer;
+
+    /* Create the timer */
+    if((timer = fork()) == -1){
+        perror("The timer fork error\n");
+        exit(-1);
+    }
+
+    // To let the timer leave the main code and go to timer.c
+    if(!timer){
+        execlp("./timer", "timer", (char *) NULL);
+
+        // If the program not have enough memory then will raise error
+        perror("exec Failure\n");
+        exit(-1);
+    }
+
+    /* End Create the timer */
+
+
+    // drawer area start
     pid_t drawer;
 
     if((drawer = fork()) == -1){
@@ -95,33 +117,7 @@ int main(int argc, char** argv){
         exit(-1);
     }
 
-    // drawer area end
 
-    // generator  area start
-
-
-//    pid_t generator;
-//
-//    if((generator = fork()) == -1){
-//        perror("The generator fork error\n");
-//        exit(-1);
-//
-//    }else if( generator == 0){
-//        execlp("./generater", "generater", (char *) NULL);
-//
-//        // If the program not have enough memory then will raise error
-//        perror("exec Failure\n");
-//        exit(-1);
-//    }
-//
-
-
-    // generator area end
-
-    
-   // customers area start
-
- 
 
   // Set your desired customer capacity
 pid_t arr_customers_pid[c.customerCapacity];
@@ -158,11 +154,8 @@ pid_t arr_customers_pid[c.customerCapacity];
 
         }
 
-
-
         sleep(c.interval_seconds);
         printf("**sleeping interval is :%d\n",c.interval_seconds);
-
 
     }
 
@@ -170,15 +163,36 @@ pid_t arr_customers_pid[c.customerCapacity];
         waitpid(arr_customers_pid[i], NULL, 0);
     }
 
+    printf(" Main Process End\n");
 
-    clean_all_semaphores();
-    clean_all_shared_memories();
-
-    // clean area end
+    terminate_processes(drawer, timer, arr_customers_pid, c.customerCapacity);
 
 
     return 0;
 }
+
+void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
+
+    printf(" End of Program\n");
+
+    // Send the SIGTERM signal to the drawer process
+    kill(drawer, SIGTERM);
+
+    // Send the SIGTERM signal to the timer process
+    kill(timer, SIGTERM);
+
+    // Loop through the array of customer PIDs and send them the SIGTERM signal
+    for(int i = 0; i < customerCapacity; i++) {
+        kill(arr_customers_pid[i], SIGTERM);
+    }
+
+    clean_all_semaphores();
+    clean_all_shared_memories();
+
+}
+
+
+
 
 /** shared memory area start *************************************************************************************************************************/
 void create_all_shared_memories(){
@@ -209,7 +223,7 @@ void create_TimerSHM(){
     }
 
     // For initialize the first value of the time
-    stm_mem->current_hours = 5; // Start from 5AM
+    stm_mem->current_hours = c.startHour; // Start from 5AM
     stm_mem->current_minutes = 0;
 
 
