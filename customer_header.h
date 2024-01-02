@@ -113,11 +113,12 @@ void fill_cart(struct Customer *customer) {
 
     }
 
+
     srand(getpid());  // Seed the random number generator with the process ID
     int sleepTime = rand() % 10 + 1;  // Generate a random sleep time between 1 and 10 seconds
     sleep(sleepTime);
-
     increment_total_customers(1);
+
     // Acquire semaphore for picking up items
     pick_up_items_mutex = get_semaphore(Pick_key);
     lock_sem(pick_up_items_mutex);

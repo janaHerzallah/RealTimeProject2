@@ -1,5 +1,5 @@
 customerCapacity=20
-interval_seconds=5
+interval_seconds=1
 SHOPPING_TIME_Max=19
 numberOfProducts=50
 amountPerProductOnShelves=100

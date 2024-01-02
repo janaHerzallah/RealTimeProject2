@@ -7,9 +7,9 @@ void fill_data();
 void print_customer_data(const struct Customer *customer);
 void fill_cart( struct Customer *customer);
 struct Customer customer_info;
-extern Config c;  // Declare or include the Config structure
-extern Product products[MAX_LINE_LENGTH];
-extern int num_of_products;
+ Config c;  // Declare or include the Config structure
+ Product products[MAX_LINE_LENGTH];
+ int num_of_products;
 
 
 
@@ -45,8 +45,11 @@ void fill_data(){
 
     fill_cart(&customer_info);
 
+    printf(" ------------------ \n");
+    printf(" customer id is %d is done  \n",customer_info.id);
+    printf(" ------------------ \n");
 
-
+    increment_total_customers(-1);
 
 
 }

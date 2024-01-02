@@ -177,7 +177,12 @@ pid_t arr_customers_pid[c.customerCapacity];
         // Generate a random number of customers for this batch within the min-max range
         int customersInBatch = c.minCustomerArrivalRate + rand() % (c.maxCustomerArrivalRate - c.minCustomerArrivalRate + 1);
 
-        for (int i = 0; i < customersInBatch ; i++) {
+        for (int i = 0; i < customersInBatch  ; i++) {
+
+            if(get_total_customers() >= c.customerCapacity){
+                break;
+            }
+
             arr_customers_pid[i] = fork();
 
             if (arr_customers_pid[i] < 0) {
@@ -194,7 +199,7 @@ pid_t arr_customers_pid[c.customerCapacity];
 
 
 
-        sleep(7);
+        sleep(c.interval_seconds);
         printf("**sleeping interval is :%d\n",c.interval_seconds);
 
 
