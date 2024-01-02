@@ -13,7 +13,6 @@
 // Config structure
 typedef struct {
     int customerCapacity;
-    int customers_per_interval;
     int interval_seconds;
     int shopping_time_max;
     int numberOfProducts;
@@ -35,13 +34,14 @@ Config read_config(const char *filename);
 // Structure for items in the supermarket
 typedef struct {
     char name[MAX_LINE_LENGTH];
-    int quantity;
-    float price;
-} Item;
+    int  storageAmount;
+    int shelfAmount;
+
+} Product;
 
 
-int num_items;
-Item items[MAX_LINE_LENGTH];
+int num_of_products;
+Product products[MAX_LINE_LENGTH];
 
 
 void read_items(const char *filename) {
@@ -49,21 +49,21 @@ void read_items(const char *filename) {
 
     if (file == NULL) {
         perror("Error opening file");
-        num_items = 0;
+        num_of_products = 0;
         return;
     }
 
-    num_items = 0;
+    num_of_products = 0;
     char line[MAX_LINE_LENGTH];
     while (fgets(line, sizeof(line), file)) {
-        num_items++;
+        num_of_products++;
     }
 
     rewind(file);
 
-    for (int i = 0; i < num_items; ++i) {
+    for (int i = 0; i < num_of_products; ++i) {
         fgets(line, sizeof(line), file);
-        sscanf(line, "%[^,],%d,%f", items[i].name, &items[i].quantity, &items[i].price);
+        sscanf(line, "%[^,],%d,%d", products[i].name, &products[i].storageAmount, &products[i].shelfAmount);
     }
 
     fclose(file);
@@ -79,7 +79,6 @@ Config read_config(const char *filename) {
 
     if (file != NULL) {
         fscanf(file, "customerCapacity=%d\n", &config.customerCapacity);
-        fscanf(file, "customers_per_interval=%d\n", &config.customers_per_interval);
         fscanf(file, "interval_seconds=%d\n", &config.interval_seconds);
         fscanf(file, "SHOPPING_TIME_Max=%d\n", &config.shopping_time_max);
         fscanf(file, "numberOfProducts=%d\n", &config.numberOfProducts);
@@ -111,7 +110,6 @@ Config read_config(const char *filename) {
 void print_config(Config config) {
     printf("\nConfiguration Variables:\n");
     printf("customerCapacity=%d\n", config.customerCapacity);
-    printf("customers_per_interval=%d\n", config.customers_per_interval);
     printf("interval_seconds=%d\n", config.interval_seconds);
     printf("SHOPPING_TIME_Max=%d\n", config.shopping_time_max);
     printf("numberOfProducts=%d\n", config.numberOfProducts);
@@ -128,15 +126,6 @@ void print_config(Config config) {
 
 }
 // print config area end ------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
 
 
 

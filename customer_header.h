@@ -10,15 +10,12 @@ struct Customer {
     int num_items;
     int shopping_time;
     int cart[MAX_ITEMS_IN_CART];
-    float total_price;
 } ;
-
-
 
 /** functions starts ****************************************************************************************/
 
 
-#include "functions.h" // num_items of all , items array
+#include "functions.h" // num_of_products of all , items array
 #include "header.h" // Config c
 #include "shared_memories.h"
 #include "semphores.h"
@@ -48,7 +45,7 @@ int generate_shopping_time() {
 /** Random number generator end ----------------------------------------------------------------------------------*/
 
 
-void pick_up_items(struct Customer *customer, Item *shared_items) {
+void pick_up_items(struct Customer *customer, Product *shared_items) {
 
 
 
@@ -64,12 +61,13 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
     for (int i = 0; i < random_number; ++i) {
         // Check if all items have quantity = 0
         int allItemsZero = 1;
-        for (int j = 0; j < num_items; ++j) {
-            if (shared_items[j].quantity > 0) {
+        for (int j = 0; j < num_of_products; ++j) {
+            if (shared_items[j].storageAmount > 0) {
                 allItemsZero = 0;
                 break;
             }
         }
+
 
         if (allItemsZero) {
             // All items have quantity = 0, break the loop
@@ -80,12 +78,12 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
         int random_index;
         do {
-            random_index = rand() % num_items;
-        } while (shared_items[random_index].quantity <= 0);
+            random_index = rand() % num_of_products;
+        } while (shared_items[random_index].storageAmount <= 0);
 
 
 
-        shared_items[random_index].quantity--;
+        shared_items[random_index].storageAmount--;
         customer->cart[i] = random_index;
         customer->num_items++;
 
@@ -102,16 +100,17 @@ void pick_up_items(struct Customer *customer, Item *shared_items) {
 
 void fill_cart(struct Customer *customer) {
 
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), 0666);
+    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
-    if (shared_items == (Item *)-1) {
+    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+    if (shared_items == (Product *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
+
     }
 
     srand(getpid());  // Seed the random number generator with the process ID
@@ -153,16 +152,16 @@ void fill_cart(struct Customer *customer) {
 
 }
 
-void get_shared_items(Item *destinationArray) {
+void get_shared_products(Product *destinationArray) {
 
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), 0666);
+    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
-    if (shared_items == (Item *)-1) {
+    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+    if (shared_items == (Product *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
     }
@@ -172,7 +171,7 @@ void get_shared_items(Item *destinationArray) {
 
 
 
-        memcpy(destinationArray, shared_items, num_items * sizeof(Item));
+        memcpy(destinationArray, shared_items, num_of_products * sizeof(Product));
 
 
 

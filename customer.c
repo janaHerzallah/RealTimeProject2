@@ -8,8 +8,8 @@ void print_customer_data(const struct Customer *customer);
 void fill_cart( struct Customer *customer);
 struct Customer customer_info;
 extern Config c;  // Declare or include the Config structure
-extern Item items[MAX_LINE_LENGTH];
-extern int num_items;
+extern Product products[MAX_LINE_LENGTH];
+extern int num_of_products;
 
 
 
@@ -45,7 +45,7 @@ void fill_data(){
 
     fill_cart(&customer_info);
 
-    customer_info.total_price = 0;
+
 
 
 
@@ -63,15 +63,12 @@ void print_customer_data(const struct Customer *customer) {
 
 
     float total = 0.0;
-    printf("Items in Cart: ");
+    printf("Products in Cart: ");
     for (int i = 0; i < customer->num_items; ++i) {
-        printf(" %s ", items[customer->cart[i]].name);
-        total += items[customer->cart[i]].price;
-
+        printf(" %s ", products[customer->cart[i]].name);
 
     }
 
-    printf("\nTotal Price: $%.2f\n", total);
 
 
 }

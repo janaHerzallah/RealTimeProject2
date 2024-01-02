@@ -88,8 +88,8 @@ int main(int argc, char** argv){
     // Print items
     printf("Items in the Supermarket:\n");
     printf("----------------------------\n");
-    for (int i = 0; i < num_items; ++i) {
-        printf("Item: %s, Quantity: %d, Price: $%.2f\n", items[i].name, items[i].quantity, items[i].price);
+    for (int i = 0; i < num_of_products; ++i) {
+        printf("Product: %s, Storage amount : %d, Shelf Amount: %d\n", products[i].name, products[i].storageAmount , products[i].shelfAmount );
     }
 
     // print items area end
@@ -234,14 +234,14 @@ void create_STM(){
 
 
     // Create the shared memory segment for items
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    Item *shared_items = (Item *)shmat(shmid, NULL, 0);
-    if (shared_items == (Item *)-1) {
+    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+    if (shared_items == (Product *)-1) {
         perror("shmat");
         exit(EXIT_FAILURE);
     }
@@ -249,8 +249,8 @@ void create_STM(){
 
     // Initialize shared memory with item data
 
-    for (int i = 0; i < num_items; i++) {
-        shared_items[i] = items[i];
+    for (int i = 0; i < num_of_products; i++) {
+        shared_items[i] = products[i];
     }
 
 
@@ -470,7 +470,7 @@ void clean_CNM() {
 
 void clean_STM(){
     // Remove the shared memory segment for items
-    int shmid = shmget(ITM_SMKEY, num_items * sizeof(Item), IPC_CREAT | 0666);
+    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);

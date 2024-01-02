@@ -32,7 +32,7 @@ int cashier1_totalCount = 0;
 int  cashier3_totalCount = 0;
 int cashier2_totalCnt=0;
 
-Item items_count[4];
+Product items_count[4];
 
 int milk_count = 0;
 int eggs_count = 0;
@@ -647,13 +647,13 @@ void readDataFromSharedMemory()
 
 
 
-    get_shared_items(items_count);
+    get_shared_products(items_count);
 
 
-    milk_count = items_count[0].quantity;
-    eggs_count = items_count[1].quantity;
-    bread_count = items_count[2].quantity;
-    apples_count = items_count[3].quantity;
+    milk_count = items_count[0].storageAmount;
+    eggs_count = items_count[1].storageAmount;
+    bread_count = items_count[2].storageAmount;
+    apples_count = items_count[3].storageAmount;
 
 
 
