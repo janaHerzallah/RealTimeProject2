@@ -179,6 +179,10 @@ pid_t arr_customers_pid[c.customerCapacity];
 
         for (int i = 0; i < customersInBatch  ; i++) {
 
+            if( get_total_customers() >= c.customerCapacity*0.8){
+                sleep(1);
+            }
+
             if(get_total_customers() >= c.customerCapacity){
                 break;
             }
@@ -189,6 +193,7 @@ pid_t arr_customers_pid[c.customerCapacity];
                 perror("Error: Unable to fork customer process.\n");
                 exit(EXIT_FAILURE);
             } else if (arr_customers_pid[i] == 0) {
+                increment_total_customers(1);
                 execlp("./customer", "./customer", NULL);
                 perror("Error: Unable to execute customer process.\n");
                 exit(EXIT_FAILURE);

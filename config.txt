@@ -1,4 +1,4 @@
-customerCapacity=20
+customerCapacity=30
 interval_seconds=1
 SHOPPING_TIME_Max=19
 numberOfProducts=50
