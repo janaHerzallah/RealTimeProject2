@@ -637,18 +637,7 @@ void readDataFromSharedMemory()
 
      peopleInTheInnerHall = get_total_customers();
 
-
-    cashier1_totalCount = 0;
-    cashier2_totalCnt= 0;
-    cashier3_totalCount = 0;
-
-
-    cashier_count = get_total_cashiers(0);
-
-
-
     get_shared_products(items_count);
-
 
     milk_count = items_count[0].storageAmount;
     eggs_count = items_count[1].storageAmount;

@@ -22,6 +22,19 @@
 
 #define happiest_cashier_key 0x1242
 
+
+char *STM_SEM = "stm_mutex196652"; // Semaphore for timer
+
+struct shared_time_memory{
+
+    time_t current_hours;
+    time_t current_minutes;
+
+
+};
+typedef struct shared_time_memory* STM;
+
+
 typedef struct {
 
     int happy_cashier_1;
