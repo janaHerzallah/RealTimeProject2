@@ -15,8 +15,6 @@ void sigterm_handler();
 
 int main(int argc, char** argv ) {
 
-    sigset(SIGINT, sigterm_handler);
-
     read_items("supermarket_items.txt");
     c = read_config("config.txt");
 
@@ -74,12 +72,6 @@ void print_customer_data(const struct Customer *customer) {
 
 
 }
-
-void sigterm_handler() {
-
-    exit(0);
-}
-
 
 
 

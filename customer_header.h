@@ -75,7 +75,7 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
             // Acquire semaphore for picking up items
             printf("\n the storage is empty \n");
             kill(getppid(), SIGINT);
-
+            exit(0);
         }
 
 

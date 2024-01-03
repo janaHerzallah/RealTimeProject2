@@ -12,6 +12,7 @@ int main( int argc, char** argv )
 {
      c = read_config( "config.txt");
 
+
     // For get the STM
     int stm_id = shmget(STM_KEY, sizeof(struct shared_time_memory), IPC_CREAT | 0777);
     if (stm_id == -1){

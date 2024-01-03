@@ -35,7 +35,11 @@ void clean_STM_semaphore();
 void clean_CNM_semaphore();
 
 
+volatile sig_atomic_t terminate_flag = 0;
 
+void simple_sig_handler(int sig) {
+    terminate_flag = 1;
+}
 
 Config c;
 
@@ -43,7 +47,11 @@ Config c;
 int main(int argc, char** argv){
 
 
-    sigset(SIGINT, terminate_processes);
+    struct sigaction sa;
+    memset(&sa, 0, sizeof(sa));
+    sa.sa_handler = simple_sig_handler;
+    sigaction(SIGINT, &sa, NULL);
+
 
     // print items area start
     read_items("supermarket_items.txt");
@@ -156,50 +164,63 @@ pid_t arr_customers_pid[c.customerCapacity + (int)0.5*(c.customerCapacity)];
 
         }
 
+        if (terminate_flag) {
+            terminate_processes(drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_flag = 0; // Reset the flag after handling termination
+        }
 
         sleep(c.interval_seconds);
         printf("**sleeping interval is :%d\n",c.interval_seconds);
 
+
+
     }
 
-    pause();
 
-    printf(" Main Process End\n");
+    while (1){
+        if (terminate_flag) {
+            printf(" Main Process End\n");
+            terminate_processes(drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_flag = 0; // Reset the flag after handling termination
+        }
 
-    terminate_processes(drawer, timer, arr_customers_pid, j);
+    }
 
 
-    return 0;
+
 }
+
+
+
+
+
+
 
 void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
 
     printf(" End of Program\n");
 
-    for(int i = 0; i < customerCapacity; i++) {
 
-            kill(arr_customers_pid[i], SIGTERM);
-
-    }
-
-    // Terminate drawer and timer processes if they are valid
     if (drawer > 0) {
         printf("Killing drawer process\n");
-        kill(drawer, SIGTERM);
+        kill(drawer, SIGKILL);
     }
 
     if (timer > 0) {
         printf("Killing timer process\n");
-        kill(timer, SIGTERM);
+        kill(timer, SIGKILL);
+    }
+
+    for(int i = 0; i < customerCapacity; i++) {
+        kill(arr_customers_pid[i], SIGKILL);
     }
 
 
-    // Loop through the array of customer PIDs and send them the SIGTERM signal
-
-    sleep(15);
+    sleep(3);
 
     clean_all_semaphores();
     clean_all_shared_memories();
+    exit(0);
 
 }
 

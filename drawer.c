@@ -9,6 +9,9 @@
 
 unsigned int read_queue_size();
 
+void sigterm_handler2() ;
+
+
 // functions for openGl
 void display(void);
 void reshape(int w, int h);
@@ -52,7 +55,7 @@ int itemCount[3] = {0, 0, 0};
 
         unservedCostumersCnt=0,
         cashier_stoppedCnt=0,
-        fram_rate = 1000 / 20;
+        fram_rate = 1000 / 5;
 
 float mouseX = 0.0f;
 float mouseY = 0.0f;
@@ -76,7 +79,6 @@ int main(int argc, char **argv)
 {
 
     read_items("supermarket_items.txt");
-
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
     glutInitWindowSize(1800, 1000);
@@ -114,6 +116,11 @@ void display(void) {
     // Swap the buffers at the very end after all drawing commands
     glutSwapBuffers();
 }
+void sigterm_handler2() {
+
+    exit(0);
+}
+
 
 void reshape(int w, int h)
 {
