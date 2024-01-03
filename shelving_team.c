@@ -3,64 +3,111 @@
 #include "semphores.h"
 #include "message_queues.h"
 #include "shared_memories.h"
+#include "functions.h"
+#include <pthread.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 
 
+Config c;  // Assume this is defined and initialized properly elsewhere
 
-Cashier cashier_info ;
+// Structure for Team
+typedef struct Team {
+    pthread_t manager;
+    pthread_t *employees; // Dynamic array of employee threads
+} Team;
 
-void fill_data();
-void print_cashier_data( );
+// Global dynamic arrays of products and teams
+Product *Products;
+Team *teams;
 
+// Function prototypes
+void *managerFunction(void *arg);
+void *employeeFunction(void *arg);
 
-extern Config c;  // Declare or include the Config structure
-int number_of_people_served = 0;
-
-float score( );
-
-
-int main(int argc, char** argv ) {
-
-
-    c = read_config("config.txt");
-
-    fill_data();  // Populate customer_info with data
-
-
-    printf("**********************\n ");
-    print_cashier_data();
-    printf("**********************\n ");
-
-
-
-    exit(0);
-
-
+// Function to initialize products
+void initializeProducts() {
+    Products = malloc(c.numberOfProducts * sizeof(Product)); // Dynamic allocation for products
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+        pthread_mutex_init(&Products[i].lock, NULL);
+    }
 }
 
+// Function to initialize teams
+void initializeTeams() {
+    teams = malloc(c.numberOfShelvingTeams * sizeof(Team)); // Dynamic allocation for teams
+    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+        teams[i].employees = malloc(c.numberOfEmployeesPerTeam * sizeof(pthread_t)); // Dynamic allocation for employees
 
-void fill_data(){
+        int *teamId = malloc(sizeof(int)); // Allocate memory for team ID
+        *teamId = i; // Set team ID
 
-    increment_total_cashiers(1,0);
+        // Initialize manager for each team
+        if (pthread_create(&teams[i].manager, NULL, managerFunction, teamId)) {
+            perror("Failed to create manager thread");
+            exit(EXIT_FAILURE);
+        }
 
-    srand(time(NULL));   // for making random choices for each customer
-    cashier_info.id = get_total_cashiers(0);
-    cashier_info.numPeopleInQueue = 0;
-    cashier_info.happiness = 5;
-    cashier_info.scanningTime = 0;
-
-
+        // Initialize employees for each team
+        for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {
+            if (pthread_create(&teams[i].employees[j], NULL, employeeFunction, teamId)) {
+                perror("Failed to create employee thread");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
 }
 
-void print_cashier_data( ) {
+// Placeholder function for manager's behavior
+void *managerFunction(void *arg) {
+    int teamIndex = *(int *)arg;
+    printf("Manager of team %d is running\n", teamIndex);
 
+    // Manager's tasks would go here
 
-
-    printf("Cashier ID: %d\n", cashier_info.id);
-    printf("Cashier Queue Size: %d\n", cashier_info.numPeopleInQueue);
-    printf("Cashier Happiness: %d\n", cashier_info.happiness);
-    printf("Cashier Scanning Time: %d\n", cashier_info.scanningTime);
-
+    free(arg); // Free the dynamically allocated team ID
+    pthread_exit(NULL);
 }
 
+// Placeholder function for employee's behavior
+void *employeeFunction(void *arg) {
+    // Employees don't need to free the team ID; it's handled in the managerFunction.
+    int teamIndex = *(int *)arg;
+    printf("Employee of team %d is running\n", teamIndex);
 
+    // Employee's tasks would go here
+
+    pthread_exit(NULL);
+}
+
+int main() {
+    // Make sure Config c is initialized properly before this point
+
+    initializeProducts(); // Initialize products with mutexes
+    initializeTeams();    // Initialize teams with manager and employee threads
+
+    // Join threads and perform cleanup at the end of the simulation
+    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+        pthread_join(teams[i].manager, NULL);
+        for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {
+            pthread_join(teams[i].employees[j], NULL);
+        }
+    }
+
+    // Cleanup
+    // Destroy mutexes and free memory
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+        pthread_mutex_destroy(&Products[i].lock);
+    }
+
+    // Free memory for teams and employees
+    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+        free(teams[i].employees); // Free each team's employees array
+    }
+    free(teams); // Free teams array
+    free(Products); // Free products array
+
+    printf("Simulation is ending. Cleaning up resources...\n");
+    return 0;
+}

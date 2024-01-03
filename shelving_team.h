@@ -4,22 +4,6 @@
 #include "header.h"
 #include "customer_header.h"
 #include "semphores.h"
-#include "shared_memories.h"
-
-
-
-volatile sig_atomic_t exit_program = 0;
-volatile sig_atomic_t totalSalesAboveThreshold = 0;
-
-typedef struct {
-    int id;                     // Cashier ID
-    int numPeopleInQueue;       // Number of people in the cashier's queue
-    struct Customer queue[MAX_QUEUE_SIZE]; // Queue of customers
-    int happiness;              // Happiness level of the cashier
-    int scanningTime;
-    int number_of_all_items ;// Time taken by the cashier to scan each item
-    float total_sales;
-} Cashier;
 
 
 

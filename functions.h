@@ -39,6 +39,8 @@ typedef struct {
     char name[MAX_LINE_LENGTH];
     int  storageAmount;
     int shelfAmount;
+    int restockThreshold;
+    pthread_mutex_t lock; // Mutex for synchronizing access to the product
 
 } Product;
 
