@@ -7,116 +7,90 @@
 
 
 
-int get_total_cashiers( int num_of_cashier_queue) {
+// Structure for Team
+typedef struct Team {
+    pthread_t manager;
+    pthread_t *employees; // Dynamic array of employee threads
+    pthread_mutex_t teamLock; // Mutex for team coordination
+    pthread_cond_t condition_var; // Condition variable for signaling employees
+} Team;
 
 
-    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
+// Global dynamic arrays of products and teams
+Product *Products;
+Team *teams;
 
-    total_cashiers *shared_data = (total_cashiers *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
+// Function prototypes
+void *managerFunction(void *arg);
+void *employeeFunction(void *arg);
 
-    // mutex code
-    // Acquire the semaphore before modifying shared memory
-    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
-
-    lock_sem(cashier_mutex);
-
-    // Increment the totalCustomers value
-
-    int total_cash ;
-
-    if(num_of_cashier_queue == 0){
-        total_cash = shared_data->totalCashiers;
-    }
-    else if(num_of_cashier_queue == 1){
-        total_cash = shared_data->scanning_time1;
-    }else if(num_of_cashier_queue == 2){
-        total_cash = shared_data->scanning_time2 ;
-    }else if(num_of_cashier_queue == 3) {
-        total_cash = shared_data->scanning_time3 ;
-    }
-
-
-    // Release the semaphore
-    unlock_sem(cashier_mutex);
-    close_semaphore(cashier_mutex);
-    //end mutex code
-
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
-
-    return total_cash;
-}
-
-
-void increment_total_cashiers(int num, int num_of_cashier_queue ) {
-    // Get the shared memory ID
-    int shmid = shmget(total_num_cashiers_key, sizeof(total_cashiers), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    // Attach to the shared memory
-    total_cashiers *shared_data = (total_cashiers *)shmat(shmid, NULL, 0);
-    if (shared_data == (void *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-    }
-
-    // Acquire the semaphore before modifying shared memory
-    sem_t *cashier_mutex = get_semaphore(total_cashiers_key);
-
-
-    lock_sem(cashier_mutex);
-
-
-    if(num_of_cashier_queue == 0){
-        shared_data->totalCashiers = shared_data->totalCashiers + num;
-    }
-     else if(num_of_cashier_queue == 1){
-        shared_data->scanning_time1 = num;
-    }else if(num_of_cashier_queue == 2){
-        shared_data->scanning_time2 = num;
-     }else if(num_of_cashier_queue == 3) {
-        shared_data->scanning_time3 = num;
-    }
-
-
-
-
-
-    // Release the semaphore
-    unlock_sem(cashier_mutex);
-
-    // Close the semaphore
-    close_semaphore(cashier_mutex);
-
-    // Detach from shared memory
-    if (shmdt(shared_data) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
+// Function to initialize products
+void initializeProducts() {
+    Products = malloc(c.numberOfProducts * sizeof(Product)); // Dynamic allocation for products
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+        pthread_mutex_init(&Products[i].lock, NULL);
     }
 }
 
+// Function to initialize teams
+void initializeTeams() {
+    teams = malloc(c.numberOfShelvingTeams * sizeof(Team)); // Dynamic allocation for teams
 
+    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+        teams[i].employees = malloc(c.numberOfEmployeesPerTeam * sizeof(pthread_t)); // Dynamic allocation for employees
+        pthread_mutex_init(&teams[i].teamLock, NULL); // Initialize mutex
+        pthread_cond_init(&teams[i].condition_var, NULL); // Initialize condition variable
 
+        int *teamId = malloc(sizeof(int)); // Allocate memory for team ID
+        *teamId = i; // Set team ID
 
+        // Initialize manager for each team
+        if (pthread_create(&teams[i].manager, NULL, managerFunction, teamId)) {
+            perror("Failed to create manager thread");
+            exit(EXIT_FAILURE);
+        }
 
+        // Initialize employees for each team
+        for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {
+            if (pthread_create(&teams[i].employees[j], NULL, employeeFunction, teamId)) {
+                perror("Failed to create employee thread");
+                exit(EXIT_FAILURE);
+            }
+        }
+    }
+}
 
+// Function for manager's behavior
+void *managerFunction(void *arg) {
+    int teamIndex = *(int *)arg;
+    printf("Manager of team %d is running\n", teamIndex);
 
+    // Simulate the manager's tasks
+    // In real code, this would involve monitoring product levels and restocking
 
+    // Notify employees using condition variable
+    pthread_mutex_lock(&teams[teamIndex].teamLock);
+    pthread_cond_broadcast(&teams[teamIndex].condition_var);
+    pthread_mutex_unlock(&teams[teamIndex].teamLock);
 
+    free(arg); // Free the dynamically allocated team ID
+    pthread_exit(NULL);
+}
 
+// Function for employee's behavior
+void *employeeFunction(void *arg) {
+    int teamIndex = *(int *)arg;
+    printf("Employee of team %d is running\n", teamIndex);
+
+    // Wait for manager's signal
+    pthread_mutex_lock(&teams[teamIndex].teamLock);
+    pthread_cond_wait(&teams[teamIndex].condition_var, &teams[teamIndex].teamLock);
+    pthread_mutex_unlock(&teams[teamIndex].teamLock);
+
+    // Simulate restocking one product at a time
+
+    pthread_exit(NULL);
+}
 
 
 
