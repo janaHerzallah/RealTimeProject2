@@ -178,21 +178,25 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
 
     for(int i = 0; i < customerCapacity; i++) {
 
-            printf("Killing customer %d\n", arr_customers_pid[i]);
             kill(arr_customers_pid[i], SIGTERM);
-
 
     }
 
-    // Send the SIGTERM signal to the drawer process
-    kill(drawer, SIGTERM);
+    // Terminate drawer and timer processes if they are valid
+    if (drawer > 0) {
+        printf("Killing drawer process\n");
+        kill(drawer, SIGTERM);
+    }
 
-    // Send the SIGTERM signal to the timer process
-    kill(timer, SIGTERM);
+    if (timer > 0) {
+        printf("Killing timer process\n");
+        kill(timer, SIGTERM);
+    }
+
 
     // Loop through the array of customer PIDs and send them the SIGTERM signal
 
-    sleep(10);
+    sleep(15);
 
     clean_all_semaphores();
     clean_all_shared_memories();
