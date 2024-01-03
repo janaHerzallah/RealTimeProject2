@@ -128,7 +128,7 @@ int main(int argc, char** argv){
 
 
   // Set your desired customer capacity
-pid_t arr_customers_pid[c.customerCapacity + (int)0.5*(c.customerCapacity)];
+pid_t arr_customers_pid[c.customerCapacity];
 
 
     int j = 0;
@@ -170,9 +170,10 @@ pid_t arr_customers_pid[c.customerCapacity + (int)0.5*(c.customerCapacity)];
         }
 
         sleep(c.interval_seconds);
-        printf("**sleeping interval is :%d\n",c.interval_seconds);
 
-
+        if(!terminate_flag){
+            printf("**sleeping interval is :%d\n",c.interval_seconds);
+        }
 
     }
 

@@ -66,7 +66,20 @@ void read_items(const char *filename) {
 
     for (int i = 0; i < c_values.numberOfProducts; ++i) {
         fgets(line, sizeof(line), file);
-        sscanf(line, "%[^,],%d,%d", products[i].name, &products[i].storageAmount, &products[i].shelfAmount);
+
+
+        if(c_values.amountPerProductOnShelves == 0 ){
+
+            // if we want to read the shelf amount from product file
+            sscanf(line, "%[^,],%d,%d", products[i].name, &products[i].storageAmount, &products[i].shelfAmount);
+        }else{
+            // if we want to read the shelf amount from config file
+            sscanf(line, "%[^,],%d", products[i].name, &products[i].storageAmount);
+            products[i].shelfAmount = c_values.amountPerProductOnShelves;
+        }
+
+
+
     }
 
     fclose(file);
