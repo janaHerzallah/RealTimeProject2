@@ -1,4 +1,34 @@
-Milk,100,18
-Bread,100,2.50
-Eggs,70,3.00
-Apples,100,0.50
+Milk,5,18
+Bread,5,20
+Eggs,5,20
+Apples,5,20
+Cheese, 150, 22
+Bananas, 120, 15
+Oranges, 80, 18
+Chicken, 200, 50
+Beef, 250, 60
+Fish, 200, 55
+Rice, 1000, 40
+Pasta, 500, 30
+Tomatoes, 150, 25
+Lettuce, 100, 12
+Carrots, 150, 15
+Onions, 100, 10
+Garlic, 50, 15
+Ginger, 40, 20
+Potatoes, 300, 25
+Spinach, 100, 18
+Peas, 150, 20
+Corn, 200, 30
+Cucumber, 100, 10
+Grapes, 120, 25
+Strawberries, 100, 30
+Watermelon, 5000, 35
+Peaches, 150, 25
+Plums, 100, 20
+Lemon, 100, 15
+Lime, 100, 15
+Coconut, 1000, 40
+Almonds, 200, 45
+Walnuts, 200, 50
+Honey, 300, 35

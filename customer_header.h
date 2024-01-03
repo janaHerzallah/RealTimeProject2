@@ -23,6 +23,7 @@ struct Customer {
 
 Config c;
 static int totalCustomers = 0;
+int protection_for_termination = 0;
 
 void increment_total_customers(int num);
 
@@ -55,8 +56,29 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
     printf("Customer %d is picking up items:\n", customer->id);
 
     // Generate and print a random number between 1 and MAX_ITEMS_IN_CART
-    int random_number = generate_random_number();
+    int random_number = rand() % c.maxItemsPerCustomer + 1;
     printf("Random Number: %d ... customer %d \n", random_number, customer->id);
+
+
+
+        // Check if all Storage have quantity = 0 to end the program.
+        int all_storage_zero = 1;
+        for (int j = 0; j < c.numberOfProducts ; ++j) {
+            if (shared_items[j].storageAmount > 0) {
+                all_storage_zero = 0;
+                break;
+            }
+        }
+        if (all_storage_zero) {
+
+
+            // Acquire semaphore for picking up items
+            printf("\n the storage is empty \n");
+            kill(getppid(), SIGINT);
+
+        }
+
+
 
     for (int i = 0; i < random_number; ++i) {
         // Check if all items have quantity = 0
@@ -123,10 +145,8 @@ void fill_cart(struct Customer *customer) {
     pick_up_items_mutex = get_semaphore(Pick_key);
     lock_sem(pick_up_items_mutex);
 
-     // Increment totalCustomers and assign ID
 
     // Critical section starts here
-    customer->id = get_total_customers(); // Increment totalCustomers and assign ID
     customer->num_items = 0;
 
     printf("\n----------------------------------------\n");

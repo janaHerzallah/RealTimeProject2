@@ -45,9 +45,12 @@ typedef struct {
 
 int num_of_products;
 Product products[MAX_LINE_LENGTH];
+Config c_values;
 
 
 void read_items(const char *filename) {
+
+    c_values = read_config("config.txt");
     FILE *file = fopen(filename, "r");
 
     if (file == NULL) {
@@ -56,15 +59,12 @@ void read_items(const char *filename) {
         return;
     }
 
-    num_of_products = 0;
+    num_of_products = c_values.numberOfProducts;
     char line[MAX_LINE_LENGTH];
-    while (fgets(line, sizeof(line), file)) {
-        num_of_products++;
-    }
 
     rewind(file);
 
-    for (int i = 0; i < num_of_products; ++i) {
+    for (int i = 0; i < c_values.numberOfProducts; ++i) {
         fgets(line, sizeof(line), file);
         sscanf(line, "%[^,],%d,%d", products[i].name, &products[i].storageAmount, &products[i].shelfAmount);
     }

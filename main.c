@@ -120,10 +120,10 @@ int main(int argc, char** argv){
 
 
   // Set your desired customer capacity
-pid_t arr_customers_pid[c.customerCapacity];
+pid_t arr_customers_pid[c.customerCapacity + (int)0.5*(c.customerCapacity)];
 
 
-
+    int j = 0;
     while (get_total_customers() < c.customerCapacity) {
 
         // Generate a random number of customers for this batch within the min-max range
@@ -139,33 +139,34 @@ pid_t arr_customers_pid[c.customerCapacity];
                 break;
             }
 
-            arr_customers_pid[i] = fork();
+            arr_customers_pid[j] = fork();
 
-            if (arr_customers_pid[i] < 0) {
+            if (arr_customers_pid[j] < 0) {
                 perror("Error: Unable to fork customer process.\n");
                 exit(EXIT_FAILURE);
-            } else if (arr_customers_pid[i] == 0) {
+            } else if (arr_customers_pid[j] == 0) {
                 increment_total_customers(1);
                 execlp("./customer", "./customer", NULL);
                 perror("Error: Unable to execute customer process.\n");
                 exit(EXIT_FAILURE);
             }
 
+            j++;
+
 
         }
+
 
         sleep(c.interval_seconds);
         printf("**sleeping interval is :%d\n",c.interval_seconds);
 
     }
 
-    for(int i = 0; i <c.customerCapacity; i++) {
-        waitpid(arr_customers_pid[i], NULL, 0);
-    }
+    pause();
 
     printf(" Main Process End\n");
 
-    terminate_processes(drawer, timer, arr_customers_pid, c.customerCapacity);
+    terminate_processes(drawer, timer, arr_customers_pid, j);
 
 
     return 0;
@@ -176,7 +177,11 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
     printf(" End of Program\n");
 
     for(int i = 0; i < customerCapacity; i++) {
-        kill(arr_customers_pid[i], SIGTERM);
+
+            printf("Killing customer %d\n", arr_customers_pid[i]);
+            kill(arr_customers_pid[i], SIGTERM);
+
+
     }
 
     // Send the SIGTERM signal to the drawer process
@@ -187,7 +192,7 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
 
     // Loop through the array of customer PIDs and send them the SIGTERM signal
 
-    sleep(3);
+    sleep(10);
 
     clean_all_semaphores();
     clean_all_shared_memories();
