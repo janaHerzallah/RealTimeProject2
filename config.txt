@@ -1,5 +1,5 @@
 customerCapacity=30
-interval_seconds=1
+interval_seconds=6
 SHOPPING_TIME_Max=19
 numberOfProducts=50
 amountPerProductOnShelves=100
@@ -11,5 +11,8 @@ minCustomerArrivalRate=1
 maxCustomerArrivalRate=5
 maxItemsPerCustomer=10
 maxQuantityPerItem=5
-startHour=9
+startHour=8
+startMinute=45
 endHour=11
+endMinute=15
+

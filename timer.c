@@ -64,7 +64,6 @@ int main( int argc, char** argv )
         usleep(TIME_STEP_INCREMENT * 1000000);
 
         if(check_finish()){
-            printf("End Generation\n");
             kill(getppid(), SIGINT);
         }
 
@@ -93,8 +92,11 @@ int check_finish(){
     time_t *current_time = read_current_time();
     time_t current_hour = *current_time; // pointer to the current hour
     time_t the_end = c.startHour + (c.endHour - c.startHour) ;
+    time_t current_minutes = *(current_time + 1); // pointer to the current minutes
+    time_t the_end_minutes = c.endMinute%60;
 
-    if(  current_hour >= the_end ){
+
+    if(  current_hour >= the_end && current_minutes >= the_end_minutes){
         return 1;
     }
     return 0;

@@ -175,6 +175,10 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
 
     printf(" End of Program\n");
 
+    for(int i = 0; i < customerCapacity; i++) {
+        kill(arr_customers_pid[i], SIGTERM);
+    }
+
     // Send the SIGTERM signal to the drawer process
     kill(drawer, SIGTERM);
 
@@ -182,9 +186,8 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
     kill(timer, SIGTERM);
 
     // Loop through the array of customer PIDs and send them the SIGTERM signal
-    for(int i = 0; i < customerCapacity; i++) {
-        kill(arr_customers_pid[i], SIGTERM);
-    }
+
+    sleep(3);
 
     clean_all_semaphores();
     clean_all_shared_memories();
@@ -224,7 +227,7 @@ void create_TimerSHM(){
 
     // For initialize the first value of the time
     stm_mem->current_hours = c.startHour; // Start from 5AM
-    stm_mem->current_minutes = 0;
+    stm_mem->current_minutes = c.startMinute;
 
 
     if (shmdt(stm_mem) == -1) {
