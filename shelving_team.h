@@ -144,6 +144,9 @@ void *managerFunction(void *arg) {
 
         }
 
+
+
+
         // Acquire semaphore for picking up items
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
@@ -152,30 +155,52 @@ void *managerFunction(void *arg) {
         printf("Manager of team %d is checking product %s \n", teamIndex, shared_items[productIndex].name);
 
         if (shared_items[productIndex].shelfAmount < c.productRestockThreshold) {
+
+            pthread_mutex_lock(&shared_items[productIndex].lock); // Lock the product's mutex before accessing or modifying it
+
             printf("Manager of team %d restocking product %s\n", teamIndex, shared_items[productIndex].name);
 
-            int neededAmount = shared_items[productIndex].shelfAmount - shared_items[productIndex].restockThreshold;
-            int what_Available = shared_items[productIndex].storageAmount - neededAmount;
 
+            printf(" shelf amount is %d \n", shared_items[productIndex].shelfAmount);
+            // Calculate how much more is needed to fill shelves up to the desired full amount
+            int neededToFillShelves = c.amountPerProductOnShelves - shared_items[productIndex].shelfAmount;
+            printf(" needed to fill shelves is %d \n", neededToFillShelves);
 
-            printf("Manager is going to fetch %d items of product %s\n", what_Available,
-                   shared_items[productIndex].name);
-            sleep(6);  // Simulating fetching time
-
-            if (what_Available < 0) {
-                what_Available = shared_items[productIndex].storageAmount;
-            } else {
-                what_Available = neededAmount;
-                shared_items[productIndex].storageAmount -= neededAmount;
+            // Ensure that the needed amount is not negative
+            if (neededToFillShelves < 0) {
+                neededToFillShelves = 0;
             }
+
+            // Determine how much to take from storage based on what's needed and what's available
+            int amountToTakeFromStorage;
+            if (neededToFillShelves > shared_items[productIndex].storageAmount) {
+                // Take whatever is available in storage if needed amount exceeds available amount
+                amountToTakeFromStorage = shared_items[productIndex].storageAmount;
+            } else {
+                // Otherwise, take exactly what's needed to fill the shelves
+                amountToTakeFromStorage = neededToFillShelves;
+            }
+
+            // Print how much is being fetched for clarity
+            printf("Manager is going to fetch %d items of product %s\n", amountToTakeFromStorage, shared_items[productIndex].name);
+
+            // Adjust the quantities on shelves and in storage
+            shared_items[productIndex].storageAmount -= amountToTakeFromStorage;
+
+
+
+            sleep(3); // fetch time and go to the location
+
+
 
 
             // Signal employees that product is ready to restock
             pthread_mutex_lock(&teams[teamIndex].teamLock); // Acquire team's mutex
             teams[teamIndex].restockInfo.productIndex = productIndex; // Set shared restock info
-            teams[teamIndex].restockInfo.amountAvailable = what_Available; // Set shared restock info
+            teams[teamIndex].restockInfo.amountAvailable = amountToTakeFromStorage; // Set shared restock info
             pthread_mutex_unlock(&teams[teamIndex].teamLock); // Release team's mutex
-            pthread_cond_broadcast(&teams[teamIndex].condition_var); // Signal employees
+            pthread_cond_broadcast(&teams[teamIndex].condition_var); // Signal employees reaching the location.
+            pthread_mutex_unlock(&shared_items[productIndex].lock);
 
             printf("Manager of team %d has fetched products. Employees can restock now.\n", teamIndex);
         }
@@ -193,8 +218,7 @@ void *managerFunction(void *arg) {
             perror("shmdt");
             exit(EXIT_FAILURE);
         }
-        sleep(5);  // Wait a bit before checking again
-
+        sleep(3);  // Wait a bit before checking again
 
     }
 
@@ -230,11 +254,20 @@ void *employeeFunction(void *arg) {
             exit(EXIT_FAILURE);
         }
 
+        // Lock the product's mutex before accessing or modifying it
+
+
+        pthread_mutex_lock(&shared_items[teams[teamIndex].restockInfo.productIndex].lock);
         // Acquire semaphore for restocking items
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
 
         shared_items[productIndex].shelfAmount += what_Available;
+
+        // Unlock the product's mutex after modification is done
+        pthread_mutex_unlock(&shared_items[teams[teamIndex].restockInfo.productIndex].lock);
+
+
 
         unlock_sem(pick_up_items_mutex);
         sem_close(pick_up_items_mutex);

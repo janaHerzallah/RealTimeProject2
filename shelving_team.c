@@ -47,6 +47,42 @@ void clean_threads(){
         free(teams[i].employees); // Free each team's employees array
     }
 
+
+    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
+    if (shmid == -1) {
+        perror("shmget");
+        exit(EXIT_FAILURE);
+    }
+
+    Product *shared_items = (Product *) shmat(shmid, NULL, 0);
+    if (shared_items == (Product *) -1) {
+        perror("shmat");
+        exit(EXIT_FAILURE);
+
+    }
+
+    // Acquire semaphore for picking up items
+    pick_up_items_mutex = get_semaphore(Pick_key);
+    lock_sem(pick_up_items_mutex);
+
+
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+
+        pthread_mutex_destroy(&shared_items[i].lock);
+
+    }
+
+
+    unlock_sem(pick_up_items_mutex);
+    sem_close(pick_up_items_mutex);
+
+    // Detach from shared memory
+    if (shmdt(shared_items) == -1) {
+        perror("shmdt");
+        exit(EXIT_FAILURE);
+    }
+
+
     free(teams); // Free teams array
 
     printf("Simulation is ending. Cleaning up resources...\n");
