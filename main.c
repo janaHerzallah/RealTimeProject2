@@ -7,7 +7,7 @@
 #include "processing_times.h"
 
 int check_finish();
-void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
+void terminate_processes(pid_t shelving_team_pid,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
 
 void create_all_shared_memories();
 void create_TimerSHM();
@@ -88,6 +88,23 @@ int main(int argc, char** argv){
     create_all_semaphores();
 
 
+
+    pid_t shelving_team_pid;
+
+    if((shelving_team_pid = fork()) == -1){
+        perror("The employee fork error\n");
+        exit(-1);
+    }
+
+    if(!shelving_team_pid){
+        execlp("./shelving_team", "shelving_team", (char *) NULL);
+
+        // If the program not have enough memory then will raise error
+        perror("exec Failure\n");
+        exit(-1);
+    }
+
+
     pid_t timer;
 
     /* Create the timer */
@@ -125,20 +142,6 @@ int main(int argc, char** argv){
         exit(-1);
     }
 
-    pid_t shelving_team_pid;
-
-    if((shelving_team_pid = fork()) == -1){
-        perror("The employee fork error\n");
-        exit(-1);
-    }
-
-    if(!shelving_team_pid){
-        execlp("./shelving_team", "shelving_team", (char *) NULL);
-
-        // If the program not have enough memory then will raise error
-        perror("exec Failure\n");
-        exit(-1);
-    }
 
 
 
@@ -180,7 +183,7 @@ pid_t arr_customers_pid[c.customerCapacity];
         }
 
         if (terminate_flag) {
-            terminate_processes(drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_processes(shelving_team_pid ,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
             terminate_flag = 0; // Reset the flag after handling termination
         }
 
@@ -196,7 +199,7 @@ pid_t arr_customers_pid[c.customerCapacity];
     while (1){
         if (terminate_flag) {
             printf(" Main Process End\n");
-            terminate_processes(drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_processes(shelving_team_pid,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
             terminate_flag = 0; // Reset the flag after handling termination
         }
 
@@ -212,7 +215,7 @@ pid_t arr_customers_pid[c.customerCapacity];
 
 
 
-void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
+void terminate_processes(pid_t shelving_team_pid  ,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
 
     printf(" End of Program\n");
 
@@ -225,6 +228,11 @@ void terminate_processes(pid_t drawer, pid_t timer, pid_t *arr_customers_pid, in
     if (timer > 0) {
         printf("Killing timer process\n");
         kill(timer, SIGKILL);
+    }
+
+    if(shelving_team_pid > 0){
+        printf("Killing shelving_team process\n");
+        kill(shelving_team_pid, SIGKILL);
     }
 
     for(int i = 0; i < customerCapacity; i++) {

@@ -84,7 +84,7 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         // Check if all items have quantity = 0
         int allItemsZero = 1;
         for (int j = 0; j < num_of_products; ++j) {
-            if (shared_items[j].storageAmount > 0) {
+            if (shared_items[j].shelfAmount > 0) {
                 allItemsZero = 0;
                 break;
             }
@@ -101,11 +101,11 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         int random_index;
         do {
             random_index = rand() % num_of_products;
-        } while (shared_items[random_index].storageAmount <= 0);
+        } while (shared_items[random_index].shelfAmount <= 0);
 
 
 
-        shared_items[random_index].storageAmount--;
+        shared_items[random_index].shelfAmount--;
         customer->cart[i] = random_index;
         customer->num_items++;
 

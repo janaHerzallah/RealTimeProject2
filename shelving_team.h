@@ -1,10 +1,11 @@
 #ifndef CASHIER_HEADER
 #define CASHIER_HEADER
 #define MAX_LINE_LENGTH 100
+
 #include "header.h"
 #include "customer_header.h"
 #include "semphores.h"
-
+#include "shared_memories.h"
 
 
 typedef struct RestockInfo {
@@ -29,6 +30,7 @@ Team *teams;
 
 // Function prototypes
 void *managerFunction(void *arg);
+
 void *employeeFunction(void *arg);
 
 // Function to initialize products
@@ -40,8 +42,8 @@ void initializeProducts() {
         exit(EXIT_FAILURE);
     }
 
-    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
-    if (shared_items == (Product *)-1) {
+    Product *shared_items = (Product *) shmat(shmid, NULL, 0);
+    if (shared_items == (Product *) -1) {
         perror("shmat");
         exit(EXIT_FAILURE);
 
@@ -52,7 +54,8 @@ void initializeProducts() {
     lock_sem(pick_up_items_mutex);
 
 
- //   Products = malloc(c.numberOfProducts * sizeof(Product)); // Dynamic allocation for products
+    //   Products = malloc(c.numberOfProducts * sizeof(Product)); // Dynamic allocation for products
+
 
     for (int i = 0; i < c.numberOfProducts; ++i) {
         pthread_mutex_init(&shared_items[i].lock, NULL);
@@ -68,15 +71,31 @@ void initializeProducts() {
         exit(EXIT_FAILURE);
     }
 }
+
 void initializeTeams() {
+
     teams = malloc(c.numberOfShelvingTeams * sizeof(Team)); // Dynamic allocation for teams
 
-    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+    for (int i = 1; i <= c.numberOfShelvingTeams; ++i) {
+
         teams[i].employees = malloc(c.numberOfEmployeesPerTeam * sizeof(pthread_t)); // Dynamic allocation for employees
+
         pthread_mutex_init(&teams[i].teamLock, NULL); // Initialize mutex
         pthread_cond_init(&teams[i].condition_var, NULL); // Initialize condition variable
 
-        for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {
+        // Initialize manager for each team
+        int *managerTeamId = malloc(sizeof(int)); // Allocate memory for manager's team ID
+        *managerTeamId = i; // Set manager's team ID
+
+        if (pthread_create(&teams[i].manager, NULL, managerFunction, managerTeamId)) {
+            perror("Failed to create manager thread");
+            exit(EXIT_FAILURE);
+        }
+
+        usleep(100000);
+
+        for (int j = 1; j <= c.numberOfEmployeesPerTeam; ++j) {
+
             int *employeeTeamId = malloc(sizeof(int)); // Allocate memory for employee's team ID
             *employeeTeamId = i; // Set employee's team ID
 
@@ -87,13 +106,13 @@ void initializeTeams() {
             }
         }
 
-        // Initialize manager for each team
-        int *managerTeamId = malloc(sizeof(int)); // Allocate memory for manager's team ID
-        *managerTeamId = i; // Set manager's team ID
-        if (pthread_create(&teams[i].manager, NULL, managerFunction, managerTeamId)) {
-            perror("Failed to create manager thread");
-            exit(EXIT_FAILURE);
-        }
+        usleep(100000);
+
+        printf("Team %d has been initialized \n ", i);
+        printf("******************************\n");
+        printf("\n");
+
+
     }
 }
 
@@ -103,7 +122,9 @@ int selectProductToRestock() {
 
 // Function for manager's behavior
 void *managerFunction(void *arg) {
-    int teamIndex = *(int *)arg;
+    int teamIndex = *(int *) arg;
+    printf("******************************\n");
+
     printf("Manager of team %d is running\n", teamIndex);
 
     while (1) {  // Replace with a real condition
@@ -117,8 +138,8 @@ void *managerFunction(void *arg) {
             exit(EXIT_FAILURE);
         }
 
-        Product *shared_items = (Product *)shmat(shmid, NULL, 0);
-        if (shared_items == (Product *)-1) {
+        Product *shared_items = (Product *) shmat(shmid, NULL, 0);
+        if (shared_items == (Product *) -1) {
             perror("shmat");
             exit(EXIT_FAILURE);
 
@@ -128,19 +149,20 @@ void *managerFunction(void *arg) {
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
 
-        if (shared_items[productIndex].shelfAmount < c.productRestockThreshold ) {
+        if (shared_items[productIndex].shelfAmount < c.productRestockThreshold) {
             printf("Manager of team %d restocking product %s\n", teamIndex, shared_items[productIndex].name);
 
-            int neededAmount =  shared_items[productIndex].shelfAmount - shared_items[productIndex].restockThreshold;
+            int neededAmount = shared_items[productIndex].shelfAmount - shared_items[productIndex].restockThreshold;
             int what_Available = shared_items[productIndex].storageAmount - neededAmount;
 
 
-            printf("Manager is going to fetch %d items of product %s\n", what_Available, shared_items[productIndex].name);
+            printf("Manager is going to fetch %d items of product %s\n", what_Available,
+                   shared_items[productIndex].name);
             sleep(6);  // Simulating fetching time
 
-            if(what_Available < 0){
+            if (what_Available < 0) {
                 what_Available = shared_items[productIndex].storageAmount;
-            }else{
+            } else {
                 what_Available = neededAmount;
                 shared_items[productIndex].storageAmount -= neededAmount;
             }
@@ -174,7 +196,7 @@ void *managerFunction(void *arg) {
 }
 
 void *employeeFunction(void *arg) {
-    int teamIndex = *(int *)arg;
+    int teamIndex = *(int *) arg;
     printf("Employee of team %d is running\n", teamIndex);
 
     while (1) {  // Replace with a real-world termination condition
@@ -194,8 +216,8 @@ void *employeeFunction(void *arg) {
             exit(EXIT_FAILURE);
         }
 
-        Product *shared_items = (Product *)shmat(shmid, NULL, 0);
-        if (shared_items == (Product *)-1) {
+        Product *shared_items = (Product *) shmat(shmid, NULL, 0);
+        if (shared_items == (Product *) -1) {
             perror("shmat");
             exit(EXIT_FAILURE);
         }
@@ -204,7 +226,7 @@ void *employeeFunction(void *arg) {
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
 
-         shared_items[productIndex].shelfAmount += what_Available;
+        shared_items[productIndex].shelfAmount += what_Available;
 
         unlock_sem(pick_up_items_mutex);
         sem_close(pick_up_items_mutex);
