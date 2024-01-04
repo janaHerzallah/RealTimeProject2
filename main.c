@@ -311,12 +311,21 @@ void create_STM(){
     }
 
 
-    // Initialize shared memory with item data
-
+// Initialize shared memory with item data and semaphores
     for (int i = 0; i < num_of_products; i++) {
-        shared_items[i] = products[i];
-    }
+        shared_items[i] = products[i]; // Assume products[] is already filled with product data
 
+        // Create a unique name for each semaphore based on the product index or name
+        snprintf(shared_items[i].semName, sizeof(shared_items[i].semName), "SEM_PRODUCT_%d", i);
+
+        // Initialize the semaphore for each product
+        sem_t *sem = sem_open(shared_items[i].semName, O_CREAT, 0644, 1);
+        if (sem == SEM_FAILED) {
+            perror("sem_open");
+            exit(EXIT_FAILURE);
+        }
+        sem_close(sem); // Close the semaphore as it's not needed in the parent process immediately
+    }
 
     // Detach from the shared memory
     if (shmdt(shared_items) == -1) {

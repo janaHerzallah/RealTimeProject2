@@ -93,7 +93,6 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
 
         if (allItemsZero) {
             // All items have quantity = 0, break the loop
-            sem_post(pick_up_items_mutex);
             printf("No more items to pick. Customer %d finished picking up items.\n", customer->id);
             return;
         }
@@ -105,9 +104,17 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
 
 
 
+        // Acquire semaphore for picking up items
+        sem_t* pick_product_semaphore = get_semaphore(shared_items[random_index].semName);
+        lock_sem(pick_product_semaphore);
+
         shared_items[random_index].shelfAmount--;
         customer->cart[i] = random_index;
         customer->num_items++;
+
+        unlock_sem(pick_product_semaphore);
+        close_semaphore(pick_product_semaphore);
+
 
         //sleep((5-(customer->id % 5))%5);
        // printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
@@ -115,6 +122,7 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
 
 
     }
+
 
     printf("Customer %d finished picking up items.\n", customer->id);
 }
@@ -148,9 +156,6 @@ void fill_cart(struct Customer *customer) {
     sleep(sleepTime);
 
 
-    // Acquire semaphore for picking up items
-    pick_up_items_mutex = get_semaphore(Pick_key);
-    lock_sem(pick_up_items_mutex);
 
 
     printf("\n----------------------------------------\n");
@@ -159,11 +164,7 @@ void fill_cart(struct Customer *customer) {
     printf("\n----------------------------------------\n");
 
 
-    // Critical section ends here
 
-    // Release semaphore
-    unlock_sem(pick_up_items_mutex);
-    sem_close(pick_up_items_mutex);
 
     // Detach from shared memory
     if (shmdt(shared_items) == -1) {

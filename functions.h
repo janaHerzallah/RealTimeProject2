@@ -41,6 +41,8 @@ typedef struct {
     int shelfAmount;
     int restockThreshold;
     pthread_mutex_t lock; // Mutex for synchronizing access to the product
+    char semName[30];     // Name of the semaphore for each product
+
 
 } Product;
 

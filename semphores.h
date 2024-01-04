@@ -7,27 +7,10 @@
  char *TIMER_SEMAPHORE = "1254";
  char *Pick_key = "Picking_mutex";
  char *total_customers_key = "total_customers";
- char *total_cashiers_key = "total_cashiers";
-
- char *cashier_waiting_key = "cashier_waiting";
-
- char *queu1_key = "queue1";
- char *queu2_key = "queue2";
- char *queu3_key = "queue3";
-
- char *cashSem1_score_key = "cashier1_score";
- char *cashSem2_score_key = "cashier2_score";
- char *cashSem3_score_key = "cashier3_score";
-
- char *score_atrributes_key_sem = "score_atrributes";
-
- char *totalsale_key_sem = "totalsale";
-
- char *happiest_cashier_key_sem = "happiest_cashier";
 
 sem_t* pick_up_items_mutex; // Semaphore for picking up items in customers header
 sem_t* customers_total_mutex; // Semaphore for picking up items in customers header
-
+sem_t* pick_product_semaphore; // Semaphore for picking up certain product in shared memory
 
 /*
  * Sem: 1
