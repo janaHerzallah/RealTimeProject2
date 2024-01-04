@@ -15,10 +15,14 @@ void clean_threads();
 int main() {
     // Make sure Config c is initialized properly before this point
 
+    c= read_config("config.txt");
+    read_items("supermarket_items.txt");
+
+
     initializeProducts(); // Initialize products with mutexes
     initializeTeams();    // Initialize teams with manager and employee threads
 
-    // Join threads and perform cleanup at the end of the simulation
+    // wait threads and perform cleanup at the end of the simulation
     for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
         pthread_join(teams[i].manager, NULL);
         for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {

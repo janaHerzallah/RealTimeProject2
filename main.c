@@ -125,6 +125,21 @@ int main(int argc, char** argv){
         exit(-1);
     }
 
+    pid_t shelving_team_pid;
+
+    if((shelving_team_pid = fork()) == -1){
+        perror("The employee fork error\n");
+        exit(-1);
+    }
+
+    if(!shelving_team_pid){
+        execlp("./shelving_team", "shelving_team", (char *) NULL);
+
+        // If the program not have enough memory then will raise error
+        perror("exec Failure\n");
+        exit(-1);
+    }
+
 
 
   // Set your desired customer capacity
