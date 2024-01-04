@@ -25,7 +25,6 @@ typedef struct Team {
 
 
 // Global dynamic arrays of products and teams
-Product *Products;
 Team *teams;
 
 // Function prototypes
@@ -130,7 +129,7 @@ void *managerFunction(void *arg) {
     while (1) {  // Replace with a real condition
 
         int productIndex = selectProductToRestock();
-        pthread_mutex_lock(&products[productIndex].lock);
+
 
         int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
         if (shmid == -1) {
@@ -148,6 +147,9 @@ void *managerFunction(void *arg) {
         // Acquire semaphore for picking up items
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
+
+
+        printf("Manager of team %d is checking product %s \n", teamIndex, shared_items[productIndex].name);
 
         if (shared_items[productIndex].shelfAmount < c.productRestockThreshold) {
             printf("Manager of team %d restocking product %s\n", teamIndex, shared_items[productIndex].name);
@@ -178,21 +180,27 @@ void *managerFunction(void *arg) {
             printf("Manager of team %d has fetched products. Employees can restock now.\n", teamIndex);
         }
 
+        printf(" Manager of team %d is done checking product %s \n", teamIndex, shared_items[productIndex].name);
+
 
         unlock_sem(pick_up_items_mutex);
         sem_close(pick_up_items_mutex);
 
+
         // Detach from shared memory
         if (shmdt(shared_items) == -1) {
+            printf(" error \n");
             perror("shmdt");
             exit(EXIT_FAILURE);
         }
-        pthread_mutex_unlock(&products[productIndex].lock);
-        sleep(4);  // Wait a bit before checking again
+        sleep(5);  // Wait a bit before checking again
+
+
     }
 
-    free(arg); // Free the dynamically allocated team ID
-    pthread_exit(NULL);
+
+
+
 }
 
 void *employeeFunction(void *arg) {

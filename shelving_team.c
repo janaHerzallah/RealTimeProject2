@@ -23,12 +23,15 @@ int main() {
     initializeTeams();    // Initialize teams with manager and employee threads
 
     // wait threads and perform cleanup at the end of the simulation
-    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+    for (int i = 1; i <= c.numberOfShelvingTeams; ++i) {
         pthread_join(teams[i].manager, NULL);
-        for (int j = 0; j < c.numberOfEmployeesPerTeam; ++j) {
+        for (int j = 1; j <= c.numberOfEmployeesPerTeam; ++j) {
             pthread_join(teams[i].employees[j], NULL);
         }
     }
+
+    printf(" i am done \n");
+
 
 
     clean_threads();
@@ -38,20 +41,13 @@ int main() {
 
 void clean_threads(){
 
-    // Cleanup
-    // Destroy mutexes and condition variables, free memory
-    for (int i = 0; i < c.numberOfProducts; ++i) {
-        pthread_mutex_destroy(&Products[i].lock);
-    }
-
-    for (int i = 0; i < c.numberOfShelvingTeams; ++i) {
+    for (int i = 1; i <= c.numberOfShelvingTeams; ++i) {
         pthread_mutex_destroy(&teams[i].teamLock);
         pthread_cond_destroy(&teams[i].condition_var);
         free(teams[i].employees); // Free each team's employees array
     }
 
     free(teams); // Free teams array
-    free(Products); // Free products array
 
     printf("Simulation is ending. Cleaning up resources...\n");
 }

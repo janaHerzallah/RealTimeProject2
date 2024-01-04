@@ -43,6 +43,12 @@ int eggs_count = 0;
 int bread_count = 0;
 int apples_count = 0;
 
+int milk_in_shelf = 0;
+int eggs_in_shelf = 0;
+int bread_in_shelf = 0;
+int apples_in_shelf = 0;
+
+
 int queueCount[3] = {0, 0, 0};
 int itemCount[3] = {0, 0, 0};
 
@@ -553,20 +559,23 @@ void drawText()
             numberOfBusyTellersForbakery[8]="",
             numberOfBusyTellersFordair_eggs[8]="",
             numberOfBusyTellersForpackaged[8]="",
-            numberOfcashier2_total[3]="",
+            numberOfcashier2_total[5]="",
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
 
     char  cashierQueueInfo1[30], cashierQueueInfo2[30], cashierQueueInfo3[30],
             cashierItemsInfo1[30], cashierItemsInfo2[30], cashierItemsInfo3[30];
 
-    // Prepare strings for queue counts
-    sprintf(cashierQueueInfo1, "Cashier Score 1 Queue: %d", 0);
-    sprintf(cashierQueueInfo2, "Cashier Score 2 Queue: %d", 0);
-    sprintf(cashierQueueInfo3, "Cashier Score 3 Queue: %d", 0);
+    char milk_in_shelf_char[20], eggs_in_shelf_char[20], bread_in_shelf_char[20], apples_in_shelf_char[20];
 
-    // Prepare strings for item counts
-    sprintf(cashierItemsInfo1, "Cashier 1 happiness: %d",0);
+
+    // Prepare strings for queue counts
+    sprintf(milk_in_shelf_char, "Milk in shelf : %d", milk_in_shelf);
+    sprintf(eggs_in_shelf_char, "Bread in shelf : %d", bread_in_shelf);
+    sprintf(bread_in_shelf_char, "Eggs in shelf : %d", eggs_in_shelf);
+    sprintf(apples_in_shelf_char, "Apples in shelf  %d", apples_in_shelf);
+
+
     sprintf(cashierItemsInfo2, "Cashier 2 happiness: %d", 0);
     sprintf(cashierItemsInfo3, "Cashier 3 happiness: %d", 0);
 
@@ -602,6 +611,8 @@ void drawText()
     strcat(unservedCostumers, numberOfunservedCostumers);
     strcat(cashier_stopped, numberOfcashier_stopped);
 
+
+
     renderText(-9, 12, GLUT_BITMAP_TIMES_ROMAN_24, cashier1_total); // first cashier queue
     renderText(-9, 3, GLUT_BITMAP_TIMES_ROMAN_24, cashier2_total); // cashier2 total sales
     renderText(-9, -15, GLUT_BITMAP_TIMES_ROMAN_24, cashier3_total); // cashier3 queue
@@ -614,11 +625,12 @@ void drawText()
     renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
 
 
-    renderText(-18, 8, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo1); // Queue info for Cashier 1
-    renderText(-18, 6, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo2); // Queue info for Cashier 2
-    renderText(-18, 4, GLUT_BITMAP_TIMES_ROMAN_24, cashierQueueInfo3); // Queue info for Cashier 3
+    renderText(-18, 8, GLUT_BITMAP_TIMES_ROMAN_24, milk_in_shelf_char); // Queue info for Cashier 1
+    renderText(-18, 6, GLUT_BITMAP_TIMES_ROMAN_24, bread_in_shelf_char); // Queue info for Cashier 2
+    renderText(-18, 4, GLUT_BITMAP_TIMES_ROMAN_24,  eggs_in_shelf_char); // Queue info for Cashier 3
+    renderText(-18, -6, GLUT_BITMAP_TIMES_ROMAN_24, apples_in_shelf_char);  // Item info for Cashier 1
 
-    renderText(-18, -6, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo1);  // Item info for Cashier 1
+
     renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
     renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
 
@@ -654,6 +666,12 @@ void readDataFromSharedMemory()
     eggs_count = items_count[1].storageAmount;
     bread_count = items_count[2].storageAmount;
     apples_count = items_count[3].storageAmount;
+
+    milk_in_shelf = items_count[0].shelfAmount;
+    eggs_in_shelf = items_count[1].shelfAmount;
+    bread_in_shelf = items_count[2].shelfAmount;
+    apples_in_shelf = items_count[3].shelfAmount;
+
     drawer_current_time = time_to_string();
 
 

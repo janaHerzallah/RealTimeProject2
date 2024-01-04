@@ -104,6 +104,7 @@ int main(int argc, char** argv){
         exit(-1);
     }
 
+    sleep(c.numberOfShelvingTeams - 0.7 *c.numberOfShelvingTeams);
 
     pid_t timer;
 
