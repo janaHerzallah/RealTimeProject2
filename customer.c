@@ -20,9 +20,9 @@ int main(int argc, char** argv ) {
 
     fill_data();  // Populate customer_info with data
 
-    printf("\n \n");
-    print_customer_data(&customer_info);
-    printf("\n \n");
+   // printf("\n \n");
+   // print_customer_data(&customer_info);
+   // printf("\n \n");
 
     exit(0);
 }

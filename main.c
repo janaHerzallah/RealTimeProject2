@@ -178,6 +178,8 @@ pid_t arr_customers_pid[c.customerCapacity];
                 exit(EXIT_FAILURE);
             }
 
+            usleep(customersInBatch*100000); // Sleep for 10ms to ensure different seed for each customer
+
             j++;
 
 

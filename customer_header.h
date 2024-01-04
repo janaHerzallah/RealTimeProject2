@@ -110,7 +110,7 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         customer->num_items++;
 
         //sleep((5-(customer->id % 5))%5);
-        printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
+       // printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
         // Release the mutex
 
 
@@ -121,6 +121,13 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
 
 
 void fill_cart(struct Customer *customer) {
+
+
+    // Simulate shopping time
+    int random_shopping_time = generate_shopping_time();
+    printf("Customer %d is shopping for %d seconds\n", customer->id, random_shopping_time);
+    sleep(random_shopping_time);
+
 
     int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
     if (shmid == -1) {
@@ -146,16 +153,11 @@ void fill_cart(struct Customer *customer) {
     lock_sem(pick_up_items_mutex);
 
 
-    // Critical section starts here
-    customer->num_items = 0;
-
     printf("\n----------------------------------------\n");
     pick_up_items(customer, shared_items);
 
     printf("\n----------------------------------------\n");
-    // Simulate shopping time
-    int random_shopping_time = generate_shopping_time();
-    sleep(random_shopping_time);
+
 
     // Critical section ends here
 

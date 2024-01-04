@@ -11,6 +11,7 @@
 typedef struct RestockInfo {
     int productIndex;
     int amountAvailable;
+    int taskTaken;
 } RestockInfo;
 
 // Structure for Team
@@ -146,11 +147,12 @@ void *managerFunction(void *arg) {
 
 
 
-
-        pthread_mutex_lock(&shared_items[productIndex].lock); // Lock the product's mutex before accessing or modifying it
+        pthread_mutex_lock(&shared_items[productIndex].lock);
+         // Lock the product's mutex before accessing or modifying it
         // Acquire semaphore for picking up items
         pick_up_items_mutex = get_semaphore(Pick_key);
         lock_sem(pick_up_items_mutex);
+
 
 
 
@@ -159,11 +161,11 @@ void *managerFunction(void *arg) {
 
 
             printf("Manager of team %d restocking product %s\n", teamIndex, shared_items[productIndex].name);
-
-
             printf(" shelf amount is %d \n", shared_items[productIndex].shelfAmount);
+
             // Calculate how much more is needed to fill shelves up to the desired full amount
             int neededToFillShelves = c.amountPerProductOnShelves - shared_items[productIndex].shelfAmount;
+
             printf(" needed to fill shelves is %d \n", neededToFillShelves);
 
             // Ensure that the needed amount is not negative
@@ -199,22 +201,22 @@ void *managerFunction(void *arg) {
             pthread_mutex_lock(&teams[teamIndex].teamLock); // Acquire team's mutex
             teams[teamIndex].restockInfo.productIndex = productIndex; // Set shared restock info
             teams[teamIndex].restockInfo.amountAvailable = amountToTakeFromStorage; // Set shared restock info
+            teams[teamIndex].restockInfo.taskTaken = 0; // Reset task taken flag
             pthread_mutex_unlock(&teams[teamIndex].teamLock); // Release team's mutex
             pthread_cond_broadcast(&teams[teamIndex].condition_var); // Signal employees reaching the location.
-
-
             printf("Manager of team %d has fetched products. Employees can restock now.\n", teamIndex);
+
+            sleep(3); // for making sure that employees are done with restocking
+
+
         }
 
 
 
-        sleep(3);  // Wait a bit before checking again
-
-        pthread_mutex_unlock(&shared_items[productIndex].lock);
-
         unlock_sem(pick_up_items_mutex);
         sem_close(pick_up_items_mutex);
 
+        pthread_mutex_unlock(&shared_items[productIndex].lock);
 
         // Detach from shared memory
         if (shmdt(shared_items) == -1) {
@@ -224,75 +226,85 @@ void *managerFunction(void *arg) {
         }
 
 
+
+        sleep(6);  // Wait a bit before checking again
     }
 
 
 
 
 }
-
 void *employeeFunction(void *arg) {
-    int teamIndex = *(int *) arg;
+    int teamIndex = *(int *)arg;
     printf("Employee of team %d is running\n", teamIndex);
 
-    while (1) {  // Replace with a real-world termination condition
+    while (1) {
+
         // Wait for manager's signal
-        pthread_mutex_lock(&teams[teamIndex].teamLock); // Acquire team's mutex
-        pthread_cond_wait(&teams[teamIndex].condition_var, &teams[teamIndex].teamLock); // Wait for manager's signal
-        pthread_mutex_unlock(&teams[teamIndex].teamLock); // Release team's mutex
+        pthread_mutex_lock(&teams[teamIndex].teamLock);
 
-        int productIndex = teams[teamIndex].restockInfo.productIndex;
-        int what_Available = teams[teamIndex].restockInfo.amountAvailable;
-
-        // Simulate restocking one product at a time
-        // Here, we'll use a shared memory segment similar to the manager function
-        int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
-        if (shmid == -1) {
-            perror("shmget");
-            exit(EXIT_FAILURE);
+        // Wait until there is a task available that hasn't been taken
+        while (teams[teamIndex].restockInfo.amountAvailable > 0 && teams[teamIndex].restockInfo.taskTaken) {
+            pthread_cond_wait(&teams[teamIndex].condition_var, &teams[teamIndex].teamLock);
         }
 
-        Product *shared_items = (Product *) shmat(shmid, NULL, 0);
-        if (shared_items == (Product *) -1) {
-            perror("shmat");
-            exit(EXIT_FAILURE);
+        // If there is available work, and it hasn't been taken, proceed.
+
+        if (teams[teamIndex].restockInfo.amountAvailable > 0) {
+            teams[teamIndex].restockInfo.taskTaken = 1;  // Mark the task as taken.
+            int productIndex = teams[teamIndex].restockInfo.productIndex;
+            int what_Available = teams[teamIndex].restockInfo.amountAvailable;
+            pthread_mutex_unlock(&teams[teamIndex].teamLock);  // Release the team's mutex
+
+            // Simulate restocking one product at a time
+            // Here, we'll use a shared memory segment similar to the manager function
+            int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
+            if (shmid == -1) {
+                perror("shmget");
+                exit(EXIT_FAILURE);
+            }
+
+            Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+            if (shared_items == (Product *)-1) {
+                perror("shmat");
+                exit(EXIT_FAILURE);
+            }
+
+            // Acquire semaphore for restocking items
+            pick_up_items_mutex = get_semaphore(Pick_key);
+            lock_sem(pick_up_items_mutex);
+
+            // Lock the product's mutex before accessing or modifying it
+
+
+            printf("Employee of team %d by amount %d is restocking product %s\n", teamIndex, what_Available, shared_items[productIndex].name);
+
+            shared_items[productIndex].shelfAmount += what_Available;
+
+            // Unlock the product's mutex after modification is done
+
+
+            unlock_sem(pick_up_items_mutex);
+            sem_close(pick_up_items_mutex);
+
+            // Detach from shared memory
+            if (shmdt(shared_items) == -1) {
+                perror("shmdt");
+                exit(EXIT_FAILURE);
+            }
+
+            // Some delay before the next wait for manager's signal
+            sleep(1);
+        } else {
+            // No work available or already taken; just release lock and continue
+            pthread_mutex_unlock(&teams[teamIndex].teamLock);
         }
-
-        // Lock the product's mutex before accessing or modifying it
-
-
-
-        // Acquire semaphore for restocking items
-        pick_up_items_mutex = get_semaphore(Pick_key);
-        lock_sem(pick_up_items_mutex);
-
-        pthread_mutex_lock(&shared_items[teams[teamIndex].restockInfo.productIndex].lock);
-
-        printf("Employee of team %d is restocking product %s\n", teamIndex, shared_items[productIndex].name);
-
-        shared_items[productIndex].shelfAmount += what_Available;
-
-        // Unlock the product's mutex after modification is done
-        pthread_mutex_unlock(&shared_items[teams[teamIndex].restockInfo.productIndex].lock);
-
-
-
-        unlock_sem(pick_up_items_mutex);
-        sem_close(pick_up_items_mutex);
-
-        // Detach from shared memory
-        if (shmdt(shared_items) == -1) {
-            perror("shmdt");
-            exit(EXIT_FAILURE);
-        }
-
-        // Some delay before the next wait for manager's signal
-        sleep(1);
     }
 
     free(arg);  // Free the dynamically allocated team ID
     pthread_exit(NULL);
 }
+
 
 
 #endif
