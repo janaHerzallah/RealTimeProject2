@@ -151,7 +151,6 @@ void *managerFunction(void *arg) {
          // Lock the product's mutex before accessing or modifying it
 
 
-
         if (shared_items[productIndex].shelfAmount < c.productRestockThreshold && shared_items[productIndex].storageAmount > 0  ) {
 
 
@@ -180,9 +179,13 @@ void *managerFunction(void *arg) {
             }
 
             // Print how much is being fetched for clarity
-            printf("Manager is going to fetch %d items of product %s\n", amountToTakeFromStorage, shared_items[productIndex].name);
+            printf("Manager is going to fetch %d items of product %s which has storage %d \n", amountToTakeFromStorage, shared_items[productIndex].name, shared_items[productIndex].storageAmount);
 
             // Adjust the quantities on shelves and in storage
+
+            if (shared_items[productIndex].storageAmount == 0) {
+                goto goback;
+            }
 
             pick_product_semaphore = get_semaphore(shared_items[productIndex].semName);
             lock_sem(pick_product_semaphore);
@@ -191,7 +194,6 @@ void *managerFunction(void *arg) {
 
             unlock_sem(pick_product_semaphore);
             close_semaphore(pick_product_semaphore);
-
 
             printf(" storage amount is %d \n", shared_items[productIndex].storageAmount);
 
@@ -208,13 +210,17 @@ void *managerFunction(void *arg) {
             teams[teamIndex].restockInfo.amountAvailable = amountToTakeFromStorage; // Set shared restock info
             teams[teamIndex].restockInfo.taskTaken = 0; // Reset task taken flag
             pthread_mutex_unlock(&teams[teamIndex].teamLock); // Release team's mutex
+            printf("Manager of team %d has fetched %s Employees can restock now.\n", teamIndex, shared_items[productIndex].name);
+            usleep(1000);
             pthread_cond_broadcast(&teams[teamIndex].condition_var); // Signal employees reaching the location.
-            printf("Manager of team %d has fetched products. Employees can restock now.\n", teamIndex);
+
 
             sleep(3); // for making sure that employees are done with restocking
 
 
         }
+
+        goback:
 
 
         pthread_mutex_unlock(&shared_items[productIndex].lock);

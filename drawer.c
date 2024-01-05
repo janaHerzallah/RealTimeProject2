@@ -61,7 +61,7 @@ int itemCount[3] = {0, 0, 0};
 
         unservedCostumersCnt=0,
         cashier_stoppedCnt=0,
-        fram_rate = 1500 / 5;
+        fram_rate = 1900 / 2;
 
 float mouseX = 0.0f;
 float mouseY = 0.0f;
@@ -571,8 +571,8 @@ void drawText()
 
     // Prepare strings for queue counts
     sprintf(milk_in_shelf_char, "Milk in shelf : %d", milk_in_shelf);
-    sprintf(eggs_in_shelf_char, "Bread in shelf : %d", bread_in_shelf);
-    sprintf(bread_in_shelf_char, "Eggs in shelf : %d", eggs_in_shelf);
+    sprintf(eggs_in_shelf_char, "Bread in shelf : %d", eggs_in_shelf );
+    sprintf(bread_in_shelf_char, "Eggs in shelf : %d", bread_in_shelf);
     sprintf(apples_in_shelf_char, "Apples in shelf  %d", apples_in_shelf);
 
 

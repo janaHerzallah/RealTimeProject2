@@ -235,8 +235,9 @@ void terminate_processes(pid_t shelving_team_pid  ,pid_t drawer, pid_t timer, pi
 
     if(shelving_team_pid > 0){
         printf("Killing shelving_team process\n");
-        kill(shelving_team_pid, SIGKILL);
+        kill(shelving_team_pid, SIGKILL );
     }
+    sleep(3);
 
     for(int i = 0; i < customerCapacity; i++) {
         kill(arr_customers_pid[i], SIGKILL);
@@ -395,17 +396,49 @@ void clean_CNM() {
 }
 
 void clean_STM(){
-    // Remove the shared memory segment for items
+
     int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), IPC_CREAT | 0666);
     if (shmid == -1) {
         perror("shmget");
         exit(EXIT_FAILURE);
     }
 
-    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
-        perror("shmctl");
+    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+    if (shared_items == (Product *)-1) {
+        perror("shmat");
+        // If shmat fails, consider if you need to handle removing the shared memory segment created by shmget
         exit(EXIT_FAILURE);
     }
+
+
+// Unlink semaphores when they are no longer needed
+    for (int i = 0; i < num_of_products; i++) {
+        if (sem_unlink(shared_items[i].semName) == -1) {
+            perror("sem_unlink");
+            // Consider continuing instead of exiting, so all semaphores get a chance to be unlinked
+        }
+    }
+
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+
+        pthread_mutex_destroy(&shared_items[i].lock);
+
+    }
+
+
+// Detach from the shared memory
+    if (shmdt(shared_items) == -1) {
+        perror("shmdt");
+        // Handle error appropriately
+    }
+
+// Now remove the shared memory segment since it's no longer needed
+    if (shmctl(shmid, IPC_RMID, NULL) == -1) {
+        perror("shmctl");
+        // Handle error appropriately
+    }
+
+
 }
 
 

@@ -3,13 +3,16 @@
 #define MAX_QUEUE_SIZE 20
 #define MAX_ITEMS_IN_CART 5
 #define MAX_SHOPPING_TIME 10
-
+#define MAX_NAME_LENGTH 20
+#define MAX_NAMES 1000
 
 struct Customer {
     int id;
     int num_items;
     int shopping_time;
     int cart[MAX_ITEMS_IN_CART];
+    char name[MAX_NAME_LENGTH]; // Added field for the name
+
 } ;
 
 /** functions starts ****************************************************************************************/
@@ -46,18 +49,36 @@ int generate_shopping_time() {
 /** Random number generator end ----------------------------------------------------------------------------------*/
 
 
-void pick_up_items(struct Customer *customer, Product *shared_items) {
+void pick_up_items(struct Customer *customer) {
+
+
 
 
 
     srand((unsigned int)time(NULL) + customer->id);
 
 
-    printf("Customer %d is picking up items:\n", customer->id);
+   // printf("Customer %d is picking up items:\n", customer->id);
 
     // Generate and print a random number between 1 and MAX_ITEMS_IN_CART
     int random_number = rand() % c.maxItemsPerCustomer + 1;
-    printf("Random Number: %d ... customer %d \n", random_number, customer->id);
+ //   printf("Random Number: %d ... customer %d \n", random_number, customer->id);
+
+
+    for (int i = 0; i < random_number; ++i) {
+
+        int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
+        if (shmid == -1) {
+            perror("shmget");
+            exit(EXIT_FAILURE);
+        }
+
+        Product *shared_items = (Product *)shmat(shmid, NULL, 0);
+        if (shared_items == (Product *)-1) {
+            perror("shmat");
+            exit(EXIT_FAILURE);
+
+        }
 
 
 
@@ -79,8 +100,6 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         }
 
 
-
-    for (int i = 0; i < random_number; ++i) {
         // Check if all items have quantity = 0
         int allItemsZero = 1;
         for (int j = 0; j < num_of_products; ++j) {
@@ -116,18 +135,21 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         close_semaphore(pick_product_semaphore);
 
 
-       printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
+       printf("Customer %s with id %d picked up %s the remaining in shelf is %d what in storage %d \n", customer->name, customer->id, shared_items[random_index].name, shared_items[random_index].shelfAmount , shared_items[random_index].storageAmount);
 
-        srand(getpid());  // Seed the random number generator with the process ID
-        int sleepTime = rand() % 7 + 1;  // Generate a random sleep time between 1 and 10 seconds
-        sleep(sleepTime);
+        // Detach from shared memory
+        if (shmdt(shared_items) == -1) {
+            perror("shmdt");
+            exit(EXIT_FAILURE);
+        }
 
+        sleep(14); // Sleep for 5 seconds
 
 
     }
 
 
-    printf("Customer %d finished picking up items.\n", customer->id);
+    printf("Customer %s with id %d finished picking up items.\n", customer->name, customer->id);
 }
 
 
@@ -136,22 +158,9 @@ void fill_cart(struct Customer *customer) {
 
     // Simulate shopping time
     int random_shopping_time = generate_shopping_time();
-    printf("Customer %d is shopping for %d seconds\n", customer->id, random_shopping_time);
+    printf("Customer %s with id %d is shopping for %d seconds.\n", customer->name, customer->id, random_shopping_time);
     sleep(random_shopping_time);
 
-
-    int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
-    if (shmid == -1) {
-        perror("shmget");
-        exit(EXIT_FAILURE);
-    }
-
-    Product *shared_items = (Product *)shmat(shmid, NULL, 0);
-    if (shared_items == (Product *)-1) {
-        perror("shmat");
-        exit(EXIT_FAILURE);
-
-    }
 
 
     srand(getpid());  // Seed the random number generator with the process ID
@@ -161,19 +170,14 @@ void fill_cart(struct Customer *customer) {
 
 
 
-    printf("\n----------------------------------------\n");
-    pick_up_items(customer, shared_items);
+   // printf("\n----------------------------------------\n");
+    pick_up_items(customer);
 
-    printf("\n----------------------------------------\n");
-
-
+    //printf("\n----------------------------------------\n");
 
 
-    // Detach from shared memory
-    if (shmdt(shared_items) == -1) {
-        perror("shmdt");
-        exit(EXIT_FAILURE);
-    }
+
+
 
 
 }
@@ -197,7 +201,14 @@ void get_shared_products(Product *destinationArray) {
 
 
     for (int i = 0; i < num_of_products; i++) {
+        pick_product_semaphore = get_semaphore(shared_items[i].semName);
+        lock_sem(pick_product_semaphore);
+
       destinationArray[i] = shared_items[i] ;
+        unlock_sem(pick_product_semaphore);
+        close_semaphore(pick_product_semaphore);
+
+
     }
 
 
@@ -281,7 +292,32 @@ void increment_total_customers(int num ) {
     }
 }
 
+int load_names(const char* filename, char names[MAX_NAMES][MAX_NAME_LENGTH]) {
+    FILE* file = fopen(filename, "r");
+    if (!file) {
+        perror("Unable to open the file");
+        return 0;
+    }
 
+    int count = 0;
+    while (fgets(names[count], MAX_NAME_LENGTH, file) && count < MAX_NAMES) {
+        names[count][strcspn(names[count], "\n")] = 0; // Remove newline character
+        count++;
+    }
+
+    fclose(file);
+    return count; // Return the total number of names read
+}
+
+
+void assign_random_name(struct Customer* customer, char names[MAX_NAMES][MAX_NAME_LENGTH], int num_names) {
+
+    srand(time(NULL) + customer->id); // Seed the random number generator with a unique seed
+
+
+    int random_index = rand() % num_names; // Get a random index
+    strncpy(customer->name, names[random_index], MAX_NAME_LENGTH); // Assign a random name
+}
 
 #endif
 

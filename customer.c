@@ -10,7 +10,7 @@ struct Customer customer_info;
  Config c;  // Declare or include the Config structure
  Product products[MAX_LINE_LENGTH];
  int num_of_products;
-
+char names[MAX_NAMES][MAX_NAME_LENGTH];
 void sigterm_handler();
 
 int main(int argc, char** argv ) {
@@ -21,9 +21,9 @@ int main(int argc, char** argv ) {
     fill_data();  // Populate customer_info with data
 
 
-    printf("\n \n");
-    print_customer_data(&customer_info);
-    printf("\n \n");
+   // printf("\n \n");
+    //print_customer_data(&customer_info);
+   // printf("\n \n");
 
     exit(0);
 }
@@ -36,18 +36,22 @@ void fill_data(){
 
     srand(time(NULL));   // for making random choices for each customer
 
-    int r = rand() % 2;      // Returns a pseudo-random integer between 0 and 1.
+
 
     // Put the current time as id for the new person
     customer_info.id = get_total_customers();
     customer_info.num_items = 0;
     customer_info.shopping_time= generate_shopping_time();
 
+    int num_names = load_names("names.txt", names);
+
+    assign_random_name(&customer_info, names, num_names);
+
     fill_cart(&customer_info);
 
-    printf(" ------------------ \n");
-    printf(" customer id is %d is done  \n",customer_info.id);
-    printf(" ------------------ \n");
+  //  printf(" ------------------ \n");
+   // printf(" customer id is %d is done  \n",customer_info.id);
+ //   printf(" ------------------ \n");
 
     increment_total_customers(-1);
 
