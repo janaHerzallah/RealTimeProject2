@@ -588,8 +588,8 @@ void drawText()
 
 
     sprintf(numberOfBusyTellersForBirthCertificate, "%d", milk_count);
-    sprintf(numberOfBusyTellersForbakery, "%d", eggs_count);
-    sprintf(numberOfBusyTellersFordair_eggs, "%d", bread_count);
+    sprintf(numberOfBusyTellersForbakery, "%d", bread_count );
+    sprintf(numberOfBusyTellersFordair_eggs, "%d", eggs_count);
     sprintf(numberOfBusyTellersForpackaged, "%d", apples_count);
 
 
