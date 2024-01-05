@@ -149,14 +149,10 @@ void *managerFunction(void *arg) {
 
         pthread_mutex_lock(&shared_items[productIndex].lock);
          // Lock the product's mutex before accessing or modifying it
-        // Acquire semaphore for picking up items
-        pick_up_items_mutex = get_semaphore(Pick_key);
-        lock_sem(pick_up_items_mutex);
 
 
 
-
-        if (shared_items[productIndex].shelfAmount < c.productRestockThreshold) {
+        if (shared_items[productIndex].shelfAmount < c.productRestockThreshold && shared_items[productIndex].storageAmount > 0  ) {
 
 
 
@@ -187,7 +183,16 @@ void *managerFunction(void *arg) {
             printf("Manager is going to fetch %d items of product %s\n", amountToTakeFromStorage, shared_items[productIndex].name);
 
             // Adjust the quantities on shelves and in storage
+
+            pick_product_semaphore = get_semaphore(shared_items[productIndex].semName);
+            lock_sem(pick_product_semaphore);
+
             shared_items[productIndex].storageAmount -= amountToTakeFromStorage;
+
+            unlock_sem(pick_product_semaphore);
+            close_semaphore(pick_product_semaphore);
+
+
             printf(" storage amount is %d \n", shared_items[productIndex].storageAmount);
 
 
@@ -211,10 +216,6 @@ void *managerFunction(void *arg) {
 
         }
 
-
-
-        unlock_sem(pick_up_items_mutex);
-        sem_close(pick_up_items_mutex);
 
         pthread_mutex_unlock(&shared_items[productIndex].lock);
 
@@ -270,22 +271,26 @@ void *employeeFunction(void *arg) {
                 exit(EXIT_FAILURE);
             }
 
-            // Acquire semaphore for restocking items
-            pick_up_items_mutex = get_semaphore(Pick_key);
-            lock_sem(pick_up_items_mutex);
 
-            // Lock the product's mutex before accessing or modifying it
 
+
+
+            pick_product_semaphore = get_semaphore(shared_items[productIndex].semName);
+            lock_sem(pick_product_semaphore);
 
             printf("Employee of team %d by amount %d is restocking product %s\n", teamIndex, what_Available, shared_items[productIndex].name);
+           // sleep(3); // restock time
 
             shared_items[productIndex].shelfAmount += what_Available;
+
+
+            unlock_sem(pick_product_semaphore);
+            close_semaphore(pick_product_semaphore);
+
 
             // Unlock the product's mutex after modification is done
 
 
-            unlock_sem(pick_up_items_mutex);
-            sem_close(pick_up_items_mutex);
 
             // Detach from shared memory
             if (shmdt(shared_items) == -1) {

@@ -61,7 +61,7 @@ int itemCount[3] = {0, 0, 0};
 
         unservedCostumersCnt=0,
         cashier_stoppedCnt=0,
-        fram_rate = 1000 / 5;
+        fram_rate = 1500 / 5;
 
 float mouseX = 0.0f;
 float mouseY = 0.0f;

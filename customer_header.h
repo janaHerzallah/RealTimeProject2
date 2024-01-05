@@ -105,7 +105,7 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
 
 
         // Acquire semaphore for picking up items
-        sem_t* pick_product_semaphore = get_semaphore(shared_items[random_index].semName);
+        pick_product_semaphore = get_semaphore(shared_items[random_index].semName);
         lock_sem(pick_product_semaphore);
 
         shared_items[random_index].shelfAmount--;
@@ -116,9 +116,12 @@ void pick_up_items(struct Customer *customer, Product *shared_items) {
         close_semaphore(pick_product_semaphore);
 
 
-        //sleep((5-(customer->id % 5))%5);
-       // printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
-        // Release the mutex
+       printf("Customer %d picked up %s\n", customer->id, shared_items[customer->cart[i]].name);
+
+        srand(getpid());  // Seed the random number generator with the process ID
+        int sleepTime = rand() % 7 + 1;  // Generate a random sleep time between 1 and 10 seconds
+        sleep(sleepTime);
+
 
 
     }
@@ -172,7 +175,6 @@ void fill_cart(struct Customer *customer) {
         exit(EXIT_FAILURE);
     }
 
-    return;
 
 }
 
@@ -194,9 +196,9 @@ void get_shared_products(Product *destinationArray) {
     // Copy items from shared memory to destination array
 
 
-
-        memcpy(destinationArray, shared_items, num_of_products * sizeof(Product));
-
+    for (int i = 0; i < num_of_products; i++) {
+      destinationArray[i] = shared_items[i] ;
+    }
 
 
     if (shmdt(shared_items) == -1) {
