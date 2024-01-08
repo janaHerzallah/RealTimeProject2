@@ -64,7 +64,7 @@ void pick_up_items(struct Customer *customer) {
     int random_number = rand() % c.maxItemsPerCustomer + 1;
  //   printf("Random Number: %d ... customer %d \n", random_number, customer->id);
 
-
+    int last_picked_index = -1;
     for (int i = 0; i < random_number; ++i) {
 
         int shmid = shmget(ITM_SMKEY, num_of_products * sizeof(Product), 0666);
@@ -119,9 +119,9 @@ void pick_up_items(struct Customer *customer) {
         int random_index;
         do {
             random_index = rand() % num_of_products;
-        } while (shared_items[random_index].shelfAmount <= 0);
+        } while (shared_items[random_index].shelfAmount <= 0 || random_index == last_picked_index);
 
-
+        last_picked_index = random_index;
 
         // Acquire semaphore for picking up items
         pick_product_semaphore = get_semaphore(shared_items[random_index].semName);

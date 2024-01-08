@@ -20,7 +20,7 @@ void simple_sig_handler(int sig) {
     terminate_flag = 1;
 }
 
-int main() {
+int main(int argc, char *argv[]) {
 
     // Make sure Config c is initialized properly before this point
     struct sigaction sa;
@@ -33,12 +33,23 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <index>\n", argv[0]);
+        return EXIT_FAILURE;
+    }
+
+    int index = atoi(argv[1]); // Convert the argument to an integer
+
+    if (index < 0) {
+        fprintf(stderr, "Invalid index: %d\n", index);
+        return EXIT_FAILURE;
+    }
 
     c= read_config("config.txt");
     read_items("supermarket_items.txt");
 
+    team.teamId = index;
 
-    initializeProducts(); // Initialize products with mutexes
     initializeTeams();    // Initialize teams with manager and employee threads
 
 
@@ -47,13 +58,9 @@ int main() {
     }
 
     for (int i = 1; i <= c.numberOfShelvingTeams; ++i) {
-        pthread_mutex_destroy(&teams[i].teamLock);
-        pthread_cond_destroy(&teams[i].condition_var);
-        free(teams[i].employees); // Free each team's employees array
+        pthread_cond_destroy(&team.condition_var);
     }
 
-
-    free(teams); // Free teams array
 
     printf("Simulation is ending. Cleaning up resources...\n");
 

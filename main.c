@@ -7,7 +7,7 @@
 #include "processing_times.h"
 
 int check_finish();
-void terminate_processes(pid_t shelving_team_pid,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
+void terminate_processes(pid_t *team_pids ,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
 
 void create_all_shared_memories();
 void create_TimerSHM();
@@ -44,7 +44,7 @@ void simple_sig_handler(int sig) {
 Config c;
 
 
-int main(int argc, char** argv){
+int main( int argc, char *argv[] ){
 
 
     struct sigaction sa;
@@ -68,7 +68,6 @@ int main(int argc, char** argv){
    /***********************************************************************************************************************************************************/
 
 
-
     c =  read_config("config.txt");
 
     print_config(c); // Print the configuration variables funtion from functions.h
@@ -89,20 +88,41 @@ int main(int argc, char** argv){
 
 
 
-    pid_t shelving_team_pid;
+    // creating teams starts **********************************************************************************************************************
 
-    if((shelving_team_pid = fork()) == -1){
-        perror("The employee fork error\n");
-        exit(-1);
+    pid_t *team_pids; // Dynamic array for child process IDs
+
+    // Allocate memory for the pid array
+    team_pids = (pid_t *)malloc(c.numberOfShelvingTeams * sizeof(pid_t));
+
+    if (team_pids == NULL) {
+        perror("Failed to allocate memory for team processes.");
+        exit(EXIT_FAILURE);
     }
 
-    if(!shelving_team_pid){
-        execlp("./shelving_team", "shelving_team", (char *) NULL);
+    for (int i = 0; i < c.numberOfShelvingTeams; i++) {
+        team_pids[i] = fork(); // Create a new process
 
-        // If the program not have enough memory then will raise error
-        perror("exec Failure\n");
-        exit(-1);
+        if (team_pids[i] < 0) {
+            // Error handling
+            perror("Failed to fork.");
+            free(team_pids); // Free the dynamically allocated memory
+            exit(EXIT_FAILURE);
+        } else if (team_pids[i] == 0) {
+            // Child process
+            char index_str[10]; // Buffer for index string
+            snprintf(index_str, sizeof(index_str), "%d", i); // Convert index to string
+
+            execlp("./shelving_team", "shelving_team", index_str, (char *) NULL);
+
+            // If execlp returns, there was an error
+            perror("execlp");
+            exit(EXIT_FAILURE);
+        }
+
     }
+
+    // creating teams  end  **********************************************************************************************************************
 
     sleep(c.numberOfShelvingTeams - 0.7 *c.numberOfShelvingTeams);
 
@@ -186,7 +206,7 @@ pid_t arr_customers_pid[c.customerCapacity];
         }
 
         if (terminate_flag) {
-            terminate_processes(shelving_team_pid ,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_processes(team_pids ,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
             terminate_flag = 0; // Reset the flag after handling termination
         }
 
@@ -202,7 +222,7 @@ pid_t arr_customers_pid[c.customerCapacity];
     while (1){
         if (terminate_flag) {
             printf(" Main Process End\n");
-            terminate_processes(shelving_team_pid,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
+            terminate_processes(team_pids,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
             terminate_flag = 0; // Reset the flag after handling termination
         }
 
@@ -212,13 +232,7 @@ pid_t arr_customers_pid[c.customerCapacity];
 
 }
 
-
-
-
-
-
-
-void terminate_processes(pid_t shelving_team_pid  ,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
+void terminate_processes(pid_t *team_pids  ,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity) {
 
     printf(" End of Program\n");
 
@@ -233,10 +247,11 @@ void terminate_processes(pid_t shelving_team_pid  ,pid_t drawer, pid_t timer, pi
         kill(timer, SIGKILL);
     }
 
-    if(shelving_team_pid > 0){
-        printf("Killing shelving_team process\n");
-        kill(shelving_team_pid, SIGKILL );
+
+    for(int i = 0; i < c.numberOfShelvingTeams; i++) {
+        kill(team_pids[i], SIGKILL);
     }
+
     sleep(3);
 
     for(int i = 0; i < customerCapacity; i++) {
@@ -245,7 +260,7 @@ void terminate_processes(pid_t shelving_team_pid  ,pid_t drawer, pid_t timer, pi
 
 
     sleep(3);
-
+    free(team_pids);
     clean_all_semaphores();
     clean_all_shared_memories();
     exit(0);
@@ -327,6 +342,12 @@ void create_STM(){
         }
         sem_close(sem); // Close the semaphore as it's not needed in the parent process immediately
     }
+
+
+    for (int i = 0; i < c.numberOfProducts; ++i) {
+        pthread_mutex_init(&shared_items[i].lock, NULL);
+    }
+
 
     // Detach from the shared memory
     if (shmdt(shared_items) == -1) {
