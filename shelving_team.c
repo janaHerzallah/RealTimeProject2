@@ -1,7 +1,6 @@
 #include "header.h"
 #include "shelving_team.h"
 #include "semphores.h"
-#include "message_queues.h"
 #include "shared_memories.h"
 #include "functions.h"
 #include <pthread.h>
@@ -59,6 +58,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 1; i <= c.numberOfShelvingTeams; ++i) {
         pthread_cond_destroy(&team.condition_var);
+        free(team.employees);
     }
 
 

@@ -6,6 +6,7 @@
 #include "shared_memories.h"
 #include "processing_times.h"
 
+
 int check_finish();
 void terminate_processes(pid_t *team_pids ,pid_t drawer, pid_t timer, pid_t *arr_customers_pid, int customerCapacity);
 
@@ -90,7 +91,7 @@ int main( int argc, char *argv[] ){
 
     // creating teams starts **********************************************************************************************************************
 
-    pid_t team_pids [20]; // Dynamic array for child process IDs
+    pid_t team_pids [MAXIMUM_NUM_OF_TEAMS]; // Dynamic array for child process IDs
 
     // Allocate memory for the pid array
 

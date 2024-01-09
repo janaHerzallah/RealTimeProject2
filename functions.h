@@ -4,9 +4,9 @@
 #ifndef __FUNCTIONS__
 #define __FUNCTIONS__
 
-#define MAX_LINE_LENGTH 100
 
 #include "header.h"
+#include "constants.h"
 
 
 
@@ -36,7 +36,7 @@ Config read_config(const char *filename);
 
 // Structure for items in the supermarket
 typedef struct {
-    char name[MAX_LINE_LENGTH];
+    char name[MAXIMUM_NUM_OF_PRODUCTS];
     int  storageAmount;
     int shelfAmount;
     int restockThreshold;
@@ -48,7 +48,7 @@ typedef struct {
 
 
 int num_of_products;
-Product products[MAX_LINE_LENGTH];
+Product products[MAXIMUM_NUM_OF_PRODUCTS];
 Config c_values;
 
 
@@ -64,7 +64,7 @@ void read_items(const char *filename) {
     }
 
     num_of_products = c_values.numberOfProducts;
-    char line[MAX_LINE_LENGTH];
+    char line[MAXIMUM_NUM_OF_PRODUCTS];
 
     rewind(file);
 

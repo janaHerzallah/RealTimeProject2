@@ -52,7 +52,7 @@ int apples_in_shelf = 0;
 int queueCount[3] = {0, 0, 0};
 int itemCount[3] = {0, 0, 0};
 
-      int   receptionHallMaleCount = 0,
+int   receptionHallMaleCount = 0,
         cashier_count = 0,
         birthCertificateCnt = 0,
         bakeryCnt = 0,
@@ -617,7 +617,7 @@ void drawText()
     renderText(-9, 3, GLUT_BITMAP_TIMES_ROMAN_24, cashier2_total); // cashier2 total sales
     renderText(-9, -15, GLUT_BITMAP_TIMES_ROMAN_24, cashier3_total); // cashier3 queue
     renderText(2, 10, GLUT_BITMAP_TIMES_ROMAN_24, customerCount); //cousomer count
-  //  renderText(-18, -2, GLUT_BITMAP_TIMES_ROMAN_24, cashierCount); // cahier count
+    //  renderText(-18, -2, GLUT_BITMAP_TIMES_ROMAN_24, cashierCount); // cahier count
     renderText(14, 9, GLUT_BITMAP_TIMES_ROMAN_24, freshProduce);
     renderText(14, 3, GLUT_BITMAP_TIMES_ROMAN_24, bakery);
     renderText(14, -3, GLUT_BITMAP_TIMES_ROMAN_24, dair_eggs);
@@ -631,8 +631,8 @@ void drawText()
     renderText(-18, 2, GLUT_BITMAP_TIMES_ROMAN_24, apples_in_shelf_char);  // Item info for Cashier 1
 
 
-   // renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
-   // renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
+    // renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
+    // renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
 
     renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
 
@@ -658,7 +658,7 @@ void readDataFromSharedMemory()
 
 
 
-     peopleInTheInnerHall = get_total_customers();
+    peopleInTheInnerHall = get_total_customers();
 
     get_shared_products(items_count);
 
@@ -679,5 +679,4 @@ void readDataFromSharedMemory()
 
 
 }
-
 

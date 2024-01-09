@@ -22,7 +22,6 @@ struct Customer {
 #include "header.h" // Config c
 #include "shared_memories.h"
 #include "semphores.h"
-#include "message_queues.h"
 
 Config c;
 static int totalCustomers = 0;

@@ -1,0 +1,8 @@
+#ifndef CONSTANTS
+#define CONSTANTS
+
+#define MAXIMUM_NUM_OF_PRODUCTS 100
+#define MAXIMUM_NUM_OF_TEAMS 100
+
+
+#endif
