@@ -85,6 +85,8 @@ int main(int argc, char **argv)
 {
 
     read_items("supermarket_items.txt");
+    c = read_config("config.txt");
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
     glutInitWindowSize(1800, 1000);
@@ -385,15 +387,15 @@ void drawCashier1()
     // Overwrite with red points based on the number of people
     glBegin(GL_POINTS);
     glColor3f(1.0, 0.1, 0.1);
-    for (int i = iTemp; i >= 0 && peopleCount < queueCount[0]; i--)
+    for (int i = iTemp; i >= 0 && peopleCount < c.numberOfEmployeesPerTeam; i--)
     {
-        for (int j = jTemp; j < jTemp + 1 && peopleCount < queueCount[0]; j++) // First row
+        for (int j = jTemp; j < jTemp + 1 && peopleCount < c.numberOfEmployeesPerTeam; j++) // First row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
         }
 
-        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < queueCount[0]; j++) // Second row
+        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < c.numberOfEmployeesPerTeam; j++) // Second row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
@@ -432,15 +434,15 @@ void drawCashier2()
     // Overwrite with red points based on the number of people
     glBegin(GL_POINTS);
     glColor3f(1.0, 0.1, 0.1);
-    for (int i = iTemp; i >= 0 && peopleCount < queueCount[1]; i--)
+    for (int i = iTemp; i >= 0 && peopleCount < c.numberOfEmployeesPerTeam; i--)
     {
-        for (int j = jTemp; j < jTemp + 1 && peopleCount < queueCount[1]; j++) // First row
+        for (int j = jTemp; j < jTemp + 1 && peopleCount < c.numberOfEmployeesPerTeam; j++) // First row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
         }
 
-        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < queueCount[1]; j++) // Second row
+        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < c.numberOfEmployeesPerTeam; j++) // Second row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
@@ -480,15 +482,15 @@ void drawCashier3()
     // Overwrite with red points based on the number of people
     glBegin(GL_POINTS);
     glColor3f(1.0, 0.1, 0.1);
-    for (int i = iTemp; i >= 0 && peopleCount < queueCount[2]; i--)
+    for (int i = iTemp; i >= 0 && peopleCount < c.numberOfEmployeesPerTeam; i--)
     {
-        for (int j = jTemp; j < jTemp + 1 && peopleCount < queueCount[2]; j++) // First row
+        for (int j = jTemp; j < jTemp + 1 && peopleCount < c.numberOfEmployeesPerTeam; j++) // First row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
         }
 
-        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < queueCount[2]; j++) // Second row
+        for (int j = jTemp + 1 + ySpace; j < jTemp + 2 + ySpace && peopleCount < c.numberOfEmployeesPerTeam; j++) // Second row
         {
             glVertex2i(i + xShift, j + yShift);
             peopleCount++;
@@ -542,24 +544,24 @@ void drawText()
     char
             customerCount[30] = "customerCount : ",
             cashierCount[30] = "cashierCount : ",
-            cashier1_total[30] = "cashier1 Total Sales : $ ",
-            cashier2_total[30]="cashier2 Total Sales : $ ",
-            cashier3_total[30] = "cashier3 Total Sales  : $ ",
+            team1[30] = "Team 1  Employees Count :  ",
+            team2[30]="Team 2  Employees Count :  ",
+            team3[30] = "Team 3 Employees Count : ",
             freshProduce[30] = "Milk : ",
             bakery[30] = " Eggs : ",
             dair_eggs[30] = "Bread  : ",
             packaged[30] = "Apples : ",
             unservedCostumers[30]="",
             cashier_stopped[30]="",
-            numberOfPeopleIncashier1_total[5] = "",
-            numberOfPeopleInFemalQueue[5] = "",
+            employees1[5] = "",
+            employees3[5] = "",
             numberOfMaleInTheReceptionHall[5] = "",
             numberOfFemaleInTheReceptionHall[5] = "",
             numberOfBusyTellersForBirthCertificate[7]="",
             numberOfBusyTellersForbakery[8]="",
             numberOfBusyTellersFordair_eggs[8]="",
             numberOfBusyTellersForpackaged[8]="",
-            numberOfcashier2_total[5]="",
+            employees2[5]="",
             numberOfunservedCostumers[3]="",
             numberOfcashier_stopped[3]="";
 
@@ -580,9 +582,9 @@ void drawText()
     sprintf(cashierItemsInfo3, "Cashier 3 happiness: %d", 0);
 
 
-    sprintf(numberOfPeopleIncashier1_total, "%d", cashier1_totalCount);
-    sprintf(numberOfcashier2_total, "%d", cashier2_totalCnt);
-    sprintf(numberOfPeopleInFemalQueue, "%d", cashier3_totalCount);
+    sprintf(employees1, "%d", c.numberOfEmployeesPerTeam);
+    sprintf(employees2, "%d", c.numberOfEmployeesPerTeam);
+    sprintf(employees3, "%d", c.numberOfEmployeesPerTeam);
     sprintf(numberOfFemaleInTheReceptionHall, "%d", cashier_count);
     sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
 
@@ -597,8 +599,10 @@ void drawText()
     sprintf(numberOfcashier_stopped, "%d", cashier_stoppedCnt);
 
 
-    strcat(cashier1_total, numberOfPeopleIncashier1_total);
-    strcat(cashier3_total, numberOfPeopleInFemalQueue);
+    strcat(team1, employees1);
+    strcat(team2,employees2);
+    strcat(team3, employees3);
+
     strcat(customerCount, numberOfMaleInTheReceptionHall);
     strcat(cashierCount, numberOfFemaleInTheReceptionHall);
 
@@ -607,15 +611,15 @@ void drawText()
     strcat(dair_eggs, numberOfBusyTellersFordair_eggs);
     strcat(packaged, numberOfBusyTellersForpackaged);
 
-    strcat(cashier2_total,numberOfcashier2_total);
+
     strcat(unservedCostumers, numberOfunservedCostumers);
     strcat(cashier_stopped, numberOfcashier_stopped);
 
 
 
-    renderText(-9, 12, GLUT_BITMAP_TIMES_ROMAN_24, cashier1_total); // first cashier queue
-    renderText(-9, 3, GLUT_BITMAP_TIMES_ROMAN_24, cashier2_total); // cashier2 total sales
-    renderText(-9, -15, GLUT_BITMAP_TIMES_ROMAN_24, cashier3_total); // cashier3 queue
+    renderText(-9, 12, GLUT_BITMAP_TIMES_ROMAN_24, team1); // first cashier queue
+    renderText(-9, 3, GLUT_BITMAP_TIMES_ROMAN_24, team2); // cashier2 total sales
+    renderText(-9, -15, GLUT_BITMAP_TIMES_ROMAN_24, team3); // cashier3 queue
     renderText(2, 10, GLUT_BITMAP_TIMES_ROMAN_24, customerCount); //cousomer count
     //  renderText(-18, -2, GLUT_BITMAP_TIMES_ROMAN_24, cashierCount); // cahier count
     renderText(14, 9, GLUT_BITMAP_TIMES_ROMAN_24, freshProduce);
@@ -679,4 +683,3 @@ void readDataFromSharedMemory()
 
 
 }
-

@@ -76,6 +76,7 @@ void initializeTeams() {
 }
 
 int selectProductToRestock() {
+    srand(time(NULL));   // for making random choices for each customer
     return rand() % c.numberOfProducts; // Randomly selecting a product for simplicity
 }
 
