@@ -64,7 +64,8 @@ void initializeTeams() {
             }
         }
 
-        usleep(100000);
+
+         sleep(c.numberOfEmployeesPerTeam - 0.7 *c.numberOfEmployeesPerTeam);
 
         printf("Team %d has been initialized \n ", team.teamId);
         printf("******************************\n");
@@ -103,7 +104,10 @@ void *managerFunction(void *arg) {
 
         pick_product_semaphore = get_semaphore(shared_items[productIndex].semName);
 
+        pthread_mutex_lock(&team.teamLock); // Acquire team's mutex
         lock_sem(pick_product_semaphore);
+
+       // printf(" i am after lock manger %d \n ", team.teamId);
 
         if (shared_items[productIndex].shelfAmount < c.productRestockThreshold && shared_items[productIndex].storageAmount > 0  ) {
 
@@ -144,16 +148,14 @@ void *managerFunction(void *arg) {
             shared_items[productIndex].storageAmount -= amountToTakeFromStorage;
 
 
-            close_semaphore(pick_product_semaphore);
+
 
             printf(" storage amount is %d \n", shared_items[productIndex].storageAmount);
-            sleep(3); // fetch time and go to the location
+            sleep(1); // fetch time and go to the location
 
-            pthread_mutex_lock(&team.teamLock); // Acquire team's mutex
             team.restockInfo.productIndex = productIndex; // Set shared restock info
             team.restockInfo.amountAvailable = amountToTakeFromStorage; // Set shared restock info
             team.restockInfo.taskTaken = 0; // Reset task taken flag
-            pthread_mutex_unlock(&team.teamLock); // Release team's mutex
 
             printf("Manager of team %d has fetched %s Employees can restock now.\n", team.teamId, shared_items[productIndex].name);
             usleep(1000);
@@ -165,11 +167,19 @@ void *managerFunction(void *arg) {
             sleep(3); // for making sure that employees are done with restocking
 
 
+        }else{
+
+            unlock_sem(pick_product_semaphore);
+            close_semaphore(pick_product_semaphore);
+
         }
 
-        unlock_sem(pick_product_semaphore);
 
-        goback:
+
+        pthread_mutex_unlock(&team.teamLock);
+
+
+    goback:
 
 
         // Detach from shared memory
@@ -179,9 +189,10 @@ void *managerFunction(void *arg) {
             exit(EXIT_FAILURE);
         }
 
+        srand(getpid());  // Seed the random number generator with the process ID
+        int sleep_time= rand() % 6 + 1;  // Generate a random sleep time between 1 and 10 seconds
 
-
-        sleep(6);  // Wait a bit before checking again
+        sleep(sleep_time);  // Wait a bit before checking again
     }
 
 
@@ -194,16 +205,14 @@ void *employeeFunction(void *arg) {
 
     while (1) {
 
-        pthread_mutex_lock(&team.teamLock);
+        pthread_mutex_lock(&team.teamLock); // Lock the mutex before checking/waiting on the condition
 
         // Wait for manager's signal
 
         // Wait until there is a task available that hasn't been taken
-        while (team.restockInfo.amountAvailable > 0 && team.restockInfo.taskTaken) {
-            pthread_cond_wait(&team.condition_var, &team.teamLock);
+        while (team.restockInfo.amountAvailable <= 0 || team.restockInfo.taskTaken) {
+            pthread_cond_wait(&team.condition_var, &team.teamLock); // unlock sem , wait for signal, lock sem
         }
-
-
 
         // If there is available work, and it hasn't been taken, proceed.
 
@@ -212,7 +221,7 @@ void *employeeFunction(void *arg) {
             int productIndex = team.restockInfo.productIndex;
             int what_Available = team.restockInfo.amountAvailable;
 
-            pthread_mutex_unlock(&team.teamLock);
+        //    pthread_mutex_unlock(&team.teamLock);
 
             // Simulate restocking one product at a time
             // Here, we'll use a shared memory segment similar to the manager function
@@ -228,8 +237,6 @@ void *employeeFunction(void *arg) {
                 exit(EXIT_FAILURE);
             }
 
-            pick_product_semaphore = get_semaphore(shared_items[productIndex].semName);
-            lock_sem(pick_product_semaphore);
 
             printf("Employee of team %d by amount %d is restocking product %s\n", team.teamId , what_Available, shared_items[productIndex].name);
            // sleep(3); // restock time
@@ -248,13 +255,14 @@ void *employeeFunction(void *arg) {
                 perror("shmdt");
                 exit(EXIT_FAILURE);
             }
-
+            pthread_mutex_unlock(&team.teamLock);
 
             // Some delay before the next wait for manager's signal
             sleep(1);
         }else {
-            // No work available or already taken; just release lock and continue
+
             pthread_mutex_unlock(&team.teamLock);
+
         }
     }
 

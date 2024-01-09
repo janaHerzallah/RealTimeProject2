@@ -90,15 +90,10 @@ int main( int argc, char *argv[] ){
 
     // creating teams starts **********************************************************************************************************************
 
-    pid_t *team_pids; // Dynamic array for child process IDs
+    pid_t team_pids [20]; // Dynamic array for child process IDs
 
     // Allocate memory for the pid array
-    team_pids = (pid_t *)malloc(c.numberOfShelvingTeams * sizeof(pid_t));
 
-    if (team_pids == NULL) {
-        perror("Failed to allocate memory for team processes.");
-        exit(EXIT_FAILURE);
-    }
 
     for (int i = 0; i < c.numberOfShelvingTeams; i++) {
         team_pids[i] = fork(); // Create a new process
@@ -106,12 +101,11 @@ int main( int argc, char *argv[] ){
         if (team_pids[i] < 0) {
             // Error handling
             perror("Failed to fork.");
-            free(team_pids); // Free the dynamically allocated memory
             exit(EXIT_FAILURE);
         } else if (team_pids[i] == 0) {
             // Child process
             char index_str[10]; // Buffer for index string
-            snprintf(index_str, sizeof(index_str), "%d", i); // Convert index to string
+            snprintf(index_str, sizeof(index_str), "%d", i+1); // Convert index to string
 
             execlp("./shelving_team", "shelving_team", index_str, (char *) NULL);
 
@@ -120,11 +114,13 @@ int main( int argc, char *argv[] ){
             exit(EXIT_FAILURE);
         }
 
+        sleep(c.numberOfShelvingTeams + 0.01 *c.numberOfEmployeesPerTeam - 0.4 *c.numberOfShelvingTeams);
+
     }
 
     // creating teams  end  **********************************************************************************************************************
 
-    sleep(c.numberOfShelvingTeams - 0.7 *c.numberOfShelvingTeams);
+
 
     pid_t timer;
 
@@ -260,7 +256,6 @@ void terminate_processes(pid_t *team_pids  ,pid_t drawer, pid_t timer, pid_t *ar
 
 
     sleep(3);
-    free(team_pids);
     clean_all_semaphores();
     clean_all_shared_memories();
     exit(0);
