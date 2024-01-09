@@ -33,6 +33,7 @@ typedef struct {
 
 // Function to read config from file
 Config read_config(const char *filename);
+pid_t arr_customers_pid[MAXIMUM_NUM_OF_CUSTOMERS];
 
 // Structure for items in the supermarket
 typedef struct {
@@ -71,19 +72,25 @@ void read_items(const char *filename) {
     for (int i = 0; i < c_values.numberOfProducts; ++i) {
         fgets(line, sizeof(line), file);
 
+        // Initialize storageAmount and shelfAmount with default values
+        int storageAmountFromFile, shelfAmountFromFile;
 
-        if(c_values.amountPerProductOnShelves == 0 ){
+        // Read from file first, regardless of the condition
+        sscanf(line, "%[^,],%d,%d", products[i].name, &storageAmountFromFile, &shelfAmountFromFile);
 
-            // if we want to read the shelf amount from product file
-            sscanf(line, "%[^,],%d,%d", products[i].name, &products[i].storageAmount, &products[i].shelfAmount);
-        }else{
-            // if we want to read the shelf amount from config file
-            sscanf(line, "%[^,],%d", products[i].name, &products[i].storageAmount);
-            products[i].shelfAmount = c_values.amountPerProductOnShelves;
+        // Determine storage amount
+        if (c_values.amountPerProductInStorage == 0) {
+            products[i].storageAmount = storageAmountFromFile;
+        } else {
+            products[i].storageAmount = c_values.amountPerProductInStorage;
         }
 
-
-
+        // Determine shelf amount
+        if (c_values.amountPerProductOnShelves == 0) {
+            products[i].shelfAmount = shelfAmountFromFile;
+        } else {
+            products[i].shelfAmount = c_values.amountPerProductOnShelves;
+        }
     }
 
     fclose(file);

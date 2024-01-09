@@ -1,7 +1,7 @@
-Milk,20,18
-Bread,20,20
-Eggs,20,20
-Apples,20,20
+Milk,80,18
+Bread,80,20
+Eggs,80,20
+Apples,80,20
 Cheese, 150, 22
 Bananas, 120, 15
 Oranges, 80, 18

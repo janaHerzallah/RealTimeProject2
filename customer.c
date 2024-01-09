@@ -25,6 +25,16 @@ int main(int argc, char** argv ) {
     //print_customer_data(&customer_info);
    // printf("\n \n");
 
+   for (int i =0 ; i < MAXIMUM_NUM_OF_CUSTOMERS; i++){
+
+            if (arr_customers_pid[i] == getppid()){
+           arr_customers_pid[i] = 0;
+           break;
+       }
+
+   }
+
+
     exit(0);
 }
 

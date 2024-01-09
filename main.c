@@ -164,7 +164,6 @@ int main( int argc, char *argv[] ){
 
 
   // Set your desired customer capacity
-pid_t arr_customers_pid[c.customerCapacity];
 
 
     int j = 0;
@@ -217,6 +216,7 @@ pid_t arr_customers_pid[c.customerCapacity];
 
 
     while (1){
+
         if (terminate_flag) {
             printf(" Main Process End\n");
             terminate_processes(team_pids,drawer, timer, arr_customers_pid, j); // Ensure 'j' is the actual count of customer processes.
@@ -252,7 +252,11 @@ void terminate_processes(pid_t *team_pids  ,pid_t drawer, pid_t timer, pid_t *ar
     sleep(3);
 
     for(int i = 0; i < customerCapacity; i++) {
-        kill(arr_customers_pid[i], SIGKILL);
+
+        if (arr_customers_pid[i] > 0) { // Validate PID
+            kill(arr_customers_pid[i], SIGKILL); // Use SIGTERM for graceful termination
+        }
+
     }
 
 

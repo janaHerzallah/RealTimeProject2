@@ -1,10 +1,10 @@
-customerCapacity=40
-interval_seconds=10
+customerCapacity=80
+interval_seconds=1
 SHOPPING_TIME_Max=5
 numberOfProducts=4
-amountPerProductOnShelves=8
-amountPerProductInStorage=500
-numberOfShelvingTeams=2
+amountPerProductOnShelves=20
+amountPerProductInStorage=100
+numberOfShelvingTeams=3
 numberOfEmployeesPerTeam=8
 productRestockThreshold=5
 minCustomerArrivalRate=1
@@ -15,4 +15,3 @@ startHour=3
 startMinute=00
 endHour=15
 endMinute=15
-
