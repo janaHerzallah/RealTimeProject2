@@ -126,6 +126,12 @@ void pick_up_items(struct Customer *customer) {
         pick_product_semaphore = get_semaphore(shared_items[random_index].semName);
         lock_sem(pick_product_semaphore);
 
+        if(shared_items[random_index].shelfAmount <= 0){
+            unlock_sem(pick_product_semaphore);
+            close_semaphore(pick_product_semaphore);
+            continue;
+        }
+
         shared_items[random_index].shelfAmount--;
         customer->cart[i] = random_index;
         customer->num_items++;
@@ -201,10 +207,9 @@ void get_shared_products(Product *destinationArray) {
 
     for (int i = 0; i < num_of_products; i++) {
         pick_product_semaphore = get_semaphore(shared_items[i].semName);
-        lock_sem(pick_product_semaphore);
 
       destinationArray[i] = shared_items[i] ;
-        unlock_sem(pick_product_semaphore);
+
         close_semaphore(pick_product_semaphore);
 
 

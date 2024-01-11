@@ -59,34 +59,10 @@ time_t* read_current_time(){
         exit(-1);
     }
 
-    // For open the STM Semaphore
-    sem_t* stm_sem = sem_open(STM_SEM, 0);
-    if(stm_sem == SEM_FAILED){
-        perror("STM Semaphore Open Error, The timer stopped, then stop my process\n");
-        exit(-1);
-    }
 
-
-    // When return 0 for successful access
-    if (sem_wait(stm_sem) < 0){
-        perror("STM Semaphore Wait Error\n");
-        exit(-1);
-    }
-
-    /* Mutex Code */
     current_time[0] = stm_mem->current_hours;
     current_time[1] = stm_mem->current_minutes;
-    /* End Mutex Code */
 
-
-    // When return -1 then wrong issue happened
-    if (sem_post(stm_sem) < 0){
-        perror("STM Semaphore Release Error\n");
-        exit(-1);
-    }
-
-    // Close the STM Semaphore
-    sem_close(stm_sem);
 
     // Detach the STM
     if (shmdt(stm_mem) == -1) {

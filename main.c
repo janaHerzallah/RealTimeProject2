@@ -30,6 +30,7 @@ void create_CNM_semaphore();
 
 
 
+
 void clean_all_semaphores();// clean all semaphores
 void clean_TimerSHM_semaphore();
 void clean_STM_semaphore();
@@ -121,6 +122,7 @@ int main( int argc, char *argv[] ){
 
     // creating teams  end  **********************************************************************************************************************
 
+    sleep(3);
 
 
     pid_t timer;
