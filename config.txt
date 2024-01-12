@@ -1,8 +1,8 @@
 customerCapacity=40
-interval_seconds=10
+interval_seconds=1
 SHOPPING_TIME_Max=5
 numberOfProducts=6
-amountPerProductOnShelves=17
+amountPerProductOnShelves=20
 amountPerProductInStorage=100
 numberOfShelvingTeams=3
 numberOfEmployeesPerTeam=8
