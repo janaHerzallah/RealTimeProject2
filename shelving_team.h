@@ -313,12 +313,10 @@ void *employeeFunction(void *arg) {
         pthread_mutex_lock(&employeeLock); //
 
         safe_unlock++; // make the manger go and see if there is any product to restock. unlock the semaphore of the product.
-        shared_items[productIndex].team_working_on_it = 0;
 
-        printf(" the value of team id is %d \n", shared_items[productIndex].team_working_on_it);
+        shared_items[productIndex].team_working_on_it = 0; // for openGl
 
         pthread_mutex_unlock(&employeeLock); //
-
 
         team.restockInfo.amountAvailable = 0; // Reset shared restock info
 
