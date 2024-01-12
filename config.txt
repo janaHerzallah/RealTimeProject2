@@ -1,7 +1,7 @@
 customerCapacity=40
 interval_seconds=1
 SHOPPING_TIME_Max=5
-numberOfProducts=6
+numberOfProducts=10
 amountPerProductOnShelves=20
 amountPerProductInStorage=100
 numberOfShelvingTeams=3
