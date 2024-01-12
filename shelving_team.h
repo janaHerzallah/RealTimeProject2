@@ -211,6 +211,7 @@ void *managerFunction(void *arg) {
                 printf(" iam manager %d i am waiting for employees to finish restocking \n", team.teamId);
             }
 
+
             sleep(1); // for making sure that employees are done with restocking
 
             unlock_sem(pick_product_semaphore);
@@ -226,12 +227,14 @@ void *managerFunction(void *arg) {
 
         go:
 
+        shared_items[productIndex].team_working_on_it = 0; // for openGl
         // Detach from shared memory
         if (shmdt(shared_items) == -1) {
             printf(" error \n");
             perror("shmdt");
             exit(EXIT_FAILURE);
         }
+      //  shared_items[productIndex].team_working_on_it = 0;
 
         sleep(BETWEEN_MANGER_CHECKS);  // Wait a bit before checking again
 
@@ -278,12 +281,17 @@ void *employeeFunction(void *arg) {
 
         while (shared_items[productIndex].shelfAmount < c.amountPerProductOnShelves && totalRestocked < team.restockInfo.amountAvailable ) {
 
+
             pthread_mutex_lock(&employeeLock); // Lock employeeLock for shared resource access
 
             if (!(shared_items[productIndex].shelfAmount >= c.amountPerProductOnShelves)) {
 
                 shared_items[productIndex].shelfAmount++;
             }
+
+
+            shared_items[productIndex].team_working_on_it = team.teamId; // Set team ID for product for openGl
+            printf(" the value of team id is %d \n", shared_items[productIndex].team_working_on_it);
 
             totalRestocked++;
             printf("Employee %d of team %d is restocking product %s, what we restocked for now on shelf %d\n", employeeID, team.teamId, shared_items[productIndex].name, totalRestocked);
@@ -297,6 +305,23 @@ void *employeeFunction(void *arg) {
 
         }
 
+
+
+        // reset team ID for product for openGl.
+        pthread_barrier_wait(&barrier_for_employee); // Wait for all employees to be ready to finish
+
+        pthread_mutex_lock(&employeeLock); //
+
+        safe_unlock++; // make the manger go and see if there is any product to restock. unlock the semaphore of the product.
+        shared_items[productIndex].team_working_on_it = 0;
+
+        printf(" the value of team id is %d \n", shared_items[productIndex].team_working_on_it);
+
+        pthread_mutex_unlock(&employeeLock); //
+
+
+        team.restockInfo.amountAvailable = 0; // Reset shared restock info
+
         // Detach from shared memory
         if (shmdt(shared_items) == -1) {
             perror("shmdt");
@@ -304,16 +329,6 @@ void *employeeFunction(void *arg) {
             exit(EXIT_FAILURE);
         }
 
-
-        pthread_barrier_wait(&barrier_for_employee); // Wait for all employees to be ready to finish
-
-        pthread_mutex_lock(&employeeLock); //
-
-        safe_unlock++; // make the manger go and see if there is any product to restock. unlock the semaphore of the product.
-
-        pthread_mutex_unlock(&employeeLock); //
-
-        team.restockInfo.amountAvailable = 0; // Reset shared restock info
 
     }
 
