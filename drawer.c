@@ -31,7 +31,7 @@ void drawCashier2();
 void drawCashier3();
 
 
-int peopleInTheInnerHall = 0;
+int customer_count = 0;
 int cashier1_totalCount = 0;
 int  cashier3_totalCount = 0;
 int cashier2_totalCnt=0;
@@ -49,19 +49,7 @@ int bread_in_shelf = 0;
 int apples_in_shelf = 0;
 
 
-int queueCount[3] = {0, 0, 0};
-int itemCount[3] = {0, 0, 0};
-
-int   receptionHallMaleCount = 0,
-        cashier_count = 0,
-        birthCertificateCnt = 0,
-        bakeryCnt = 0,
-        dair_eggsCnt = 0,
-        packagedCnt = 0,
-
-        unservedCostumersCnt=0,
-        cashier_stoppedCnt=0,
-        fram_rate = 1900 / 2;
+int fram_rate = 1900 / 2;
 
 float mouseX = 0.0f;
 float mouseY = 0.0f;
@@ -326,7 +314,7 @@ void drawChairs()
             jTemp = j;
             glVertex2i(i, j);
             peopleCount++;
-            if (peopleCount == peopleInTheInnerHall)
+            if (peopleCount == customer_count)
             {
                 f = 1;
                 break;
@@ -543,33 +531,29 @@ void drawText()
     glColor3f(1.0, 0.8, 0.5);
     char
             customerCount[30] = "customerCount : ",
-            cashierCount[30] = "cashierCount : ",
             team1[30] = "Team 1  Employees Count :  ",
             team2[30]="Team 2  Employees Count :  ",
             team3[30] = "Team 3 Employees Count : ",
-            freshProduce[30] = "Milk : ",
+            Milk_on_storage[30] = "Milk : ",
             bakery[30] = " Eggs : ",
             dair_eggs[30] = "Bread  : ",
             packaged[30] = "Apples : ",
-            unservedCostumers[30]="",
-            cashier_stopped[30]="",
             employees1[5] = "",
             employees3[5] = "",
-            numberOfMaleInTheReceptionHall[5] = "",
-            numberOfFemaleInTheReceptionHall[5] = "",
-            numberOfBusyTellersForBirthCertificate[7]="",
-            numberOfBusyTellersForbakery[8]="",
-            numberOfBusyTellersFordair_eggs[8]="",
-            numberOfBusyTellersForpackaged[8]="",
             employees2[5]="",
-            numberOfunservedCostumers[3]="",
-            numberOfcashier_stopped[3]="";
+            number_of_customers[5] = "",
+            milk_on_storage[7]="",
+            bread_on_storage[8]="",
+            eggs_on_storage[8]="",
+            apples_on_storage[8]="";
 
-    char  cashierQueueInfo1[30], cashierQueueInfo2[30], cashierQueueInfo3[30],
-            cashierItemsInfo1[30], cashierItemsInfo2[30], cashierItemsInfo3[30];
+
+
 
     char milk_in_shelf_char[20], eggs_in_shelf_char[20], bread_in_shelf_char[20], apples_in_shelf_char[20];
 
+
+    sprintf(number_of_customers, "%d", customer_count);
 
     // Prepare strings for queue counts
     sprintf(milk_in_shelf_char, "Milk in shelf : %d", milk_in_shelf);
@@ -577,43 +561,27 @@ void drawText()
     sprintf(bread_in_shelf_char, "Eggs in shelf : %d", bread_in_shelf);
     sprintf(apples_in_shelf_char, "Apples in shelf  %d", apples_in_shelf);
 
-
-    sprintf(cashierItemsInfo2, "Cashier 2 happiness: %d", 0);
-    sprintf(cashierItemsInfo3, "Cashier 3 happiness: %d", 0);
-
+    sprintf(milk_on_storage, "%d", milk_count);
+    sprintf(bread_on_storage, "%d", bread_count );
+    sprintf(eggs_on_storage, "%d", eggs_count);
+    sprintf(apples_on_storage, "%d", apples_count);
 
     sprintf(employees1, "%d", c.numberOfEmployeesPerTeam);
     sprintf(employees2, "%d", c.numberOfEmployeesPerTeam);
     sprintf(employees3, "%d", c.numberOfEmployeesPerTeam);
-    sprintf(numberOfFemaleInTheReceptionHall, "%d", cashier_count);
-    sprintf(numberOfMaleInTheReceptionHall, "%d", peopleInTheInnerHall);
-
-
-    sprintf(numberOfBusyTellersForBirthCertificate, "%d", milk_count);
-    sprintf(numberOfBusyTellersForbakery, "%d", bread_count );
-    sprintf(numberOfBusyTellersFordair_eggs, "%d", eggs_count);
-    sprintf(numberOfBusyTellersForpackaged, "%d", apples_count);
-
-
-    sprintf(numberOfunservedCostumers, "%d", unservedCostumersCnt);
-    sprintf(numberOfcashier_stopped, "%d", cashier_stoppedCnt);
 
 
     strcat(team1, employees1);
     strcat(team2,employees2);
     strcat(team3, employees3);
 
-    strcat(customerCount, numberOfMaleInTheReceptionHall);
-    strcat(cashierCount, numberOfFemaleInTheReceptionHall);
-
-    strcat(freshProduce, numberOfBusyTellersForBirthCertificate);
-    strcat(bakery, numberOfBusyTellersForbakery);
-    strcat(dair_eggs, numberOfBusyTellersFordair_eggs);
-    strcat(packaged, numberOfBusyTellersForpackaged);
+    strcat(customerCount, number_of_customers);
+    strcat(Milk_on_storage, milk_on_storage);
+    strcat(bakery, bread_on_storage);
+    strcat(dair_eggs, eggs_on_storage);
+    strcat(packaged, apples_on_storage);
 
 
-    strcat(unservedCostumers, numberOfunservedCostumers);
-    strcat(cashier_stopped, numberOfcashier_stopped);
 
 
 
@@ -622,7 +590,7 @@ void drawText()
     renderText(-9, -15, GLUT_BITMAP_TIMES_ROMAN_24, team3); // cashier3 queue
     renderText(2, 10, GLUT_BITMAP_TIMES_ROMAN_24, customerCount); //cousomer count
     //  renderText(-18, -2, GLUT_BITMAP_TIMES_ROMAN_24, cashierCount); // cahier count
-    renderText(14, 9, GLUT_BITMAP_TIMES_ROMAN_24, freshProduce);
+    renderText(14, 9, GLUT_BITMAP_TIMES_ROMAN_24, Milk_on_storage);
     renderText(14, 3, GLUT_BITMAP_TIMES_ROMAN_24, bakery);
     renderText(14, -3, GLUT_BITMAP_TIMES_ROMAN_24, dair_eggs);
     renderText(14, -9, GLUT_BITMAP_TIMES_ROMAN_24, packaged);
@@ -634,9 +602,6 @@ void drawText()
     renderText(-18, 4, GLUT_BITMAP_TIMES_ROMAN_24,  eggs_in_shelf_char); // Queue info for Cashier 3
     renderText(-18, 2, GLUT_BITMAP_TIMES_ROMAN_24, apples_in_shelf_char);  // Item info for Cashier 1
 
-
-    // renderText(-18, -8, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo2);  // Item info for Cashier 2
-    // renderText(-18, -10, GLUT_BITMAP_TIMES_ROMAN_24, cashierItemsInfo3);  // Item info for Cashier 3
 
     renderText(13, 18, GLUT_BITMAP_TIMES_ROMAN_24, drawer_current_time);
 
@@ -662,7 +627,7 @@ void readDataFromSharedMemory()
 
 
 
-    peopleInTheInnerHall = get_total_customers();
+    customer_count = get_total_customers();
 
     get_shared_products(items_count);
 
