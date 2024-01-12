@@ -223,6 +223,7 @@ int main( int argc, char *argv[] ){
 
     printf("Entering  main loop\n");
 
+    // safe wait until have a signal to terminate.
     while (1){
 
         if (terminate_flag) {

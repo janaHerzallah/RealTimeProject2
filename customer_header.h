@@ -137,6 +137,8 @@ void pick_up_items(struct Customer *customer) {
         customer->cart[i] = random_index;
         customer->num_items++;
 
+        sleep(1); // sleep for pick one item from shelf and put it in cart. other customers will wait. 1 second.
+
         unlock_sem(pick_product_semaphore);
         close_semaphore(pick_product_semaphore);
 
@@ -179,7 +181,6 @@ void fill_cart(struct Customer *customer) {
 
    // printf("\n----------------------------------------\n");
     pick_up_items(customer);
-
     //printf("\n----------------------------------------\n");
 
 
